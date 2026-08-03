@@ -28,3 +28,21 @@ __pycache__/
 #   projects/*/audio/*.json   declared cut lists (actual post-blend boundaries)
 #   projects/*/analysis/*.png storyboards + evidence strips
 #   ledgers/                  rejects + lessons - MERGE on conflict, never overwrite
+
+# ---- desktop-side additions: keep the repo clean ----
+assets/nev/*.jpeg
+assets/nev/*.jpg
+RESTORE/
+_pre-sync-backup/
+work/
+output/
+models/
+assets/broll/
+assets/sfx/
+assets/shared/
+assets/pillars/*/refs/*.mp4
+ffmpeg-extracted/
+*.png
+!assets/pillars/**/*.png
+!projects/*/analysis/*.png
+*.spec
