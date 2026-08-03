@@ -1,0 +1,56 @@
+{
+  "car_cinematic": {
+    "bgm": "assets/pillars/car_cinematic/bgm",
+    "sfx": [
+      "assets/pillars/car_cinematic/sfx",
+      "assets/shared/sfx/transition",
+      "assets/shared/sfx/impact",
+      "assets/shared/sfx/ui"
+    ],
+    "plates": "assets/pillars/car_cinematic/plates",
+    "refs": "assets/pillars/car_cinematic/refs",
+    "note": "drift phonk 140-170 BPM, cowbell signature. NOT the travel beds."
+  },
+  "travel_vlog": {
+    "bgm": "assets/pillars/travel_vlog/bgm",
+    "sfx": [
+      "assets/pillars/travel_vlog/sfx",
+      "assets/shared/sfx/transition",
+      "assets/shared/sfx/impact",
+      "assets/shared/sfx/ui"
+    ],
+    "plates": "assets/pillars/travel_vlog/plates",
+    "refs": "assets/pillars/travel_vlog/refs",
+    "note": "warm/organic. marimba + hand percussion."
+  },
+  "car_review": {
+    "bgm": "assets/pillars/car_review/bgm",
+    "sfx": [
+      "assets/pillars/car_review/sfx",
+      "assets/shared/sfx/transition",
+      "assets/shared/sfx/impact",
+      "assets/shared/sfx/ui"
+    ],
+    "plates": "assets/pillars/car_review/plates",
+    "refs": "assets/pillars/car_review/refs",
+    "note": "spoken; bed sits low."
+  },
+  "industry": {
+    "bgm": "assets/pillars/industry/bgm",
+    "sfx": [
+      "assets/pillars/industry/sfx",
+      "assets/shared/sfx/transition",
+      "assets/shared/sfx/impact",
+      "assets/shared/sfx/ui"
+    ],
+    "plates": "assets/pillars/industry/plates",
+    "refs": "assets/pillars/industry/refs",
+    "note": "B2B; proof + on-screen data."
+  },
+  "_shared": {
+    "fonts": "assets/shared/fonts",
+    "nev": "assets/shared/nev",
+    "broll": "assets/shared/broll",
+    "stems": "assets/shared/stems"
+  }
+}

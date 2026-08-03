@@ -1,0 +1,56 @@
+# TALYX — what does NOT go to GitHub
+#
+# The AI folder is ~7.7 GB. GitHub rejects files over 100 MB and a repo this size is
+# unusable. Only the SYSTEM travels: code, docs, measured profiles, ledgers.
+# Media stays local and moves by other means (Drive, or regenerate it).
+
+# ---- render intermediates: fully regenerable ----
+work/_*_tmp/
+work/intermediate/
+work/quarantine/
+work/projects/*/tmp/
+*.frames/
+
+# ---- big media banks ----
+assets/broll/
+assets/sfx/
+assets/bgm/inbox/
+assets/bgm/utility-beds/
+assets/bgm/mixkit/
+assets/shared/stems/
+
+# ---- reference videos: 186 MB. The MEASURED PROFILES derived from them ARE tracked,
+#      so the numbers survive even though the source videos don't.
+assets/pillars/*/refs/*.mp4
+assets/pillars/*/refs/*.mov
+assets/pillars/*/refs/*.webm
+
+# ---- Whisper weights: 280 MB, re-downloadable ----
+models/
+
+# ---- generated + source video ----
+output/*.mp4
+work/*.mp4
+work/*.wav
+work/*.png
+RESTORE/
+
+# ---- persona photos: personal, and large ----
+assets/nev/
+
+# ---- but DO keep these, they are small and they are the point ----
+!assets/pillars/**/*.md
+!assets/pillars/**/*.json
+!assets/pillars/*/plates/*.png
+!work/ledgers/*.json
+!work/plans/*.md
+!work/qc/*.png
+
+# ---- housekeeping ----
+__pycache__/
+*.pyc
+*.spec
+ffmpeg-extracted/
+*.zip
+work/last-run.txt
+work/last-import.txt

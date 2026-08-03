@@ -1,0 +1,145 @@
+@echo off
+setlocal EnableDelayedExpansion
+cd /d "%~dp0"
+title TALYX - Sync with GitHub (laptop ^<-^> desktop)
+set "REPO=https://github.com/chunghaow-boop/AI-AUTOMATION.git"
+
+echo ======================================================
+echo   TALYX SYNC        %CD%
+echo   repo: chunghaow-boop/AI-AUTOMATION
+echo ======================================================
+echo.
+
+where git >nul 2>&1
+if errorlevel 1 (
+  echo   ^^! git not found. Install from https://git-scm.com/download/win
+  goto :end
+)
+
+REM Windows marks this folder as owned by Administrators; git refuses to operate in it
+REM for the current user until the path is whitelisted. Safe: it only trusts THIS folder.
+git config --global --add safe.directory "%CD%" >nul 2>&1
+git config --global --add safe.directory "%CD:\=/%" >nul 2>&1
+
+REM Clear stale git lock files. Claude's sandbox created these during a recovery and its
+REM mount cannot delete them; Windows can. A stuck index.lock = "error: could not write index".
+if exist ".git\index.lock"       del /f /q ".git\index.lock"       >nul 2>&1
+if exist ".git\refs\stash.lock" del /f /q ".git\refs\stash.lock" >nul 2>&1
+for %%L in (".git\HEAD.lock" ".git\config.lock" ".git\ORIG_HEAD.lock") do (
+  if exist %%L del /f /q %%L >nul 2>&1
+)
+
+REM ===========================================================
+REM  FIRST RUN on this machine: link folder to the repo.
+REM  The repo (laptop, 2026-08-01) is NEWER than this desktop -
+REM  it has the engine rebuild. Repo wins for shared files, but
+REM  everything local is backed up first so nothing is lost.
+REM ===========================================================
+set "LINKED=0"
+if exist ".git\" (
+  git rev-parse --verify HEAD >nul 2>&1 && set "LINKED=1"
+)
+if "!LINKED!"=="1" goto :daily
+if exist ".git\" echo   .git exists but no branch checked out ^(a previous run failed^) — redoing first-time link.
+
+echo   No .git — first-time link.
+echo.
+echo   [1/4] Backing up local versions to _pre-sync-backup\
+set "BK=_pre-sync-backup"
+if not exist "%BK%" mkdir "%BK%"
+for %%D in (tools docs skills ledgers) do (
+  if exist "%%D\" xcopy /e /i /q /y "%%D" "%BK%\%%D" >nul
+)
+if exist "work\ledgers\" xcopy /e /i /q /y "work\ledgers" "%BK%\work-ledgers" >nul
+if exist "work\plans\"   xcopy /e /i /q /y "work\plans"   "%BK%\work-plans" >nul
+for %%F in (CLAUDE.md README.md RUNNER.md HANDOVER.md .gitignore) do (
+  if exist "%%F" copy /y "%%F" "%BK%\" >nul
+)
+echo         done — every shared file kept a local copy.
+
+echo   [2/4] Linking and fetching...
+git init >nul 2>&1
+git remote add origin "%REPO%" >nul 2>&1
+git fetch origin
+if errorlevel 1 ( echo   ^^! fetch failed — check network. & goto :end )
+
+set "BR=main"
+git show-ref --verify --quiet refs/remotes/origin/main || set "BR=master"
+
+echo   [3/4] Checking out %BR% — REPO WINS for shared files
+echo         (your local copies are in %BK%\)
+git checkout -f -B %BR% origin/%BR%
+if errorlevel 1 ( echo   ^^! checkout failed. Nothing lost — see %BK%\ & goto :end )
+
+echo   [4/4] Restoring desktop-only work the repo does not have...
+if exist "%BK%\tools\build_s450.py"  copy /y "%BK%\tools\build_s450.py"  "tools\" >nul
+if exist "%BK%\work-plans\S450-PHASE1.md" (
+  if not exist "plans\" mkdir plans
+  copy /y "%BK%\work-plans\S450-PHASE1.md" "plans\" >nul
+)
+echo.
+echo   LINKED. Repo state is now live; desktop-only work restored.
+echo.
+echo   IMPORTANT — LEDGERS MERGE, NEVER OVERWRITE (repo rule):
+echo     repo ledgers\ is now live (22 rejects, 4 topics = superset of
+echo     this desktop's 19/1, so nothing should be missing — but your
+echo     originals are in %BK%\work-ledgers\ if you want to diff).
+echo.
+echo   Ask Claude to union-merge the ledger JSONs if in doubt.
+goto :status
+
+REM ===========================================================
+REM  DAILY: pull before you sit down, push before you stand up.
+REM ===========================================================
+:daily
+for /f "delims=" %%B in ('git rev-parse --abbrev-ref HEAD 2^>nul') do set "BR=%%B"
+echo   branch: !BR!
+echo.
+
+git diff --quiet 2>nul && git diff --cached --quiet 2>nul
+if errorlevel 1 (
+  echo   Local changes found — stashing so the pull cannot clobber them.
+  REM NO -u here. Stashing untracked files once deleted SYNC.bat ITSELF mid-run,
+  REM taking build_s450.py and 90 other files with it. Tracked changes only;
+  REM untracked files cannot be clobbered by a pull anyway.
+  git stash push -m "SYNC autostash %DATE% %TIME%" >nul
+  set "STASHED=1"
+) else set "STASHED=0"
+
+echo   pulling...
+git pull --rebase origin !BR!
+if errorlevel 1 (
+  echo   ^^! conflict. Nothing lost. Your work: git stash list
+  goto :end
+)
+if "!STASHED!"=="1" (
+  git stash pop || echo   ^^! stash pop conflicted — work is safe in: git stash list
+)
+
+:status
+echo.
+echo ------------------------------------------------------
+git log --oneline -6
+echo ------------------------------------------------------
+git status --short | findstr /v "^$" | more +0
+echo.
+for /f %%C in ('git status --porcelain ^| find /c /v ""') do set "N=%%C"
+if "!N!"=="0" ( echo   Up to date. Nothing to push. & goto :end )
+
+echo   !N! local change^(s^) not on GitHub.
+set /p "DOPUSH=  Commit and push now? (y/N) "
+if /i not "!DOPUSH!"=="y" ( echo   Skipped. & goto :end )
+set /p "MSG=  Commit message: "
+if "!MSG!"=="" set "MSG=sync from %COMPUTERNAME%"
+git add -A
+git commit -m "!MSG!"
+git push origin !BR!
+if errorlevel 1 (
+  echo   ^^! push failed — likely sign-in. Run once:
+  echo       git config --global credential.helper manager
+  echo   then push again; Windows will prompt for GitHub login.
+)
+
+:end
+echo.
+pause

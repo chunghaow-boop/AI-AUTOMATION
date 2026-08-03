@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "higgsfield": {
+      "type": "http",
+      "url": "https://higgsfield.ai/mcp",
+      "note": "Replace with your own Higgsfield MCP URL from higgsfield.ai settings. Claude Code will prompt for auth on first use. Never paste API keys into this file if the server supports OAuth."
+    }
+  }
+}
