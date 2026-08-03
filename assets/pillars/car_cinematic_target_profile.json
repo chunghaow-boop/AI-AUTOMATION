@@ -1,0 +1,339 @@
+{
+  "pillar": "car_cinematic",
+  "studied_at": "2026-07-30",
+  "stale_after_days": 60,
+  "expires": "2026-09-28",
+  "note": "calibration snapshot from 5 references he selected",
+  "references": [
+    {
+      "file": "snaptik_7631962430926523668_v3.mp4",
+      "duration": 18.53,
+      "fps": 30.0,
+      "cuts": 15,
+      "cuts_per_min": 48.6,
+      "cut_times": [
+        4.1,
+        4.87,
+        5.63,
+        6.43,
+        7.17,
+        7.87,
+        8.67,
+        9.47,
+        10.17,
+        10.97,
+        11.73,
+        12.5,
+        13.3,
+        14.07,
+        14.83
+      ],
+      "shot_lengths": [
+        4.1,
+        0.77,
+        0.77,
+        0.8,
+        0.73,
+        0.7,
+        0.8,
+        0.8,
+        0.7,
+        0.8,
+        0.77,
+        0.77,
+        0.8,
+        0.77,
+        0.77,
+        3.67
+      ],
+      "shot_median": 0.77,
+      "shot_max": 4.1,
+      "hard_cut_pct": 40,
+      "blended_pct": 60,
+      "black_point": 2.0,
+      "white_point": 216.0,
+      "saturation": 127.7,
+      "lufs": -24.7,
+      "lra": 6.5,
+      "true_peak": -14.2,
+      "bpm": 78.4,
+      "cuts_on_grid_pct": 0,
+      "spectrum": {
+        "sub": 60.6,
+        "body": 34.4,
+        "presence": 3.7,
+        "air": 0.7
+      }
+    },
+    {
+      "file": "snaptik_7541916507043925279_v3.mp4",
+      "duration": 10.43,
+      "fps": 30.0,
+      "cuts": 2,
+      "cuts_per_min": 11.5,
+      "cut_times": [
+        5.03,
+        5.9
+      ],
+      "shot_lengths": [
+        5.03,
+        0.87,
+        4.5
+      ],
+      "shot_median": 4.5,
+      "shot_max": 5.03,
+      "hard_cut_pct": 50,
+      "blended_pct": 50,
+      "black_point": 8.0,
+      "white_point": 203.0,
+      "saturation": 65.4,
+      "lufs": -14.0,
+      "lra": 0.9,
+      "true_peak": -4.6,
+      "bpm": 100.5,
+      "cuts_on_grid_pct": 0,
+      "spectrum": {
+        "sub": 91.8,
+        "body": 7.6,
+        "presence": 0.1,
+        "air": 0.0
+      }
+    },
+    {
+      "file": "snaptik_7446071634366057760_v3.mp4",
+      "duration": 18.02,
+      "fps": 60.0,
+      "cuts": 12,
+      "cuts_per_min": 40.0,
+      "cut_times": [
+        4.52,
+        5.25,
+        6.73,
+        8.25,
+        8.98,
+        9.73,
+        11.23,
+        11.98,
+        12.73,
+        14.23,
+        14.98,
+        15.73
+      ],
+      "shot_lengths": [
+        4.52,
+        0.73,
+        1.48,
+        1.52,
+        0.73,
+        0.75,
+        1.5,
+        0.75,
+        0.75,
+        1.5,
+        0.75,
+        0.75,
+        2.27
+      ],
+      "shot_median": 0.75,
+      "shot_max": 4.52,
+      "hard_cut_pct": 92,
+      "blended_pct": 8,
+      "black_point": 9.0,
+      "white_point": 207.0,
+      "saturation": 55.7,
+      "lufs": -22.4,
+      "lra": 4.0,
+      "true_peak": -9.0,
+      "bpm": 80.0,
+      "cuts_on_grid_pct": 100,
+      "spectrum": {
+        "sub": 81.4,
+        "body": 17.5,
+        "presence": 0.6,
+        "air": 0.0
+      }
+    },
+    {
+      "file": "ssstik.io_@azmiedtz03_1785425601570.mp4",
+      "duration": 21.47,
+      "fps": 30.0,
+      "cuts": 16,
+      "cuts_per_min": 44.7,
+      "cut_times": [
+        1.27,
+        3.27,
+        5.73,
+        6.57,
+        8.27,
+        8.63,
+        9.03,
+        10.7,
+        13.1,
+        13.5,
+        14.8,
+        15.2,
+        15.6,
+        17.23,
+        18.93,
+        20.6
+      ],
+      "shot_lengths": [
+        1.27,
+        2.0,
+        2.47,
+        0.83,
+        1.7,
+        0.37,
+        0.4,
+        1.67,
+        2.4,
+        0.4,
+        1.3,
+        0.4,
+        0.4,
+        1.63,
+        1.7,
+        1.67,
+        0.83
+      ],
+      "shot_median": 1.3,
+      "shot_max": 2.47,
+      "hard_cut_pct": 81,
+      "blended_pct": 19,
+      "black_point": 2.0,
+      "white_point": 234.5,
+      "saturation": 132.7,
+      "lufs": -8.5,
+      "lra": 2.1,
+      "true_peak": 2.0,
+      "bpm": 145.8,
+      "cuts_on_grid_pct": 88,
+      "spectrum": {
+        "sub": 60.3,
+        "body": 34.2,
+        "presence": 5.1,
+        "air": 0.4
+      }
+    },
+    {
+      "file": "ssstik.io_@d2_shots_1785425577828.mp4",
+      "duration": 15.44,
+      "fps": 25.0,
+      "cuts": 15,
+      "cuts_per_min": 58.3,
+      "cut_times": [
+        1.36,
+        1.92,
+        2.6,
+        4.24,
+        5.6,
+        6.96,
+        7.68,
+        8.4,
+        11.04,
+        11.48,
+        12.0,
+        12.44,
+        14.04,
+        14.48,
+        14.76
+      ],
+      "shot_lengths": [
+        1.36,
+        0.56,
+        0.68,
+        1.64,
+        1.36,
+        1.36,
+        0.72,
+        0.72,
+        2.64,
+        0.44,
+        0.52,
+        0.44,
+        1.6,
+        0.44,
+        0.28,
+        0.64
+      ],
+      "shot_median": 0.7,
+      "shot_max": 2.64,
+      "hard_cut_pct": 73,
+      "blended_pct": 27,
+      "black_point": 1.0,
+      "white_point": 175.0,
+      "saturation": 91.5,
+      "lufs": -11.3,
+      "lra": 3.1,
+      "true_peak": 1.1,
+      "bpm": 163.0,
+      "cuts_on_grid_pct": 40,
+      "spectrum": {
+        "sub": 79.7,
+        "body": 13.8,
+        "presence": 2.4,
+        "air": 0.2
+      }
+    }
+  ],
+  "profile": {
+    "n": 5,
+    "cuts_per_min": {
+      "median": 44.7,
+      "range": [
+        11.5,
+        58.3
+      ]
+    },
+    "shot_median": {
+      "median": 0.77,
+      "range": [
+        0.7,
+        4.5
+      ]
+    },
+    "shot_max": {
+      "median": 4.1,
+      "range": [
+        2.47,
+        5.03
+      ]
+    },
+    "blended_pct": {
+      "median": 27,
+      "range": [
+        8,
+        60
+      ]
+    },
+    "bpm": {
+      "median": 100.5,
+      "range": [
+        78.4,
+        163.0
+      ]
+    },
+    "cuts_on_grid_pct": {
+      "median": 40
+    },
+    "lufs": {
+      "median": -14.0,
+      "range": [
+        -24.7,
+        -8.5
+      ]
+    },
+    "lra": {
+      "median": 3.1
+    },
+    "true_peak": {
+      "median": -4.6
+    },
+    "black_point": {
+      "median": 2.0
+    },
+    "saturation": {
+      "median": 91.5
+    }
+  }
+}

@@ -1,0 +1,166 @@
+{
+  "_source": "23 reference videos he selected, measured 2026-07-30",
+  "_expires": "2026-09-28",
+  "_read_first": "assets/pillars/PILLAR-PROFILES.md",
+  "car_cinematic": {
+    "family": "short_music_led",
+    "duration_s": [
+      10,
+      22
+    ],
+    "shot_median_s": 0.77,
+    "shot_median_range": [
+      0.7,
+      4.5
+    ],
+    "cuts_per_min": 44.7,
+    "blended_pct": 20,
+    "bpm": [
+      140,
+      165
+    ],
+    "sub_bass_pct": [
+      60,
+      92
+    ],
+    "black_point": 2.0,
+    "saturation": 91.5,
+    "captions": "lyric-synced, 1-2 words, huge, centre",
+    "lighting": "night, hard artificial, car emits",
+    "shot_mix": {
+      "exterior": 30,
+      "wheel_brake": 15,
+      "light_macro": 15,
+      "interior": 25,
+      "badge": 10,
+      "human": 5
+    },
+    "blended_range": [
+      6,
+      33
+    ],
+    "blend_width_ms": [
+      240,
+      560
+    ],
+    "_blend_note": "frame-level study corrects the earlier 27% heuristic: azmiedtz 1/16 (6%), d2_shots 5/15 (33%). Most cuts are HARD at 33-67ms. Blends are RARE and DELIBERATE - 240-560ms wide, used as section punctuation, not as a default.",
+    "_burst_pattern": "cuts arrive in bursts one beat apart (0.40s at 145.8 BPM) then hold. Not a uniform cut rate."
+  },
+  "travel_vlog": {
+    "family": "short_music_led",
+    "duration_s": [
+      16,
+      29
+    ],
+    "shot_median_s": 1.13,
+    "shot_median_range": [
+      0.6,
+      2.51
+    ],
+    "cuts_per_min": 40.3,
+    "blended_pct": 0,
+    "bpm": [
+      95,
+      115
+    ],
+    "black_point": 10.0,
+    "saturation": 74.5,
+    "captions": "sentence fragments",
+    "note": "HARD CUTS ONLY - 5 of 6 references use zero blended transitions"
+  },
+  "car_review": {
+    "family": "long_speech_led",
+    "duration_s": [
+      58,
+      107
+    ],
+    "speech_pct": [
+      81,
+      99
+    ],
+    "body_band_pct": [
+      72,
+      97
+    ],
+    "sub_bass_pct": [
+      0,
+      12
+    ],
+    "transients_per_min": [
+      184,
+      292
+    ],
+    "note": "cut to sentence boundaries, not a beat grid",
+    "n": 7,
+    "shot_median_s": 3.6,
+    "shot_median_range": [
+      2.35,
+      7.3
+    ],
+    "cuts_per_min": 14.3,
+    "cuts_per_min_range": [
+      5.0,
+      22.5
+    ],
+    "blended_pct": 16,
+    "blended_range": [
+      0,
+      70
+    ],
+    "black_point": 8.0,
+    "saturation": 52.9
+  },
+  "industry": {
+    "family": "long_speech_led",
+    "duration_s": [
+      35,
+      181
+    ],
+    "speech_pct": [
+      63,
+      96
+    ],
+    "body_band_pct": [
+      61,
+      93
+    ],
+    "sub_bass_pct": [
+      1,
+      33
+    ],
+    "transients_per_min": [
+      270,
+      329
+    ],
+    "n": 5,
+    "shot_median_s": 2.52,
+    "shot_median_range": [
+      1.6,
+      9.95
+    ],
+    "cuts_per_min": 17.9,
+    "cuts_per_min_range": [
+      5.0,
+      23.2
+    ],
+    "blended_pct": 0,
+    "blended_range": [
+      0,
+      17
+    ],
+    "black_point": 3.0,
+    "saturation": 81.3
+  },
+  "_our_gaps": {
+    "car_cinematic_shot_median": "2.00s vs 0.77s target (~3x too slow)",
+    "car_cinematic_blended": "0% vs 27% target",
+    "car_cinematic_sub_bass": "48% vs 60-92% target",
+    "travel_vlog_shot_median": "~2.00s vs 1.13s target (~2x too slow)"
+  },
+  "_caveats": [
+    "n=5,6,7,5 - medians indicative not statistical",
+    "all re-encoded via snaptik/ssstik - LUFS and air-band unreliable",
+    "blended detection is a heuristic; 27% is a floor",
+    "long clips analysed with frame-stride decimation (~0.2s cut resolution)"
+  ]
+}

@@ -1,0 +1,178 @@
+{
+  "references": [
+    {
+      "url": "https://www.youtube.com/watch?v=zYPgz6sOy74",
+      "why": "Higgsfield full AI short-film workflow",
+      "date": "2026-07-30"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=fs5S867VQzg",
+      "why": "smooth transitions, sfx on most actions, seamless linkage",
+      "date": "2026-07-30"
+    }
+  ],
+  "rejects": [
+    {
+      "build": "v1",
+      "feature": "captions",
+      "note": "no caption at all",
+      "fix": "captionmgr + cwd fix",
+      "date": "2026-07-30"
+    },
+    {
+      "build": "v1",
+      "feature": "cta",
+      "note": "no CTA card on screen",
+      "fix": "3-spot end card",
+      "date": "2026-07-30"
+    },
+    {
+      "build": "v1",
+      "feature": "disclosure",
+      "note": "AI label absent (later: remove it)",
+      "fix": "platform toggle instead",
+      "date": "2026-07-30"
+    },
+    {
+      "build": "v1",
+      "feature": "location",
+      "note": "islands are karst - Krabi not Sabah",
+      "fix": "UNFIXED - needs regen",
+      "date": "2026-07-30"
+    },
+    {
+      "build": "v1",
+      "feature": "true_peak",
+      "note": "-0.7 dBTP failed the -1.0 gate",
+      "fix": "limiter headroom",
+      "date": "2026-07-30"
+    },
+    {
+      "build": "v2",
+      "feature": "bgm",
+      "note": "no bgm",
+      "fix": "bgmgen.py",
+      "date": "2026-07-30"
+    },
+    {
+      "build": "v2",
+      "feature": "captions",
+      "note": "no caption",
+      "fix": "drawtext path fix",
+      "date": "2026-07-30"
+    },
+    {
+      "build": "v2",
+      "feature": "stills",
+      "note": "stagnant image of fish",
+      "fix": "animate.py parallax",
+      "date": "2026-07-30"
+    },
+    {
+      "build": "v2",
+      "feature": "mixing",
+      "note": "mixed video and pictures looks bad",
+      "fix": "coverage recut",
+      "date": "2026-07-30"
+    },
+    {
+      "build": "v2",
+      "feature": "sunset",
+      "note": "just sunset and waves, stale, boring",
+      "fix": "tight coverage crop",
+      "date": "2026-07-30"
+    },
+    {
+      "build": "v2",
+      "feature": "hook",
+      "note": "no visual hook",
+      "fix": "punch-style title",
+      "date": "2026-07-30"
+    },
+    {
+      "build": "v2",
+      "feature": "cta_visual",
+      "note": "CTA in audio but not backed on screen",
+      "fix": "list-style end card",
+      "date": "2026-07-30"
+    },
+    {
+      "build": "v3",
+      "feature": "bgm_feel",
+      "note": "bgm doesnt match the video feeling",
+      "fix": "marimba + hand perc",
+      "date": "2026-07-30"
+    },
+    {
+      "build": "v3",
+      "feature": "caption_design",
+      "note": "captions really need some design",
+      "fix": "captionmgr seat",
+      "date": "2026-07-30"
+    },
+    {
+      "build": "v3",
+      "feature": "foley",
+      "note": "no sfx on actions - bubbles, crowd, splash",
+      "fix": "foley.py",
+      "date": "2026-07-30"
+    },
+    {
+      "build": "v3",
+      "feature": "disclosure",
+      "note": "do not put AI GENERATED caption",
+      "fix": "removed",
+      "date": "2026-07-30"
+    },
+    {
+      "build": "crown",
+      "feature": "transitions",
+      "note": "no transitions in the edit AND the library itself is non-functional",
+      "fix": "FIXED 2026-07-31 in fx.py whip(): pre_a/pre_b were injected as [0:v]<filter>, so avgblur applied to the WHOLE clip, not the seam. Now gated to the transition window via avgblur enable='between(t,..)' in 3 ramped steps. Measured on sharp inputs (Laplacian 407/503): output median 2.6 -> 457.2, frames under blank threshold 80% -> 2%. smoketest transitions 45/45 still pass.",
+      "date": "2026-07-30"
+    },
+    {
+      "build": "crown",
+      "feature": "bgm_genre",
+      "note": "invented a 90BPM marimba bed; car edits are drift phonk 140-170",
+      "fix": "phonk.py built, 145 BPM, cowbell 15.8%",
+      "date": "2026-07-30"
+    },
+    {
+      "build": "crown",
+      "feature": "research",
+      "note": "did not search the web before planning - guessed the genre",
+      "fix": "qc.py phase0 blocks planning until 5+ refs studied",
+      "date": "2026-07-30"
+    },
+    {
+      "build": "s450",
+      "feature": "soft_frames",
+      "note": "0.5s of unreadable defocus at 5.70-6.07s - the broken whip smearing 2.4s of a 10.1s cut",
+      "fix": "fx.whip time-gated; S450 needs a rebuild to clear it (sources not in RESTORE package)",
+      "date": "2026-07-31"
+    },
+    {
+      "build": "s450",
+      "feature": "gate_naming",
+      "note": "verdict.py reports 'blank frames' for a Laplacian sharpness<8 test - that is BLUR, not black. 0 truly black frames present",
+      "fix": "UNFIXED - rename to soft_frames and add a separate true-black test",
+      "date": "2026-07-31"
+    },
+    {
+      "build": "s450",
+      "feature": "gate_sampling",
+      "note": "mastermind.video_metrics samples ~6fps, so blank_frames reported 7 where a full-rate scan finds 30 - the gate under-counts by 4x",
+      "fix": "UNFIXED - count on full rate, or scale the reported number",
+      "date": "2026-07-31"
+    }
+  ],
+  "accepts": [
+    {
+      "build": "v3",
+      "feature": "generation",
+      "note": "video generation is very good, quality is perfect up to my par",
+      "date": "2026-07-30"
+    }
+  ]
+}

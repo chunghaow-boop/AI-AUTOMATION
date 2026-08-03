@@ -1,0 +1,290 @@
+#!/usr/bin/env python3
+"""
+MAKE_STORYBOARD_I8 — the FULL production board. MY OWN REFERENCE ONLY, never an input
+to any generation model.
+
+WHAT IS ON IT (his spec: "reference image, editing, sfx, transitions, prompts, CTA,
+images, as detailed as possible so it doesn't miss the QC, and QC every phase")
+
+  lane 1  ARC          which act each shot belongs to
+  lane 2  PICTURE      shot no, source, crop, in-point, note
+  lane 3  PLATE        which reference plate feeds that shot's generation
+  lane 4  TRANSITION   hard cut vs mask_slice, with width
+  lane 5  SFX          whoosh / impact / sub-drop, and where it LEADS the cut
+  lane 6  TEXT         captions and the CTA card
+  plus    11 sources, 8 phase gates, the research that set the hook
+
+  Verbatim generation prompts live in I8-PRODUCTION.md - too long for a board, and
+  they must be copy-pasteable.
+"""
+import os, sys, argparse
+from collections import Counter
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+BPM, BEAT, TOTAL = 150.0, 0.400, 30.4
+
+# key: (label, colour, act, plate)
+SOURCES = {
+    "A": ("BUTTERFLY DOORS rising",     "#C4562F", "EVENT",       "i8"),
+    "B": ("front 3/4 night laser lamps","#4A6FA5", "EXTERIOR",    "i8"),
+    "C": ("turbine wheel + carbon sill","#5B8C5A", "EXTERIOR",    "i8"),
+    "G": ("laser lamp macro BLUE BAND", "#3E7CA8", "EXTERIOR",    "i8"),
+    "H": ("side profile stream-flow",   "#6B8FA8", "EXTERIOR",    "i8"),
+    "F": ("cockpit blue ambient",       "#B5843A", "INTERIOR",    "i8"),
+    "I": ("rear lights + diffuser",     "#A9553E", "INTERIOR",    "i8"),
+    "D": ("rear 3/4 buttresses spoiler","#8C6B3B", "INTERIOR",    "i8"),
+    "J": ("NEV + car night forecourt",  "#7B3F6B", "HUMAN",       "nev+i8"),
+    "K": ("NEV in cockpit",             "#93507E", "HUMAN",       "nev+i8"),
+    "E": ("ROLLING wet road night",     "#8C3B3B", "NIGHT DRIVE", "i8"),
+}
+
+# (source, crop, kind, note)
+SHOTS = [
+    ("A", 1.00, "burst", "DOORS RISE"),      ("G", 1.00, "burst", "lamp ignites"),
+    ("C", 1.00, "burst", "turbine wheel"),   ("H", 1.00, "burst", "side profile"),
+    ("B", 1.00, "burst", "front 3/4"),       ("A", 1.00, "hold",  "DOORS FULLY UP"),
+    ("F", 1.00, "burst", "step inside"),     ("I", 1.00, "burst", "rear light macro"),
+    ("F", 1.35, "burst", "blue ambient"),    ("D", 1.00, "burst", "rear 3/4"),
+    ("G", 1.35, "burst", "blue band"),       ("J", 1.00, "hold",  "NEV + CAR"),
+    ("C", 1.35, "burst", "carbon sill"),     ("B", 1.35, "burst", "kidney + blue"),
+    ("K", 1.00, "burst", "Nev cockpit"),     ("H", 1.35, "burst", "buttress channel"),
+    ("I", 1.35, "burst", "tail light"),      ("E", 1.00, "hold",  "ROLLING NIGHT"),
+    ("D", 1.35, "burst", "spoiler"),         ("E", 1.35, "burst", "lamps at speed"),
+    ("J", 1.35, "burst", "Nev punch"),       ("K", 1.35, "burst", "Nev cockpit"),
+    ("C", 1.00, "burst", "wheel rolling"),   ("B", 1.00, "hold",  "FRONT, NIGHT"),
+    ("G", 1.00, "burst", "lamp"),            ("A", 1.00, "burst", "LOOP to doors"),
+]
+BLEND_AFTER = [5, 11, 17, 23]                       # HOLD exits only, mask_slice 0.40s
+IMPACT_AT   = [5, 11, 17, 23]                       # section boundaries
+SUBDROP_AT  = [6, 12, 18]                           # entries after a hold
+# (text, shot_index_start, n_shots, kind)
+CARDS = [
+    ("DOORS UP",     0, 4,  "cap"),
+    ("i8",           5, 1,  "cap"),
+    ("LASER LIGHT", 10, 2,  "cap"),
+    ("RECOND",      17, 1,  "cap"),
+    ("DM FOR PRICE",23, 3,  "cta"),
+]
+
+
+def lengths():
+    out, t = [], 0.0
+    for _s, _c, kind, _n in SHOTS:
+        d = 8 * BEAT if kind == "hold" else 2 * BEAT
+        out.append((t, d)); t += d
+    return out, t
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--out", default=os.path.join(HERE, "STORYBOARD-I8.png"))
+    a = ap.parse_args()
+    pos, total = lengths()
+
+    fig = plt.figure(figsize=(24, 14.5), facecolor="#0E1014")
+    ax = fig.add_axes([0.032, 0.475, 0.935, 0.44])
+    ax.set_facecolor("#0E1014"); ax.set_xlim(0, total); ax.set_ylim(0, 12); ax.axis("off")
+
+    for i in range(int(total / BEAT) + 1):
+        t = i * BEAT
+        ax.plot([t, t], [0.2, 11.3], lw=1.2 if i % 4 == 0 else 0.4,
+                color="#333B49" if i % 4 == 0 else "#1B212B", zorder=0)
+
+    ax.add_patch(Rectangle((0, 5.0), 3.0, 6.0, facecolor="#3A1B10",
+                           edgecolor="#E0632F", lw=2.0, zorder=1))
+    ax.text(1.5, 11.15, "3s HOOK WINDOW", ha="center", color="#E0632F", fontsize=10,
+            weight="bold", family="monospace")
+
+    # ---- lane 1 ARC
+    acts = [SOURCES[s][2] for s, _c, _k, _n in SHOTS]
+    AC = {"EVENT": "#3A1B10", "EXTERIOR": "#16202C", "INTERIOR": "#2B2415",
+          "HUMAN": "#2A1626", "NIGHT DRIVE": "#2A1414"}
+    i = 0
+    while i < len(SHOTS):
+        j = i
+        while j + 1 < len(SHOTS) and acts[j + 1] == acts[i]:
+            j += 1
+        x0, x1 = pos[i][0], pos[j][0] + pos[j][1]
+        ax.add_patch(Rectangle((x0, 10.35), x1 - x0, 0.62, facecolor=AC[acts[i]],
+                               edgecolor="#465064", lw=0.8))
+        ax.text((x0 + x1) / 2, 10.66, acts[i], ha="center", va="center",
+                color="#9AA7B8", fontsize=8.4, family="monospace", weight="bold")
+        i = j + 1
+    ax.text(-0.55, 10.66, "ARC", ha="right", va="center", color="#5D6A7C",
+            fontsize=8.5, family="monospace", weight="bold")
+
+    # ---- lane 2 PICTURE
+    y0, h = 5.4, 4.7
+    for k, ((src, crop, kind, note), (t, d)) in enumerate(zip(SHOTS, pos)):
+        _l, colour, _a, _p = SOURCES[src]
+        ax.add_patch(Rectangle((t + 0.012, y0), d - 0.024, h, facecolor=colour,
+                               edgecolor="#080A0D", lw=1.4, zorder=2))
+        ax.text(t + d / 2, y0 + h - 0.34, f"{k}", ha="center", va="center",
+                color="#080A0D", fontsize=10, weight="bold", zorder=3)
+        ax.text(t + d / 2, y0 + h - 0.98, src, ha="center", va="center",
+                color="#FFFFFF", fontsize=13, weight="bold", zorder=3, family="monospace")
+        if kind == "hold":
+            ax.text(t + d / 2, y0 + h / 2 - 0.5, note, ha="center", va="center",
+                    color="#EAF0F8", fontsize=9, zorder=3, weight="bold")
+            ax.text(t + d / 2, y0 + 0.5, f"{crop:.2f}x · {d:.2f}s", ha="center",
+                    va="center", color="#C6D2E2", fontsize=8, zorder=3, family="monospace")
+        else:
+            ax.text(t + d / 2, y0 + 1.9, note, ha="center", va="center", color="#E6EDF6",
+                    fontsize=6.8, zorder=3, rotation=90)
+            ax.text(t + d / 2, y0 + 0.36, f"{crop:.2f}x", ha="center", va="center",
+                    color="#C6D2E2", fontsize=7, zorder=3, family="monospace")
+    ax.text(-0.55, y0 + h / 2, "PICTURE", ha="right", va="center", color="#5D6A7C",
+            fontsize=8.5, family="monospace", weight="bold")
+
+    # ---- lane 3 PLATE
+    for k, ((src, _c, _k2, _n), (t, d)) in enumerate(zip(SHOTS, pos)):
+        plate = SOURCES[src][3]
+        col = "#2D4A63" if plate == "i8" else "#5A2F55"
+        ax.add_patch(Rectangle((t + 0.012, 4.62), d - 0.024, 0.62, facecolor=col,
+                               edgecolor="#080A0D", lw=0.7, zorder=2))
+        if d > 1.0:
+            ax.text(t + d / 2, 4.93, plate, ha="center", va="center", color="#C8D4E4",
+                    fontsize=7.6, family="monospace", zorder=3)
+    ax.text(-0.55, 4.93, "PLATE", ha="right", va="center", color="#5D6A7C",
+            fontsize=8.5, family="monospace", weight="bold")
+
+    # ---- lane 4 TRANSITION
+    for k, (t, d) in enumerate(pos):
+        blend = k in BLEND_AFTER
+        ax.add_patch(Rectangle((t + d - 0.10, 3.85), 0.20, 0.58,
+                               facecolor="#E8C34A" if blend else "#39424F",
+                               edgecolor="none", zorder=3))
+    for b in BLEND_AFTER:
+        x = pos[b][0] + pos[b][1]
+        ax.text(x, 3.52, "mask_slice 0.40s", ha="center", color="#E8C34A", fontsize=6.6,
+                family="monospace")
+        ax.plot([x, x], [3.85, 10.2], lw=1.8, color="#E8C34A", zorder=4, alpha=0.55)
+    ax.text(-0.55, 4.14, "TRANS", ha="right", va="center", color="#5D6A7C",
+            fontsize=8.5, family="monospace", weight="bold")
+
+    # ---- lane 5 SFX
+    for k, (t, d) in enumerate(pos):
+        if k == 0:
+            continue
+        if k in IMPACT_AT:
+            c, lab = "#D94F3D", "IMP"
+        elif k in SUBDROP_AT:
+            c, lab = "#6B54B0", "SUB"
+        else:
+            c, lab = "#3E9E8A", "wh"
+        ax.add_patch(Rectangle((t - 0.22, 2.55), 0.22, 0.62, facecolor=c,
+                               edgecolor="none", zorder=3))
+        if d > 1.0 or k in IMPACT_AT:
+            ax.text(t - 0.11, 2.31, lab, ha="center", color=c, fontsize=6.2,
+                    family="monospace")
+    ax.text(-0.55, 2.86, "SFX", ha="right", va="center", color="#5D6A7C",
+            fontsize=8.5, family="monospace", weight="bold")
+    ax.text(0.1, 1.98, "whoosh LEADS the cut by 220ms — it RESOLVES on the cut, "
+                       "never starts there   ·   bed sidechain-ducks under SFX",
+            color="#3E9E8A", fontsize=7.6, family="monospace")
+
+    # ---- lane 6 TEXT
+    for txt, si, n, kind in CARDS:
+        x0 = pos[si][0]
+        x1 = pos[min(si + n - 1, len(pos) - 1)][0] + pos[min(si + n - 1, len(pos) - 1)][1]
+        col = "#B0642A" if kind == "cta" else "#33506B"
+        ax.add_patch(Rectangle((x0 + 0.02, 0.85), x1 - x0 - 0.04, 0.72, facecolor=col,
+                               edgecolor="#080A0D", lw=0.8, zorder=2))
+        ax.text((x0 + x1) / 2, 1.21, txt, ha="center", va="center", color="#FFFFFF",
+                fontsize=8.2, family="monospace", weight="bold", zorder=3)
+    ax.text(-0.55, 1.21, "TEXT", ha="right", va="center", color="#5D6A7C",
+            fontsize=8.5, family="monospace", weight="bold")
+    ax.text(0.1, 0.35, "all cards y=0.72 LOWER THIRD — never centre, the car lives there  ·  "
+                       "NO burned-in AI label, use the platform toggle at upload",
+            color="#7C8798", fontsize=7.6, family="monospace")
+
+    for sec in range(0, int(total) + 1, 2):
+        ax.text(sec, 11.55, f"{sec}s", ha="center", color="#7C8798", fontsize=8.5,
+                family="monospace")
+
+    # ================= SOURCES =================
+    axl = fig.add_axes([0.032, 0.285, 0.42, 0.165])
+    axl.set_facecolor("#0E1014"); axl.axis("off")
+    axl.set_xlim(0, 10); axl.set_ylim(0, 5.0)
+    axl.text(0, 4.7, "11 SOURCES   (26 shots / 2.5 = 10.4 min)  ·  seedance_2_0 std 720p 5s",
+             color="#EAF0F8", fontsize=10, weight="bold", family="monospace")
+    for i, (k, (label, colour, _a, plate)) in enumerate(SOURCES.items()):
+        cx, cy = (i % 2) * 5.0, 4.05 - (i // 2) * 0.66
+        axl.add_patch(Rectangle((cx, cy - 0.2), 0.36, 0.46, facecolor=colour,
+                                edgecolor="#080A0D", lw=1.0))
+        axl.text(cx + 0.5, cy + 0.03, k, color="#FFFFFF", fontsize=10, weight="bold",
+                 family="monospace", va="center")
+        axl.text(cx + 0.85, cy + 0.03, label, color="#9AA7B8", fontsize=7.0, va="center")
+        axl.text(cx + 4.5, cy + 0.03, plate, color="#6E8AA8" if plate == "i8" else "#A druh",
+                 fontsize=6.4, va="center", family="monospace")
+
+    # ================= PHASE GATES =================
+    axg = fig.add_axes([0.47, 0.285, 0.50, 0.165])
+    axg.set_facecolor("#0E1014"); axg.axis("off")
+    axg.set_xlim(0, 10); axg.set_ylim(0, 5.0)
+    axg.text(0, 4.7, "QC EVERY PHASE — each one BLOCKS the next", color="#EAF0F8",
+             fontsize=10, weight="bold", family="monospace")
+    gates = [
+        ("P0 RESEARCH", "qc.py phase0", "12 refs / 16 lessons", True),
+        ("P1 PLAN",     "this board",   "coverage, crop, adjacency, EVENT in shot 0", True),
+        ("P2 PLATES",   "human eye",    "i8: blue band + buttress · Nev: is it him", True),
+        ("P3 COST",     "get_cost",     "literal params, std not fast", True),
+        ("P4 GENERATE", "clipgate",     "each clip vs its plate", False),
+        ("P5 ASSEMBLE", "adjacent_check + shot_match", "hist-corr, exposure", False),
+        ("P6 SOUND",    "rhythm + verify 3", "cuts on beat, SFX lift >=2dB", False),
+        ("P7 DELIVER",  "verify.py",    "10 checks, one verdict", False),
+    ]
+    for i, (ph, tool, what, done) in enumerate(gates):
+        y = 4.05 - i * 0.5
+        axg.text(0, y, "OK " if done else "-- ", color="#4FA88B" if done else "#5D6A7C",
+                 fontsize=8.4, family="monospace", weight="bold")
+        axg.text(0.55, y, ph, color="#EAF0F8", fontsize=8.4, family="monospace",
+                 weight="bold")
+        axg.text(2.5, y, tool, color="#D98E3A", fontsize=8.0, family="monospace")
+        axg.text(5.3, y, what, color="#8E9BAC", fontsize=7.6, family="monospace")
+
+    # ================= RESEARCH =================
+    axr = fig.add_axes([0.032, 0.028, 0.935, 0.235])
+    axr.set_facecolor("#0E1014"); axr.axis("off")
+    axr.set_xlim(0, 100); axr.set_ylim(0, 14)
+    axr.text(0, 13.0, "WHY THE HOOK IS THE DOOR — researched, not assumed",
+             color="#EAF0F8", fontsize=11, weight="bold", family="monospace")
+    lines = [
+        ("TikTok Q2 2026 ranks 3-SECOND RETENTION above watch time. Hook rate target ~40%. If they do not stop in 3s, watch time cannot rescue it.", "#8E9BAC"),
+        ("Hooks UNDER 2s measured 23% higher completion than 4-5s hooks (n=10,000 viral TikToks). The event must be OVER by ~2s, not built up to.", "#8E9BAC"),
+        ("Car edits specifically: \"start with immediate motion\". Reels reward a SINGLE EVENT - one acceleration, one corner - not a walkaround tour.", "#8E9BAC"),
+        ("BMW's own i8 press shot list names the DOOR FOUR TIMES: door stop-motion, door open, door+light rear, interior door-open zoom. Their hero.", "#8E9BAC"),
+        ("THE LC300 WAS A TOUR: 14 shots of a car being looked at. Passed all 10 mechanical checks. Still would not stop a scroll. Nothing happened TO it.", "#D98E3A"),
+        ("", "#000000"),
+        ("GRADE saturation only ~1.15 then MEASURE toward black 2.0 / sat 91.5 — never double-grade, the prompt already asked for the look.", "#6E8AA8"),
+        ("CUTS frame-exact via -frames:v · declare ACTUAL post-blend boundaries · centre every shot on a clipsense action_peak.", "#6E8AA8"),
+    ]
+    for i, (l, c) in enumerate(lines):
+        axr.text(0, 11.5 - i * 1.45, l, color=c, fontsize=8.6, family="monospace")
+
+    use = Counter(s for s, _c, _k, _n in SHOTS)
+    crops = [c for _s, c, _k, _n in SHOTS if c > 1.05]
+    fig.text(0.032, 0.965, "BMW i8  ·  CAR CINEMATIC  ·  30s  ·  FULL PRODUCTION BOARD",
+             color="#FFFFFF", fontsize=21, weight="bold", family="monospace")
+    fig.text(0.032, 0.940,
+             f"26 shots · 30.40s · 720x1280 9:16 · 150 BPM · median 0.80s · 48.7 cuts/min · "
+             f"{len(SOURCES)} sources · max {max(use.values())}/source · punch <={max(crops):.2f}x · "
+             f"4 blends · verbatim prompts in I8-PRODUCTION.md · MY REFERENCE ONLY, never an input",
+             color="#7C8798", fontsize=10, family="monospace")
+
+    fig.savefig(a.out, dpi=95, facecolor="#0E1014")
+    adj = any(SHOTS[i][0] == SHOTS[i + 1][0] for i in range(len(SHOTS) - 1))
+    print(f"written: {a.out}")
+    print(f"  sources {len(SOURCES)} | max/source {max(use.values())} | "
+          f"max crop {max(crops):.2f}x | adjacent-same {adj} | "
+          f"blends {len(BLEND_AFTER)} | cards {len(CARDS)}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

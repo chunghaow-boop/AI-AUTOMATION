@@ -1,0 +1,431 @@
+{
+  "pillar": "travel_vlog",
+  "studied_at": "2026-07-30",
+  "stale_after_days": 60,
+  "expires": "2026-09-28",
+  "note": "calibration snapshot, 6 references he selected",
+  "references": [
+    {
+      "file": "snaptik_7178823736408280325_v3.mp4",
+      "duration": 16.23,
+      "fps": 30.0,
+      "cuts": 5,
+      "cuts_per_min": 18.5,
+      "cut_times": [
+        2.0,
+        4.03,
+        7.57,
+        10.07,
+        12.6
+      ],
+      "shot_lengths": [
+        2.0,
+        2.03,
+        3.53,
+        2.5,
+        2.53,
+        3.6
+      ],
+      "shot_median": 2.51,
+      "shot_max": 3.6,
+      "hard_cut_pct": 100,
+      "blended_pct": 0,
+      "black_point": 27.0,
+      "white_point": 238.0,
+      "saturation": 37.5,
+      "lufs": -37.0,
+      "lra": 17.2,
+      "true_peak": -14.3,
+      "bpm": 171.2,
+      "cuts_on_grid_pct": 20,
+      "spectrum": {
+        "sub": 16.1,
+        "body": 76.4,
+        "presence": 6.3,
+        "air": 1.2
+      }
+    },
+    {
+      "file": "snaptik_7577468220488060174_v3.mp4",
+      "duration": 28.17,
+      "fps": 30.0,
+      "cuts": 30,
+      "cuts_per_min": 63.9,
+      "cut_times": [
+        0.17,
+        0.53,
+        0.77,
+        1.17,
+        2.13,
+        3.47,
+        4.4,
+        7.4,
+        8.27,
+        12.67,
+        13.5,
+        15.2,
+        15.73,
+        16.37,
+        16.87,
+        17.47,
+        18.1,
+        18.83,
+        19.37,
+        19.9,
+        20.3,
+        21.1,
+        21.57,
+        22.03,
+        22.57,
+        23.07,
+        23.53,
+        24.07,
+        25.0,
+        25.77
+      ],
+      "shot_lengths": [
+        0.17,
+        0.37,
+        0.23,
+        0.4,
+        0.97,
+        1.33,
+        0.93,
+        3.0,
+        0.87,
+        4.4,
+        0.83,
+        1.7,
+        0.53,
+        0.63,
+        0.5,
+        0.6,
+        0.63,
+        0.73,
+        0.53,
+        0.53,
+        0.4,
+        0.8,
+        0.47,
+        0.47,
+        0.53,
+        0.5,
+        0.47,
+        0.53,
+        0.93,
+        0.77,
+        2.37
+      ],
+      "shot_median": 0.6,
+      "shot_max": 4.4,
+      "hard_cut_pct": 100,
+      "blended_pct": 0,
+      "black_point": 39.0,
+      "white_point": 203.0,
+      "saturation": 28.0,
+      "lufs": -10.9,
+      "lra": 0.8,
+      "true_peak": 1.0,
+      "bpm": 176.3,
+      "cuts_on_grid_pct": 17,
+      "spectrum": {
+        "sub": 46.2,
+        "body": 48.8,
+        "presence": 4.1,
+        "air": 0.8
+      }
+    },
+    {
+      "file": "snaptik_7608221210291342614_v3.mp4",
+      "duration": 18.47,
+      "fps": 30.0,
+      "cuts": 15,
+      "cuts_per_min": 48.7,
+      "cut_times": [
+        1.77,
+        2.53,
+        4.53,
+        5.1,
+        5.5,
+        6.0,
+        6.53,
+        7.1,
+        7.63,
+        8.73,
+        9.97,
+        11.27,
+        12.13,
+        15.17,
+        18.03
+      ],
+      "shot_lengths": [
+        1.77,
+        0.77,
+        2.0,
+        0.57,
+        0.4,
+        0.5,
+        0.53,
+        0.57,
+        0.53,
+        1.1,
+        1.23,
+        1.3,
+        0.87,
+        3.03,
+        2.87,
+        0.4
+      ],
+      "shot_median": 0.82,
+      "shot_max": 3.03,
+      "hard_cut_pct": 100,
+      "blended_pct": 0,
+      "black_point": 1.0,
+      "white_point": 140.0,
+      "saturation": 151.4,
+      "lufs": -22.1,
+      "lra": 1.0,
+      "true_peak": -6.4,
+      "bpm": 93.4,
+      "cuts_on_grid_pct": 33,
+      "spectrum": {
+        "sub": 54.4,
+        "body": 42.2,
+        "presence": 3.2,
+        "air": 0.3
+      }
+    },
+    {
+      "file": "snaptik_7622675185858055431_v3.mp4",
+      "duration": 27.37,
+      "fps": 30.0,
+      "cuts": 18,
+      "cuts_per_min": 39.5,
+      "cut_times": [
+        0.03,
+        0.67,
+        1.47,
+        2.27,
+        3.1,
+        3.9,
+        8.07,
+        8.67,
+        16.03,
+        16.57,
+        17.4,
+        17.67,
+        18.63,
+        18.9,
+        19.13,
+        19.6,
+        20.27,
+        21.13
+      ],
+      "shot_lengths": [
+        0.03,
+        0.63,
+        0.8,
+        0.8,
+        0.83,
+        0.8,
+        4.17,
+        0.6,
+        7.37,
+        0.53,
+        0.83,
+        0.27,
+        0.97,
+        0.27,
+        0.23,
+        0.47,
+        0.67,
+        0.87,
+        6.2
+      ],
+      "shot_median": 0.8,
+      "shot_max": 7.37,
+      "hard_cut_pct": 72,
+      "blended_pct": 28,
+      "black_point": 10.0,
+      "white_point": 186.0,
+      "saturation": 87.7,
+      "lufs": -9.0,
+      "lra": 6.8,
+      "true_peak": 2.6,
+      "bpm": 115.8,
+      "cuts_on_grid_pct": 39,
+      "spectrum": {
+        "sub": 57.4,
+        "body": 28.8,
+        "presence": 9.9,
+        "air": 2.9
+      }
+    },
+    {
+      "file": "snaptik_7631383112307461396_v3.mp4",
+      "duration": 21.96,
+      "fps": 50.0,
+      "cuts": 15,
+      "cuts_per_min": 41.0,
+      "cut_times": [
+        0.52,
+        2.94,
+        3.4,
+        3.9,
+        5.36,
+        6.32,
+        7.74,
+        9.2,
+        10.18,
+        12.12,
+        14.02,
+        16.44,
+        17.38,
+        18.88,
+        20.28
+      ],
+      "shot_lengths": [
+        0.52,
+        2.42,
+        0.46,
+        0.5,
+        1.46,
+        0.96,
+        1.42,
+        1.46,
+        0.98,
+        1.94,
+        1.9,
+        2.42,
+        0.94,
+        1.5,
+        1.4,
+        1.66
+      ],
+      "shot_median": 1.44,
+      "shot_max": 2.42,
+      "hard_cut_pct": 100,
+      "blended_pct": 0,
+      "black_point": 10.0,
+      "white_point": 191.0,
+      "saturation": 85.3,
+      "lufs": -20.6,
+      "lra": 3.1,
+      "true_peak": -2.4,
+      "bpm": 83.0,
+      "cuts_on_grid_pct": 27,
+      "spectrum": {
+        "sub": 45.9,
+        "body": 41.1,
+        "presence": 9.5,
+        "air": 2.9
+      }
+    },
+    {
+      "file": "snaptik_7632719636974341390_v3.mp4",
+      "duration": 16.9,
+      "fps": 30.0,
+      "cuts": 8,
+      "cuts_per_min": 28.4,
+      "cut_times": [
+        2.5,
+        4.9,
+        7.1,
+        8.17,
+        8.47,
+        9.67,
+        12.0,
+        14.33
+      ],
+      "shot_lengths": [
+        2.5,
+        2.4,
+        2.2,
+        1.07,
+        0.3,
+        1.2,
+        2.33,
+        2.33,
+        2.53
+      ],
+      "shot_median": 2.33,
+      "shot_max": 2.53,
+      "hard_cut_pct": 88,
+      "blended_pct": 12,
+      "black_point": 0.0,
+      "white_point": 156.0,
+      "saturation": 63.7,
+      "lufs": -23.9,
+      "lra": 2.5,
+      "true_peak": -7.0,
+      "bpm": 86.8,
+      "cuts_on_grid_pct": 12,
+      "spectrum": {
+        "sub": 30.0,
+        "body": 65.0,
+        "presence": 1.3,
+        "air": 0.1
+      }
+    }
+  ],
+  "profile": {
+    "n": 6,
+    "cuts_per_min": {
+      "median": 40.25,
+      "range": [
+        18.5,
+        63.9
+      ]
+    },
+    "shot_median": {
+      "median": 1.13,
+      "range": [
+        0.6,
+        2.51
+      ]
+    },
+    "shot_max": {
+      "median": 3.31,
+      "range": [
+        2.42,
+        7.37
+      ]
+    },
+    "blended_pct": {
+      "median": 0.0,
+      "range": [
+        0,
+        28
+      ]
+    },
+    "bpm": {
+      "median": 104.6,
+      "range": [
+        83.0,
+        176.3
+      ]
+    },
+    "cuts_on_grid_pct": {
+      "median": 23.5
+    },
+    "lufs": {
+      "median": -21.35,
+      "range": [
+        -37.0,
+        -9.0
+      ]
+    },
+    "lra": {
+      "median": 2.8
+    },
+    "true_peak": {
+      "median": -4.4
+    },
+    "black_point": {
+      "median": 10.0
+    },
+    "saturation": {
+      "median": 74.5
+    }
+  }
+}

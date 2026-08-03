@@ -1,0 +1,23 @@
+{
+  "reference": {
+    "sub": 65.7,
+    "bass": 21.1,
+    "cow": 5.9,
+    "pres": 1.5,
+    "crest": 11.2
+  },
+  "phonk_150": {
+    "sub": 57.3,
+    "bass": 23.7,
+    "cow": 6.0,
+    "pres": 2.2,
+    "crest": 12.6
+  },
+  "phonk_145_before": {
+    "sub": 30.3,
+    "bass": 42.4,
+    "cow": 15.8,
+    "pres": 3.2,
+    "crest": 7.3
+  }
+}

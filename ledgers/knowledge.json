@@ -1,0 +1,120 @@
+{
+ "topics": {
+  "car cinematic": {
+   "references": [
+    "https://www.capcut.com/explore/phonk-car-edit",
+    "https://www.tiktok.com/discover/phonk-car-edit",
+    "https://melodics.com/blog/producers-guide-to-phonk-music",
+    "https://blog.native-instruments.com/phonk-music/",
+    "https://beatstorapon.com/blog/how-to-make-a-phonk-beat/",
+    "https://futureproofmusicschool.com/blog/what-is-phonk",
+    "https://www.tiktok.com/@azmiedtz03/video/7606738570832809237",
+    "https://www.mercedes-benz-mena.com/oman/en/models/s-class-w223-805/",
+    "https://www.motor1.com/news/775593/mercedes-big-light-up-grille-teaser/"
+   ],
+   "lessons": [
+    "drift phonk is THE genre for car edits - 140-170 BPM, most sit 140-160",
+    "TR-808 COWBELL is the single most recognisable phonk signature - not optional",
+    "808 bass must be DISTORTED and pitch-SLIDING, not clean sub - mid-range growl",
+    "saturation, bitcrush and tape distortion are the aesthetic, not defects to fix",
+    "Memphis phonk 130-150 BPM, drift phonk 140-170 - drift is the car-edit variant",
+    "visual vocabulary: drifts, rolling shots, heavy colour grade, slow-mo highlights, burst effects",
+    "my Crown bed was 90 BPM marimba + warm pad - wrong on tempo, timbre, distortion and signature instrument",
+    "car cinematic edit vocabulary: FAST CUT, cut-to-beat, masking, dolly in/dolly out, speed ramp",
+    "at 145 BPM beat=0.414s - fast cut means 1-2 beats per shot (0.41-0.83s), not 1.3-2.7s",
+    "my Crown shots were 1.33-2.67s = far too slow for the genre",
+    "pacing.py has no car_edit profile - hero band 10-30 cpm is wrong, car edits run 40-90 cpm",
+    "speed ramp and masking are transitions I have code for but have NEVER looked at",
+    "VIEWED transitions frame-by-frame for the first time: whip reads as a DEFOCUS not a pan - blur is isotropic, no directional streak, no frame translation",
+    "mask transition produces NO visible mask - it is a straight cut",
+    "zoomblur produces no visible zoom blur - also a straight cut",
+    "2 of 3 transitions do nothing visible. Wiring them into the Crown would NOT have fixed his complaint",
+    "a real whip needs LINEAR directional blur along the pan axis + rapid frame translation, not boxblur",
+    "dense frame strips (every frame across the seam) are the ONLY way to review a transition - 3 stills cannot show motion",
+    "Mercedes S450 W223: ILLUMINATED radiator grille (enlarged 20%) and ILLUMINATED hood star - the car literally emits light, which matches the reference finding exactly",
+    "S450 grille: three twin chrome louvres + high-gloss black vertical bars",
+    "S-Class has three distinctive LED light accents + pronounced front bumper air intakes",
+    "S450 is an executive limousine, not a sports car - the edit should feel weighty and expensive, not aggressive drift"
+   ],
+   "last_researched": "2026-07-31"
+  },
+  "toyota land cruiser 300 zx car review": {
+   "references": [
+    "https://www.zigwheels.com/news-features/news/you-can-now-book-the-toyota-land-cruiser-300-in-two-new-trims-with-prices-starting-from-rs-2.31-crore/55947/",
+    "https://www.4x4australia.com.au/news/2022-toyota-landcruiser-300-interior-features",
+    "https://www.team-bhp.com/news/toyota-land-cruiser-lc300-interior-review-heres-what-it-gets",
+    "https://www.carlist.my/recon-cars/2023-unreg-toyota-land-cruiser-3-5-zx-j300-new-model-japan-grade-5a-highest-spec-new-arrival-offer-mega-sale/18308117",
+    "https://ivmotorsjapan.com/products/2025-toyota-land-cruiser-300-zx-3-5l-4wd-7-seater-pearl-white-brand-new",
+    "local://fx.py",
+    "local://higgsfield-mcp",
+    "local://models_explore"
+   ],
+   "lessons": [
+    "J300 ZX exterior: THREE-EYE / triple LED headlamp cluster is the signature - four horizontal grille slats, polished 20-inch alloys, power tailgate. NOT the US 250-series Land Cruiser (round retro lamps) - different vehicle entirely",
+    "ZX interior: 12.3in T-EMV touchscreen, JBL 14-speaker, semi-aniline leather (beige common), 7-seat with power-fold third row, ambient lighting, ventilated+heated front AND rear",
+    "Rear entertainment = dual 11.6in screens, ZX/Sahara-ZX only. A visible differentiator to shoot for a review",
+    "Malaysian recond framing: J300 ZX sells as Japan Grade 5A unregistered, RM330k-400k+. Audience cares about grade sheet, AP status and spec level - that is the review hook, not 0-100",
+    "ZX 3.5L twin-turbo V6 petrol 4WD 7-seater is the common Japan-export ZX config. Pearl white is the volume colour in export listings",
+    "fx.whip bug: _xfade injects pre_a/pre_b as [0:v]<filter> - they apply to the ENTIRE clip, not the seam. xfade duration governs the blend only. Any future pre-filter transition must be time-gated with enable='between(t,..)' or it smears whole shots",
+    "COST PREFLIGHT 2026-07-31 measured: seedance_2_0 720p std 5s = 22.5cr (4.5/s); FAST 720p 5s = 17.5cr flat, 10s = 35cr (3.5/s). nano_banana_pro plate = 2cr. D1 confirmed still live - std is the default and quotes 22.5, not 17.5",
+    "seedance_2_0 accepts image_references (PLURAL) - so a two-named-subject shot (Nev + the car) can carry BOTH locked plates on the same generation. This is the fix for car_review, which the single start_image pattern could not do"
+   ],
+   "last_researched": "2026-07-31"
+  },
+  "bmw i8 car cinematic": {
+   "references": [
+    "https://en.wikipedia.org/wiki/BMW_i8",
+    "https://www.topspeed.com/bmw-i8-performance-price-and-photos/",
+    "https://www.bmw.mn/en/all-models/bmw-i/i8/2014/design.html",
+    "https://www.exoticcarhacks.com/buyers-guides/bmw-i8-buyers-guide/",
+    "https://www.exoticcartrader.com/blog/bmw-i8-review",
+    "https://www.hookmafia.io/blog/i-tested-30-viral-tiktok-hooks-here-s-what-actually-works-in-2026",
+    "https://fluxnote.io/guides/how-to-make-car-edits-for-tiktok",
+    "https://www.storycut.com/blog/tiktok-hook-generator-guide",
+    "https://www.roadspy.com/blog/how-supercar-owners-film-their-drives",
+    "https://carbuzz.com/10-awesome-cars-with-butterfly-doors/",
+    "https://www.press.bmwgroup.com/global/tv-footage/detail/PF0003724/the-bmw-i8",
+    "https://www.behance.net/gallery/45203869/BMW-i8-Night-Shots"
+   ],
+   "lessons": [
+    "BMW i8 signature: BUTTERFLY/SCISSOR doors hinged at the A-pillar rising theatrically - the single most recognisable i8 move. 50% lighter via aluminium+carbon+thermoplastic",
+    "World's FIRST production car with LASER headlights. A passively lit BLUE BAND inside the lamp signals the laser unit - that blue accent is the i8's night signature and matches the 'car emits light' pillar finding exactly",
+    "Floating rear buttresses / stream-flow black C-pillar with an air channel through it - the profile silhouette nothing else shares",
+    "Carbon-fibre life module with a visible carbon sill, low wide stance, sloping roofline, BMW i BLUE accents on the kidney grille surround and side skirts",
+    "Adaptive rear spoiler, integrated diffuser, active air flaps, 20-inch turbine-style alloys with aero covers",
+    "i8 profile: floating rear buttresses + sloping roofline give it hypercar presence at a fraction of the price - the silhouette IS the hook",
+    "BMW i BLUE accent runs the kidney surround, side skirts and the laser lamp band. Blue+black+white is the i8 palette - do NOT grade it warm",
+    "Recond/used i8 now sits near entry-supercar money - the Malaysian angle is 'supercar looks, hybrid running cost'",
+    "Interior: driver-angled cockpit, floating console, blue ambient strips, thin sculpted seats. Reads futuristic, not luxurious - different from the LC300 cabin",
+    "TikTok Q2 2026: the algorithm prioritises 3-SECOND RETENTION over watch time. Hook rate target ~40% TikTok / ~30% Meta. If they do not stop in 3s the video dies - watch time cannot rescue it",
+    "CAR EDITS SPECIFICALLY: start with IMMEDIATE MOTION. Final check before posting is the first 3 seconds. Our LC300 opened on a near-static wheel - the least surprising thing a car can show",
+    "Hooks UNDER 2 SECONDS had 23% higher completion than 4-5s hooks (n=10,000 viral TikToks). So the event must be over inside ~2s, not built up to",
+    "Reels/TikTok reward a SINGLE EVENT - one acceleration burst, one cornering moment - not a walkaround tour. The LC300 was a tour: 14 shots of a car being looked at, nothing happening TO it",
+    "BMW i8 is named among the butterfly-door cars that reliably generate viral content. The doors ARE the event - it is the one thing this car does that nothing else on a Malaysian road does",
+    "BMW'S OWN PRESS SHOT LIST for the i8 - the manufacturer's coverage plan: front view, front spoiler, 3/4 front, DOOR (stop motion), LIGHT (stop motion), side, 3/4 rear, roof, DOOR OPEN, logo, DOOR AND LIGHT rear stop-motion, i8 logo / interior: DOOR OPEN zoom in, wheel, screen, seat, dash / driving shots incl onboard door and wheel. THE DOOR APPEARS 4 TIMES. BMW themselves treat it as the hero shot",
+    "The published i8 photo work that circulates is NIGHT work - shot around a city at night for dealer social. Night is the i8's native register because the blue laser band only reads in the dark"
+   ],
+   "last_researched": "2026-07-31"
+  },
+  "toyota gr supra a90 final edition car cinematic": {
+   "last_researched": "2026-08-01",
+   "references": [
+    "netcarshow / Toyota press: A90 Final Edition gallery order is front 3/4 -> side profile -> rear 3/4",
+    "Toyota press text repeats: carbon front spoiler, canards, front centre flap, bonnet duct, GT4-style carbon SWAN-NECK rear wing, matt black exclusive paint",
+    "441 DIN hp, 571 Nm, 275 km/h, Akrapovic titanium muffler, bespoke manual, KW dampers",
+    "RECARO Podium CF buckets, red Alcantara, red belts, carbon scuff plates",
+    "19in front / 20in rear TGR-engraved forged wheels, Michelin Pilot Sport Cup 2, Brembo drilled 395mm front",
+    "LIMITED TO 300 WORLDWIDE",
+    "A90 PRODUCTION ENDED MARCH 2026 - recond is now the only route in. True, current, and the hook."
+   ],
+   "lessons": [
+    "PLATE v1 FAILED SUBJECT VERIFICATION. Naming a part does not generate it. 'swan-neck rear wing' returned a generic GT wing on STRAIGHT PEDESTALS FROM BELOW, and 'canards' returned a bare bumper. 4cr wasted.",
+    "PLATE v2 PASSED by DESCRIBING THE GEOMETRY instead of naming it: 'two curved arms rise from the deck, arch UP and OVER the wing, bolt to its UPPER surface, NOTHING underneath' produced a correct swan-neck. 'two small angled fins stacked one above the other on each bumper corner' produced correct canards.",
+    "GENERALISATION: for any named trim part, write the shape and the mounting, plus a negative naming the wrong version. Jargon is not a spec.",
+    "Matt black paint generated well first time from 'ABSORBS light, form through soft sheen and edge highlights, NOT glossy reflections'.",
+    "WATCH: v2 has a softbox visible top-left and the wing hardware reads polished metal rather than carbon weave. Neither is identity-breaking; both were declared before generation, not discovered after.",
+    "The Supra has no door theatre like the i8's butterfly doors, so the 2-second event is HUMAN: Nev drops in, door thumps, straight-six fires and the car shakes. A face at second zero - the thing the LC300 never had."
+   ]
+  }
+ }
+}

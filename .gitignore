@@ -1,0 +1,30 @@
+# MEDIA STAYS OUT OF GIT — it syncs via Google Drive, not the repo.
+# GitHub hard-limits files at 100MB and the refs library alone is 186MB.
+# The repo carries CODE + PLANS + DOCS + LEDGERS: everything needed to
+# rebuild any video once the media lands beside it.
+
+assets/refs/
+assets/bgm/
+assets/nev/wardrobe/
+assets/nev/accessories/
+assets/nev/_contact/
+projects/*/clips/
+projects/*/output/
+projects/*/tmp/
+projects/*/audio/*.wav
+projects/_archive/
+*.mp4
+*.wav
+*.zip
+
+__pycache__/
+*.pyc
+.DS_Store
+
+# KEPT IN GIT on purpose (small, and they ARE the project):
+#   assets/nev/face/          the 6-image identity set (~700KB) - generations need it
+#   assets/nev/index.json     the measured metadata
+#   assets/pillars/           the measured profiles - every gate reads these
+#   projects/*/audio/*.json   declared cut lists (actual post-blend boundaries)
+#   projects/*/analysis/*.png storyboards + evidence strips
+#   ledgers/                  rejects + lessons - MERGE on conflict, never overwrite
