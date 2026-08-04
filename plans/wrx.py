@@ -30,26 +30,30 @@ TARGET_S  = 21.6                    # 54 beats. See docstring.
 # ---------------------------------------------------------------- PLATES
 PLATES = {
     "wrx": {"job": None, "res": "4k", "ar": "16:9", "cr": 4, "status": "TO GENERATE",
-            "must_show": "VA-generation WRX S4 sedan: the large functional HOOD SCOOP · "
-                         "angular hawk-eye LED headlights · WRB world-rally-blue paint · "
-                         "wide lower grille with fog pockets · subtle boot lip (NOT the "
-                         "giant STI wing) · dual exhaust · 18in dark alloys",
+            "must_show": "VA-gen WRX S4 with FULL AERO KIT (his call 2026-08-04 - stock "
+                         "was 'ugly'): deep front splitter + canards · side skirts · rear "
+                         "diffuser · TALL CARBON GT WING on the boot · large hood scoop · "
+                         "angular LED headlights · WR Blue · widebody stance · 18in dark alloys",
             "prompt":
-            "Photograph of a 2018 Subaru WRX S4 (VA generation) sedan in WR Blue Pearl, "
-            "three-quarter front, parked on wet asphalt at night under one hard overhead "
-            "light. Full-frame DSLR, 35mm, f/4, ISO 400, large softbox camera left, bare "
-            "rim light behind. THE CAR MUST BE UNMISTAKABLY THIS MODEL: a LARGE FUNCTIONAL "
-            "HOOD SCOOP dominating the bonnet with a real dark opening; angular sharp LED "
-            "headlights; wide low grille with fog-lamp pockets either side; muscular "
-            "flared front fenders; a SUBTLE LOW LIP SPOILER on the boot - explicitly NOT "
-            "a tall wing; DUAL round exhaust tips; dark grey 18-inch multi-spoke alloys. "
+            "Photograph of a 2018 Subaru WRX S4 (VA generation) sedan in WR Blue Pearl "
+            "with a FULL AGGRESSIVE AERO KIT, three-quarter front, parked on wet asphalt "
+            "at night under one hard overhead light. Full-frame DSLR, 35mm, f/4, ISO 400, "
+            "large softbox camera left, bare rim light behind. THE CAR MUST BE "
+            "UNMISTAKABLY THIS MODEL, MODIFIED: a LARGE FUNCTIONAL HOOD SCOOP dominating "
+            "the bonnet with a real dark opening; angular sharp LED headlights; a DEEP "
+            "GLOSS-CARBON FRONT SPLITTER low to the ground with small CANARDS on each "
+            "bumper corner; CARBON SIDE SKIRTS; a lowered widebody stance over muscular "
+            "flared fenders; a TALL CARBON-FIBRE GT WING on two uprights over the boot; "
+            "an aggressive REAR DIFFUSER; DUAL round exhaust tips; dark grey 18-inch "
+            "multi-spoke alloys. The kit fits like a professional build - tight even "
+            "panel gaps, colour-matched where painted, real carbon weave where carbon. "
             "REAL PHOTOGRAPH ARTEFACTS, not a render: true specular roll-off along the "
             "creases, clear-coat orange peel visible in the blue paint, faint panel-gap "
             "shadows, fine dust catching the key light, accurate softbox reflection in "
             "the windscreen, far wheel slightly softer than the near one, neutral white "
             "balance, no HDR halos. "
-            "Negative: CGI, videogame look, plastic-smooth paint, tall STI rear wing, "
-            "gold wheels, invented badges."},
+            "Negative: CGI, videogame look, plastic-smooth paint, gold wheels, "
+            "invented badges, cartoonish oversized kit."},
 
     # Multi-angle identity — the Supra probe failure fix. Upload all three, pass as
     # image_references alongside the car plate on every HUMAN/EVENT shot.
@@ -70,7 +74,7 @@ _LOOK = (
     "NOT A RENDER: true specular roll-off along the creases, clear-coat orange peel, faint "
     "panel-gap shadows, fine rain mist catching the key light, accurate glass reflections, "
     "natural depth of field. Negative: CGI, videogame look, plastic-smooth surfaces, "
-    "over-bright fill, invented badges, tall rear wing."
+    "over-bright fill, invented badges, cartoonish oversized kit."
 )
 
 # ---------------------------------------------------------------- SOURCES  (9 × 22.5cr)
@@ -116,9 +120,9 @@ SOURCES = {
        "up to the road - the face of someone about to launch. Instrument glow and one "
        "streetlight on his face. His face, hair and EARRING must match the references "
        "exactly - real skin texture, pores, natural asymmetry, no smoothing. " + _LOOK),
- "G": ("rear 3/4, dual tips + lip", "#8C6B3B", "EXTERIOR", ["wrx"],
+ "G": ("rear 3/4, wing + diffuser", "#8C6B3B", "EXTERIOR", ["wrx"],
        "Vertical 9:16. Rear three-quarter of the Subaru WRX S4 from the reference image, "
-       "night, wet asphalt. The subtle boot LIP SPOILER (no tall wing), DUAL round "
+       "night, wet asphalt. The TALL CARBON GT WING, the REAR DIFFUSER, DUAL round "
        "exhaust tips breathing faint vapour, tail lights lit and doubled in the wet "
        "ground. Slow arc around the rear corner. " + _LOOK),
  "H": ("ROLLING, wet road, night", "#8C3B3B", "PAYOFF", ["wrx"],
@@ -175,11 +179,14 @@ IMPACT_AT    = [1, 7, 12]           # SHOT indices - sound lands on the cut ENTE
 SUBDROP_AT   = [6, 11]              # the two HOLDS: hit going IN
 
 CARD_Y       = 0.72
+# NARRATIVE CARDS (2026-08-04, after "the story is too common"): the field's cards are
+# labels; ours read as a SENTENCE across the video - a forbidden-fruit story with a
+# resolution. This is the improvise-above move at STORY level, not just hook level.
 CARDS = [   # (text, first_shot, n_shots, kind)
-    ("JAPAN ONLY",    0, 4, "cap"),
-    ("WRX S4",        6, 2, "cap"),
-    ("AWD",          11, 2, "cap"),
-    ("DM FOR PRICE", 16, 3, "cta"),
+    ("JAPAN KEPT THIS ONE",   0, 4, "cap"),   # Act 1 FORBIDDEN
+    ("NEVER SOLD HERE",       6, 2, "cap"),   # Act 2 THE PROOF
+    ("HE FOUND ONE ANYWAY",  11, 2, "cap"),   # Act 3 THE TAKE
+    ("DM BEFORE IT'S GONE",  16, 3, "cta"),
 ]
 AI_LABEL_BURNED_IN = False
 
@@ -194,17 +201,18 @@ CONTENT = {
                 "unit in Malaysia is a JDM import by definition.",
     "verified": "Subaru JDM lineup / Wikipedia VA-series S4 (JDM-only trim, 300PS FA20, "
                 "CVT), cross-checked BeForward JDM export listings - 2026-08-03 Phase 0",
-    "twist":    "the payoff happens FIRST and AT you - the car nearly takes the lens off "
-                "in second one, then the video earns the rewatch: who was driving, what "
-                "that was, why it exists here at all",
+    "twist":    "the cards ARE the story - four lines that read as a sentence "
+                "(KEPT / NEVER SOLD / FOUND ANYWAY / GONE) over a forbidden-fruit arc. "
+                "The payoff still lands FIRST and AT the viewer.",
     "why_stop": "threat-read: a car at full throttle AT the viewer, identity visible "
                 "(scoop + hawk eyes), swerve at 1.2s + receipt card (JAPAN ONLY) - "
                 "no reference edit opens toward-camera because real crews cannot",
 
     # Judge panel verdict, recorded (the Wow Test the merge had dropped):
-    "judged":   "2026-08-04 panel on hook v1: J-Hook weak-pass (launch = the field's "
-                "default opening), J-Novelty FAIL (face+receipt upgrade absent from "
-                "shot 0). v2 toward-camera adopted. Panel runs BEFORE the gate now.",
+    "judged":   "2026-08-04 panel, twice. HOOK v1: weak-pass/novelty-FAIL -> v2 "
+                "toward-camera. STORY v1 (Gavril: 'too common'): montage skeleton same "
+                "as every field edit -> narrative cards adopted, cards form a sentence. "
+                "Lesson: the panel must judge HOOK and ARC separately.",
 }
 
 PREVIZ = {  # sketch-grade, NEVER enters generation. v2 carries the Nev identity ref.
