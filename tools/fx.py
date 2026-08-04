@@ -69,15 +69,27 @@ def _xfade(a, b, out, mode, d, W, H, fps, pre_a=None, pre_b=None):
 
 def _assert_not_dead(path, mode):
     """A transition that renders SOLID GREEN passed every previous check: rc=0, file exists,
-    duration correct. Only looking at pixels caught it. So look at pixels, always."""
-    rc, o = sh(f'ffmpeg -v error -ss 0.3 -i "{path}" -frames:v 1 -f rawvideo '
-               f'-pix_fmt rgb24 -s 8x8 - 2>/dev/null | od -An -tx1 -N 192')
-    hexs = o.strip().replace("\n", "").replace(" ", "")
-    if len(hexs) < 96:
+    duration correct. Only looking at pixels caught it. So look at pixels, always.
+    PORTABLE 2026-08-04: the old shell pipe needed xxd (absent on some Linux hosts) or
+    od (absent on Windows entirely) - on the laptop it silently rejected EVERY blend
+    (WRX build shipped 0/3 blends, 21.6s uncut). Decode to a temp raw file and read
+    the bytes in Python: works identically everywhere ffmpeg runs."""
+    raw = path + ".probe.raw"
+    sh(f'ffmpeg -y -v error -ss 0.3 -i "{path}" -frames:v 1 -f rawvideo '
+       f'-pix_fmt rgb24 -s 8x8 "{raw}"')
+    try:
+        px = open(raw, "rb").read()
+    except OSError:
+        px = b""
+    try:
+        os.remove(raw)
+    except OSError:
+        pass
+    if len(px) < 96:
         raise RuntimeError(f"{mode}: no readable frame")
-    px = [int(hexs[i:i+2], 16) for i in range(0, min(len(hexs), 192), 2)]
-    r = sum(px[0::3])/max(1, len(px[0::3])); g = sum(px[1::3])/max(1, len(px[1::3]))
-    b = sum(px[2::3])/max(1, len(px[2::3]))
+    px = px[:192]
+    r = sum(px[0::3]) / max(1, len(px[0::3])); g = sum(px[1::3]) / max(1, len(px[1::3]))
+    b = sum(px[2::3]) / max(1, len(px[2::3]))
     if g > 100 and r < 25 and b < 25:
         raise RuntimeError(f"{mode}: rendered SOLID GREEN (dead frames) - filter chain invalid")
 

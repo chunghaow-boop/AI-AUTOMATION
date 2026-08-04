@@ -127,7 +127,9 @@ def check_fresh(video):
 
 # ---------------------------------------------------------------- 1 PROFILE
 def check_profile(video):
-    rc, o = sh(f'cd "{ROOT}" && python3 "{os.path.join(TOOLS,"qc.py")}" profile '
+    # sys.executable, not "python3": Windows aliases python3 to the Store stub
+    # (laptop verify FAILED this check on a good build, 2026-08-04)
+    rc, o = sh(f'cd "{ROOT}" && "{sys.executable}" "{os.path.join(TOOLS,"qc.py")}" profile '
                f'--video "{video}" --pillar {PILLAR} 2>&1')
     ok = "PASS" in o
     tail = [l.strip() for l in o.strip().splitlines() if l.strip()][-1:]
@@ -163,7 +165,8 @@ def check_sfx(video, cuts):
         import rhythm
     except Exception as e:
         return add("3 sfx audible", False, f"rhythm import failed: {e}", False)
-    wav = "/tmp/_verify_mix.wav"
+    import tempfile
+    wav = os.path.join(tempfile.gettempdir(), "_verify_mix.wav")  # /tmp absent on Windows
     sh(f'ffmpeg -y -v error -i "{video}" -vn -ac 1 -ar 44100 "{wav}"')
     if not os.path.exists(wav):
         return add("3 sfx audible", False, "could not extract audio")
