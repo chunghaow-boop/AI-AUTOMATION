@@ -9,6 +9,10 @@ WHEN CLAUDE SAYS "run PUSH.bat and clear the chat now":
 
 That is everything. The new Claude reads 2 files and knows the whole project.
 
+(If you prefer attaching a file instead of the one-liner: attach exactly ONE -
+the NEWEST RESUME-*.md. Right now that is: RESUME-2026-08-04.md.
+Claude updates this line at every handover so it always names the right file.)
+
 IF YOU FORGET TO PUSH before clearing: nothing is lost - the files are still on
 this computer. Just push whenever, the new chat works either way.
 IF YOU'RE ON THE OTHER MACHINE: double-click PULL.bat first, then step 2-3.
