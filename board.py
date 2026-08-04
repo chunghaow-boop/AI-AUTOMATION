@@ -29,6 +29,36 @@ def font(sz, bold=False):
     return ImageFont.load_default()
 
 
+def _thumb(name, P, key, cache={}):
+    """First frame of the real clip for this source, if it exists. The board upgrades
+    itself from colour-blocks to actual footage as clips arrive - free previz."""
+    if key in cache:
+        return cache[key]
+    import glob as _g
+    HERE_ = os.path.dirname(os.path.abspath(__file__))
+    cdir = os.path.join(HERE_, "projects", name, "clips")
+    path = None
+    named = getattr(P, "CLIPS", {}).get(key)
+    if named and os.path.exists(os.path.join(cdir, named)):
+        path = os.path.join(cdir, named)
+    else:
+        c = [f for f in _g.glob(os.path.join(cdir, "*.mp4"))
+             if f"_{key}_" in os.path.basename(f) or os.path.basename(f).startswith(f"{key}_")]
+        path = c[0] if c else None
+    im = None
+    if path:
+        try:
+            import cv2
+            cap = cv2.VideoCapture(path); ok, f = cap.read(); cap.release()
+            if ok:
+                f = cv2.cvtColor(f, cv2.COLOR_BGR2RGB)
+                im = Image.fromarray(f)
+        except Exception:
+            im = None
+    cache[key] = im
+    return im
+
+
 def main(mod="supra", out=None):
     name = mod
     for cand in (f"plans.{name}", name, f"{name}_plan"):
@@ -79,8 +109,22 @@ def main(mod="supra", out=None):
         x1 = L + (st + dur) * PX_S
         col = P.SOURCES[s][1]
         d.rectangle([x0 + 2, lane_y, x1 - 2, lane_y + lane_h], fill=col)
-        d.text((x0 + 8, lane_y + 6), f"{i}", font=f13, fill="#0C0E12")
-        d.text((x0 + 8, lane_y + 24), s, font=f18, fill="#0C0E12")
+        th = _thumb(name, P, s)
+        if th is not None:
+            w_box = max(4, int(x1 - x0 - 4))
+            tw_, th_ = th.size
+            crop_w = int(th_ * (w_box / lane_h))
+            if crop_w <= tw_:
+                x_c = (tw_ - crop_w) // 2
+                t2 = th.crop((x_c, 0, x_c + crop_w, th_)).resize((w_box, lane_h))
+            else:
+                t2 = th.resize((w_box, lane_h))
+            im.paste(t2, (int(x0 + 2), int(lane_y)))
+            d.rectangle([x0 + 2, lane_y, x1 - 2, lane_y + lane_h], outline=col, width=3)
+        d.text((x0 + 9, lane_y + 7), f"{i}", font=f13, fill="#0C0E12")
+        d.text((x0 + 8, lane_y + 6), f"{i}", font=f13, fill="#FFFFFF")
+        d.text((x0 + 9, lane_y + 25), s, font=f18, fill="#0C0E12")
+        d.text((x0 + 8, lane_y + 24), s, font=f18, fill="#FFFFFF")
         if dur > 0.7:
             d.text((x0 + 8, lane_y + 48), note[:22], font=f11, fill="#12141A")
         d.text((x0 + 8, lane_y + lane_h - 18),
@@ -149,6 +193,10 @@ def main(mod="supra", out=None):
         cx = col_x[n // 3]
         ry = gy + 34 + (n % 3) * 46
         d.rectangle([cx, ry, cx + 26, ry + 26], fill=col)
+        _t = _thumb(name, P, k)
+        if _t is not None:
+            im.paste(_t.resize((26, 26)), (int(cx), int(ry)))
+            d.rectangle([cx, ry, cx + 26, ry + 26], outline=col, width=2)
         d.text((cx + 36, ry + 1), f"{k}   {lab}", font=f15, fill=INK)
         d.text((cx + 36, ry + 18), f"{act} · plates: {', '.join(plates)} · used {use.get(k,0)}x",
                font=f11, fill=DIM)

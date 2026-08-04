@@ -267,7 +267,13 @@ def check_plates(P):
         for p in plates:
             if p not in P.PLATES:
                 missing.append(f"{key}->{p}")
-        if act.upper() in ("HUMAN", "EVENT") and "nev" not in plates:
+        # HUMAN always needs the persona plate. EVENT needs it only when the prompt
+        # actually STAGES the persona ("the man from the ... reference") - a car-only
+        # event (AWD launch, doors) is legitimate and has no face to lock. The WRX
+        # launch shot exposed this: the act said EVENT, the frame contains no human.
+        stages_persona = "man from the" in prompt.lower()
+        if (act.upper() == "HUMAN" or (act.upper() == "EVENT" and stages_persona)) \
+                and "nev" not in plates:
             human_no_plate.append(key)
     ok = not missing and not low and not human_no_plate
     d = f"{len(P.PLATES)} plates, all 4k" if not low else f"PLATES BELOW 4k: {low}"

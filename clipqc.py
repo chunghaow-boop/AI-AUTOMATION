@@ -122,7 +122,8 @@ def gate_clip(path, P, key=None):
         add("EVENT resolves", ratio >= 2.0,
             f"first-2s/after ratio {ratio:.1f}x (>=2x: the event must be the loudest thing)", False)
 
-    if act in ("EVENT", "HUMAN"):
+    stages_persona = bool(key) and key in P.SOURCES and "man from the" in P.SOURCES[key][4].lower()
+    if act == "HUMAN" or (act == "EVENT" and stages_persona):
         # The probe's killer defect: the face never read. Haar on the first 1.5s,
         # full resolution. A HUMAN/EVENT clip where no face is ever detected fails.
         fc = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
