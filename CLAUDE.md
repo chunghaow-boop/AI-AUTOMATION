@@ -83,7 +83,13 @@ penalty and the trust the whole channel depends on. Non-negotiable.
 
 ---
 
-## ADDED 2026-07-31 / 08-01 — READ `RESUME-2026-08-01.md` FIRST
+## SESSION PROTOCOL — added 2026-08-04
+The chat is disposable; the repo is the memory. Session end: Claude updates the
+newest RESUME-*.md + commits, Gavril pushes, chat cleared. Session start: pull,
+read CLAUDE.md + the NEWEST RESUME-*.md, continue. Claude keeps token cost down:
+one combined evidence sheet per review, logs tailed to verdicts, minimum LOOKs.
+
+## ADDED 2026-07-31 / 08-01 — READ THE NEWEST `RESUME-*.md` FIRST (08-04 latest)
 
 The balance line above ("1,850.68cr") is stale. **Measured 2026-08-01: 5,967.02 cr, plan
 `team`.** Measure it again before spending; hard rule 2 was broken once by estimating.
