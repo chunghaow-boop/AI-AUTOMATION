@@ -346,8 +346,13 @@ def build(name, out_path=None, use_cache=True):
         c = sense[key]
         tin = shot_tin[i]
         cx, cy = xy.get(i, (0.50, 0.50))
+        # DELOGO (2026-08-04, lesson 35): an invented red 'SR' badge in G's plate
+        # recess shipped through 8 builds. plan DELOGO = {shot: (x,y,w,h)} in OUTPUT
+        # frame coords patches it at SEGMENT render — before the single final encode,
+        # so the fix costs zero extra compression generations and zero credits.
+        dl = (getattr(P, "DELOGO", {}) or {}).get(i)
         o = os.path.join(tmp, f"c{i:02d}.mp4")
-        spec = f"{os.path.basename(clips[key])}|{tin:.3f}|{d:.3f}|{cs}|{cx}|{cy}|frames"
+        spec = f"{os.path.basename(clips[key])}|{tin:.3f}|{d:.3f}|{cs}|{cx}|{cy}|frames|dl={dl}"
         sf = o + ".spec"
         if (use_cache and os.path.exists(o) and os.path.exists(sf)
                 and open(sf).read() == spec and abs(dur(o) - d) < 0.10):
@@ -362,6 +367,10 @@ def build(name, out_path=None, use_cache=True):
         else:
             vf = (f"scale={W}:{H}:force_original_aspect_ratio=increase,"
                   f"crop={W}:{H},fps={FPS},setsar=1")
+        if dl:
+            x_, y_, w_, h_ = [int(v) for v in dl]
+            vf += f",delogo=x={x_}:y={y_}:w={w_}:h={h_}"
+            print(f"  shot {i} ({key}): DELOGO patch {w_}x{h_} at ({x_},{y_})")
         nfr = int(round(d * FPS))          # FRAME-EXACT. -t drifts +34ms/shot at 24fps.
         rc, err = sh(f'ffmpeg -y -v error -ss {tin:.3f} -i "{clips[key]}" -vf "{vf}" '
                      f'-frames:v {nfr} -an -c:v libx264 -crf 18 -preset veryfast '

@@ -156,6 +156,35 @@ def gate_clip(path, P, key=None):
         add("EVENT is the loudest thing", ratio >= 2.0,
             f"delivered-window/rest ratio {ratio:.1f}x (>=2x)", False)
 
+    if act in ("EXTERIOR", "PAYOFF", "EVENT"):
+        # LESSON 35 (2026-08-04): an invented red 'SR' badge in a plate recess shipped
+        # through 8 builds - every gate measured geometry/motion, none READ text on the
+        # subject, and the eye at strip scale cannot. Mechanize the ZOOM, not the
+        # reading: write 2x crops of the delivered window's frame; the EYE must read
+        # every legible string. Invented text = REJECT (22.5cr) or plan a DELOGO patch
+        # (free at rebuild). OCR deliberately not attempted - stylised fonts defeat it.
+        try:
+            cap = cv2.VideoCapture(path)
+            cap.set(cv2.CAP_PROP_POS_FRAMES, _bi + _w2 // 2)
+            okf, frf = cap.read()
+            cap.release()
+            if okf:
+                Hh, Ww = frf.shape[:2]
+                tiles = []
+                for cyy in (0.30, 0.52, 0.74):      # upper / centre / lower bands
+                    y0 = max(0, min(Hh - Hh // 4, int(Hh * cyy) - Hh // 8))
+                    t_ = frf[y0:y0 + Hh // 4, Ww // 4: Ww // 4 + Ww // 2]
+                    tiles.append(cv2.resize(t_, (Ww, Hh // 2)))
+                adir = os.path.join(os.path.dirname(os.path.abspath(path)), "..", "analysis")
+                os.makedirs(adir, exist_ok=True)
+                zp = os.path.abspath(os.path.join(adir, f"textzoom_{key or 'x'}.png"))
+                cv2.imwrite(zp, cv2.vconcat(tiles))
+                add("on-subject text -> EYE", True,
+                    f"2x text-zoom written ({os.path.basename(zp)}) - READ every legible "
+                    f"string; invented badge/text = reject or DELOGO", False)
+        except Exception as e:
+            add("on-subject text -> EYE", False, f"zoom failed: {e}", False)
+
     stages_persona = bool(key) and key in P.SOURCES and "man from the" in P.SOURCES[key][4].lower()
     if act == "HUMAN" or (act == "EVENT" and stages_persona):
         # The probe's killer defect: the face never read. Haar on the first 1.5s,

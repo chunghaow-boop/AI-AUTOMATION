@@ -26,7 +26,7 @@ USAGE
   python3 planqc.py --plan i8_plan  validate a different plan module
   python3 planqc.py --json r.json
 """
-import os, sys, json, math, argparse, importlib
+import os, re, sys, json, math, argparse, importlib
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -444,6 +444,116 @@ def check_capacity(P):
                if not bad else " · ".join(bad))
 
 
+# ------------------------------------------------------- 22-24 THE MASTERMIND LOOP
+# His doctrine, stated 2026-08-04: the mastermind is the FIRST planner and the FINAL
+# BOSS of QC, and the whole system is a loop that must get better every generation.
+# A lesson that does not change the next build is not learned. These three checks
+# make the loop mechanical: the plan must READ the ledger (23), PREDICT its own
+# likely failures from it (22), and PLAN every join, not discover it (24).
+
+def _ledger_lessons(pillar):
+    p = _first(os.path.join(HERE, "ledgers", "knowledge.json"))
+    if not p:
+        return None, None
+    topics = json.load(open(p, encoding="utf-8")).get("topics", {})
+    key = str(pillar).replace("_", " ")
+    t = topics.get(key)
+    if t is None:
+        return None, key
+    return t.get("lessons", []), key
+
+
+def check_premortem(P):
+    """The plan predicts THIS build's likely mistakes from the ledger and plans the
+    fix IN — before any credit. Free, and it is where the loop closes."""
+    pm = getattr(P, "PREMORTEM", None)
+    if not pm:
+        return add("22 premortem", False,
+                   "NO PREMORTEM — the plan must predict this build's likely mistakes "
+                   "from ledgers/knowledge.json and plan the mitigation in. Required: "
+                   "PREMORTEM = [(risk, mitigation), ...], >= 3 entries.")
+    bad = []
+    if len(pm) < 3:
+        bad.append(f"only {len(pm)} entries (need >= 3)")
+    for i, e in enumerate(pm):
+        if len(e) < 2 or not str(e[0]).strip() or not str(e[1]).strip():
+            bad.append(f"entry {i} lacks a risk or a mitigation")
+    ok = not bad
+    cited = sum(1 for e in pm if re.search(r"L\d+", str(e[0]) + " " + str(e[1])))
+    r = add("22 premortem", ok,
+            f"{len(pm)} predicted risks, {cited} citing ledger lessons (L<n>)"
+            if ok else " · ".join(bad))
+    if ok and cited == 0:
+        warn("22b premortem cites", "no entry cites a ledger lesson (L<n>) — a premortem "
+             "must READ the ledger, not free-associate")
+    return r
+
+
+def check_lessons_ack(P):
+    """A plan cannot pass planqc without having read the NEWEST ledger state."""
+    lessons, key = _ledger_lessons(getattr(P, "PILLAR", ""))
+    if lessons is None:
+        return warn("23 lessons ack", f"ledger topic '{key}' not found — nothing to ack")
+    n = len(lessons)
+    ack = getattr(P, "LESSONS_ACK", None)
+    if ack is None:
+        return add("23 lessons ack", False,
+                   f"NO LESSONS_ACK — ledger '{key}' holds {n} lessons; the plan must "
+                   f"declare the count it was written against (LESSONS_ACK = {n}).")
+    if ack < n:
+        return add("23 lessons ack", False,
+                   f"STALE: plan acknowledges {ack} lessons but ledger '{key}' now holds "
+                   f"{n} — read lessons {ack}..{n-1} (0-based), update the premortem, re-ack.")
+    if ack > n:
+        return add("23 lessons ack", False,
+                   f"plan acknowledges {ack} but ledger '{key}' holds {n} — an invented "
+                   f"count is worse than none. Hard rule 2 applies to lessons too.")
+    return add("23 lessons ack", True, f"plan written against all {n} '{key}' lessons")
+
+
+def check_linkage(P, name):
+    """Every shot is planned to CONNECT to its neighbours — exit motion into entry
+    motion, lighting, direction — so the editor gets footage that already wants to
+    join. Relational, planned, not discovered (his doctrine, 2026-08-04)."""
+    n_b = len(P.SHOTS) - 1
+    lk = getattr(P, "LINKAGE", None)
+    if not lk:
+        return add("24 linkage", False,
+                   f"NO LINKAGE — the plan must declare a connection intent for each of "
+                   f"its {n_b} boundaries (LINKAGE = [intent, ...] or {{i: intent}}).")
+    if isinstance(lk, dict):
+        lk = [lk.get(i, "") for i in range(n_b)]
+    empty = [i for i in range(n_b) if i >= len(lk) or not str(lk[i]).strip()]
+    ok = not empty
+    r = add("24 linkage", ok,
+            f"all {n_b} boundaries carry a connection intent" if ok
+            else f"boundaries with NO declared connection: {empty}")
+    # relational measurement, free at plan time, when ingest data exists
+    mp = os.path.join(HERE, "projects", name, "clips", "manifest.json")
+    if ok and os.path.exists(mp):
+        man = json.load(open(mp, encoding="utf-8"))
+        have = any("luma_mean" in v or "motion_mean" in v for v in man.values())
+        if not have:
+            warn("24b linkage measured", "manifest carries no luma/motion means yet — "
+                 "extend ingest.py to record them; declared intents stay UNVERIFIED")
+        else:
+            jumps = []
+            for i in range(n_b):
+                a, b = P.SHOTS[i][0], P.SHOTS[i + 1][0]
+                la = man.get(a, {}).get("luma_mean")
+                lb = man.get(b, {}).get("luma_mean")
+                if la is not None and lb is not None and abs(la - lb) > 60:
+                    jumps.append(f"{i}({a}->{b}: {la:.0f}->{lb:.0f})")
+            if jumps:
+                warn("24b linkage measured",
+                     f"brightness jump > 60 luma at boundaries {jumps} — declared "
+                     "continuity vs measured light disagree, LOOK before build")
+            else:
+                add("24b linkage measured", True,
+                    "no boundary joins clips more than 60 luma apart", False)
+    return r
+
+
 # ---------------------------------------------------------------- 17 COST
 def check_cost(P, balance):
     c = P.cost()
@@ -646,6 +756,9 @@ def main():
     check_sound(P)
     check_transitions_plan(P)
     check_capacity(P)
+    check_premortem(P)
+    check_lessons_ack(P)
+    check_linkage(P, name)
     check_cost(P, args.balance)
 
     print()

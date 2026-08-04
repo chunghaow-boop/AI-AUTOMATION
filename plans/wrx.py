@@ -291,6 +291,14 @@ CONTENT = {
                 "DEFECT CAUGHT: twist field still described v2's dead cards - fixed. "
                 "Lesson: planqc passing is NOT the panel passing. Separate gates, "
                 "and a changed CONTENT block ALWAYS re-runs the panel before spend.",
+
+    # JUDGES ON THE CUT (v8, 2026-08-04 remote session 6): J0 8/10 PASS, J1 STOP,
+    # J3 75/100 FRESH, J5/J6 pass (DM engine = withheld price; no session-extend
+    # hook - part-numbering next build). J4 CONDITIONAL VETO: invented 'SR' badge
+    # (mastermind QC find, lesson 35) -> DELOGO below, v9 rebuild, then RE-WALK
+    # the panel on v9 (re-walk rule). Kill quota: weakest stretch shots 8-10,
+    # judgement-only. Retention heuristic ~72%@3s/~45%@15s/~35%end, resolve +24h.
+    "judged_cut": "v8 2026-08-04: FIX(delogo)->SHIP; J4 veto lifts on v9 re-walk",
 }
 
 PREVIZ = {  # sketch-grade, NEVER enters generation. v2 carries the Nev identity ref.
@@ -301,6 +309,59 @@ PREVIZ = {  # sketch-grade, NEVER enters generation. v2 carries the Nev identity
     "note": "panel letters partly scrambled by the model; CONTENT mapping: "
             "launch=A front=B scoopmacro=C wheel=D cockpit=E nev-seat=F rear=G rolling=H nev-lean=I",
 }
+
+# ---------------------------------------------------------------- THE MASTERMIND LOOP
+# Added 2026-08-04 (retrofit on a built plan - the FORMAT demonstration for every
+# future plan; planqc 22/23/24 now block without these). L<n> = 0-based index into
+# ledgers/knowledge.json topics["car cinematic"].lessons.
+LESSONS_ACK = 35        # ledger lesson count this plan was (re)written against
+
+PREMORTEM = [
+    ("source overcommit / duplicate-feel on A callbacks (L23)",
+     "non-overlapping window allocator + BAN_SPANS + verify 10 far repeats; "
+     "callbacks DECLARED at (1,18)/(8,16) so repeat framing is intent, not accident"),
+    ("bed breakdown or dropout at cut moments (L24, L30)",
+     "segment scan rides the track's most continuous stretch; ONE smooth sidechain; "
+     "SFX_OVERLAYS cover the two measured breathing gaps from the clips' own audio"),
+    ("layer gains stale against a changed bed (L31, L33)",
+     "sound engineer stage re-measures every layer's active RMS vs the bed anchor "
+     "each build - no hand-tuned constants survive a bed change"),
+    ("rig leak from the plate's softbox inheritance (B head)",
+     "BAN_SPANS B 0-2.0s (measured), ingest suspect-bright spans, eye pass on seams"),
+    ("AAC true-peak overshoot on sub-heavy material (L27)",
+     "gates measure the DELIVERED encode, never the pre-encode mix; HP30 + relimit"),
+    ("invented text/badge on the subject (L34)",
+     "clipqc text-zoom crops for the EYE on every exterior clip; DELOGO patch below "
+     "kills the one that shipped"),
+]
+
+# One intent per boundary (18 for 19 shots) - exit into entry, planned not discovered.
+LINKAGE = [
+    "event exit spray -> static nose: aftermath-to-subject, hard cut on impact",
+    "nose arc -> scoop macro: zoom-in along the same subject axis",
+    "scoop rain -> wheel spray: water motif carries the cut",
+    "wheel -> rear 3/4: travel rearward along the flank",
+    "exterior night -> cockpit glow: outside-in, brightness step DECLARED",
+    "empty cockpit -> Nev seated: same space, now occupied",
+    "Nev eyes flick up -> rolling tease: intent pays off as motion",
+    "rolling motion -> charge at lens: escalation callback into the hero",
+    "charge -> Nev lean: threat resolves to the owner's face",
+    "Nev static -> caliper detail: cutaway, beat rest before payoff",
+    "spray detail -> payoff roll: detail-to-context, motion rises into the hold",
+    "payoff exit -> scoop breath: speed-to-breathing contrast (blend here)",
+    "scoop intake -> boost gauge: air path, cause -> effect",
+    "gauge glow -> Nev grin: machine glow to face glow",
+    "grin -> dual tips: satisfaction -> exhaust note foreground",
+    "exhaust -> lens-pass replay: sound hands off to the hero sound",
+    "replay exit -> Nev punch-in: the pass earns the direct address",
+    "Nev -> front CTA: face-to-badge close, loop seam back to shot 0",
+]
+
+# DELOGO (2026-08-04, mastermind QC on v8): invented red 'SR' script in G's plate
+# recess - no such Subaru badge, J4's exact roast material. Box MEASURED on v8
+# frames 16.8-17.6s (red blob union x386-469 y622-639, drifting ~30px left) with
+# margin. Shot 4's badge measured ILLEGIBLE (dark) - left untouched on purpose.
+DELOGO = {15: (372, 612, 112, 38)}
 
 PROBE_FIRST  = "A"      # the launch is the riskiest generation - probe it alone
 

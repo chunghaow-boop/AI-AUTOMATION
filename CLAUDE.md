@@ -233,6 +233,11 @@ system is a loop that must get better every generation:
 Proven today, five times over: every defect his eye/ear caught (duplicates,
 softbox, blend-killed hook, bed breakdown, duck stepping) became a measured
 cause, then a permanent gate or engine behaviour the same day. That cadence IS
-the loop. NEXT to build: PREMORTEM block required by planqc; LINKAGE declaration
-+ relational check (motion/lighting continuity across cuts); LESSONS_ACK so a
-plan cannot pass planqc without having read the newest ledger state.
+the loop. BUILT 2026-08-04 (remote session 6): planqc 22 PREMORTEM (>=3 ledger-
+cited risks w/ mitigations) / 23 LESSONS_ACK (plan blocks unless it acks the
+ledger's exact current lesson count for its pillar topic) / 24 LINKAGE (an
+intent per boundary; 24b measures brightness continuity once ingest.py records
+luma/motion means — that ingest extension is the open TODO). plans/wrx.py is
+the format demo. Same session: file 27 QC ran first time on v8 and caught an
+invented 'SR' badge (lesson 35) → clipqc text-zoom crops + plan DELOGO +
+engine delogo-at-segment-render, all live.
