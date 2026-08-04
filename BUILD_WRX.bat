@@ -23,7 +23,7 @@ if errorlevel 1 (
   )
   if not defined FFBIN (
     echo   downloading ffmpeg essentials ~80MB - one time only...
-    curl -sfL -o ffmpeg.zip https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip || ( echo ffmpeg download failed - tell Claude & pause & exit /b 1 )
+    curl -fL --progress-bar -o ffmpeg.zip https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip || ( echo ffmpeg download failed - tell Claude & pause & exit /b 1 )
     mkdir ffmpeg-extracted 2>nul
     tar -xf ffmpeg.zip -C ffmpeg-extracted
     del ffmpeg.zip

@@ -89,6 +89,14 @@ newest RESUME-*.md + commits, Gavril pushes, chat cleared. Session start: pull,
 read CLAUDE.md + the NEWEST RESUME-*.md, continue. Claude keeps token cost down:
 one combined evidence sheet per review, logs tailed to verdicts, minimum LOOKs.
 
+AUTO-SAVE RULE (his standing order): Claude commits after EVERY meaningful state
+change without being asked (already habit), and — because Claude cannot push or
+clear the chat — Claude WATCHES THE SESSION WEIGHT and, whenever a milestone
+lands (gate passed, build delivered, ~10+ images accumulated, or the limit
+banner appears), proactively says: "RESUME updated + committed — run PUSH.bat
+and clear the chat now." Gavril's whole job is those two clicks. Claude never
+waits to be asked for a handover.
+
 ## ADDED 2026-07-31 / 08-01 — READ THE NEWEST `RESUME-*.md` FIRST (08-04 latest)
 
 The balance line above ("1,850.68cr") is stale. **Measured 2026-08-01: 5,967.02 cr, plan
