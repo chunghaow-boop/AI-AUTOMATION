@@ -243,7 +243,8 @@ def check_captions(P):
     n = len(P.SHOTS)
     over = [c for c in P.CARDS if c[1] + c[2] > n]
     centre = 0.34 <= y <= 0.60
-    long = [c[0] for c in P.CARDS if len(c[0].split()) > 3]
+    limit = 5 if getattr(P, "CARD_STYLE", "") == "narrative" else 3
+    long = [c[0] for c in P.CARDS if len(c[0].split()) > limit]
     ok = not centre and not over and not long
     d = f"{len(P.CARDS)} cards at y={y}"
     if centre:
@@ -251,7 +252,12 @@ def check_captions(P):
     if over:
         d += f" - card runs past the last shot: {[c[0] for c in over]}"
     if long:
-        d += f" - too wordy for 1-2 word cards: {long}"
+        d += f" - too wordy even for {getattr(P,'CARD_STYLE','label')} style: {long}"
+    if ok and getattr(P, "CARD_STYLE", "") == "narrative":
+        # deviation from the measured 1-2 word profile: DECLARED, never silent
+        warn("12b card style", f"NARRATIVE cards ({max(len(c[0].split()) for c in P.CARDS)} "
+             f"words max) vs profile's 1-2 word labels - DELIBERATE: the cards form a "
+             f"sentence, the field's cards are labels")
     return add("12 caption zone", ok, d)
 
 

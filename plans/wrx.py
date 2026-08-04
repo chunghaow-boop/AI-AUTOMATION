@@ -182,11 +182,13 @@ CARD_Y       = 0.72
 # NARRATIVE CARDS (2026-08-04, after "the story is too common"): the field's cards are
 # labels; ours read as a SENTENCE across the video - a forbidden-fruit story with a
 # resolution. This is the improvise-above move at STORY level, not just hook level.
+CARD_STYLE = "narrative"   # DECLARED deviation from the profile's 1-2 word label style.
+                           # The deviation IS the improvisation: cards read as a sentence.
 CARDS = [   # (text, first_shot, n_shots, kind)
-    ("JAPAN KEPT THIS ONE",   0, 4, "cap"),   # Act 1 FORBIDDEN
-    ("NEVER SOLD HERE",       6, 2, "cap"),   # Act 2 THE PROOF
-    ("HE FOUND ONE ANYWAY",  11, 2, "cap"),   # Act 3 THE TAKE
-    ("DM BEFORE IT'S GONE",  16, 3, "cta"),
+    ("JAPAN KEPT IT",       0, 4, "cap"),   # Act 1 FORBIDDEN
+    ("NEVER SOLD HERE",     6, 2, "cap"),   # Act 2 THE PROOF
+    ("HE FOUND ONE",       11, 2, "cap"),   # Act 3 THE TAKE
+    ("DM BEFORE IT'S GONE",16, 3, "cta"),
 ]
 AI_LABEL_BURNED_IN = False
 
