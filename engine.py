@@ -443,17 +443,20 @@ def build(name, out_path=None, use_cache=True):
     OUT = out_path or os.path.join(pdir, "output", f"{name.upper()}_CINEMATIC_v1.mp4")
     A = "aformat=sample_fmts=fltp:sample_rates=44100:channel_layouts=stereo"
     if HAVE_SFX:
-        # REMIXED 2026-08-04 (WRX v1 measured: sfx lift -0.5dB, true-peak +0.2dBTP):
-        # bed down 3dB and sfx up 3dB so transients CLEAR the bed (verify wants >=2dB
-        # crest lift at cuts); deeper sidechain; ceiling 0.62 (~-4dBFS) because AAC
-        # inter-sample peaks overshot the old 0.76 ceiling to +0.2dBTP.
+        # MIX TUNING LOG (2026-08-04, WRX, both MEASURED - do not re-try blind):
+        #   original (12/13.5, thr .05, limit .76): lift -0.5dB FAIL, -8.3 LUFS OK, peak +0.2dBTP FAIL
+        #   experiment (9/16.5, thr .03, limit .62): lift -2.8dB WORSE, -10.4 LUFS FAIL, peak -0.6 ok
+        # Lesson: a LOWER limiter ceiling squashes the very transients the lift check
+        # measures. Keep original balance; trim only the ceiling slightly for true-peak.
+        # Next lever if lift still fails: raise impact/sub-drop amplitudes in sfxgen
+        # placement (0.55/0.42), NOT the master gains.
         f = (f"[1:a]atrim={BED_OFFSET:.4f}:{vd+BED_OFFSET:.2f},asetpts=N/SR/TB,{A},"
-             f"volume=9.0dB[bedraw];"
-             f"[2:a]atrim=0:{vd:.2f},asetpts=N/SR/TB,{A},volume=16.5dB,asplit=2[sfx][key];"
-             f"[bedraw][key]sidechaincompress=threshold=0.03:ratio=8:attack=4:"
+             f"volume=12.0dB[bedraw];"
+             f"[2:a]atrim=0:{vd:.2f},asetpts=N/SR/TB,{A},volume=13.5dB,asplit=2[sfx][key];"
+             f"[bedraw][key]sidechaincompress=threshold=0.05:ratio=8:attack=4:"
              f"release=180:makeup=1[bed];"
              f"[bed][sfx]amix=inputs=2:duration=first:normalize=0,"
-             f"alimiter=limit=0.62:level=disabled:attack=5:release=50[aout]")
+             f"alimiter=limit=0.72:level=disabled:attack=5:release=50[aout]")
         cmd = (f'ffmpeg -y -v error -i "{graded}" -stream_loop -1 -i "{BED}" -i "{sfx_path}" '
                f'-filter_complex "{f}" -map 0:v -map "[aout]" -c:v copy -c:a aac '
                f'-b:a 192k -t {vd:.2f} "{OUT}.part.mp4"')
