@@ -9,7 +9,7 @@
 
 | plate | res | cr | status | must show |
 |---|---|---|---|---|
-| `wrx` | 4k | 4 | TO GENERATE | VA-gen WRX S4 with FULL AERO KIT (his call 2026-08-04 - stock was 'ugly'): deep front splitter + canards · side skirts · rear diffuser · TALL CARBON GT WING on the boot · large hood scoop · angular LED headlights · WR Blue · widebody stance · 18in dark alloys |
+| `wrx` | 4k | 4 | PASS by eye 2026-08-04: S4 badge, scoop, splitter+canards, skirts, tall GT wing on 2 uprights, flares, dark alloys, WR Blue, photoreal. Softbox in frame - harmless for identity. | VA-gen WRX S4 with FULL AERO KIT (his call 2026-08-04 - stock was 'ugly'): deep front splitter + canards · side skirts · rear diffuser · TALL CARBON GT WING on the boot · large hood scoop · angular LED headlights · WR Blue · widebody stance · 18in dark alloys |
 | `nev` | 4k | 0 | 3-angle face set | actually him - face, hair, jawline, EARRING. Black tee. |
 
 ---
