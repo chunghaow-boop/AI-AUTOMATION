@@ -81,12 +81,19 @@ def gate_clip(path, P, key=None):
     mot = motion_profile(c["gray"])
     fps = c["fps"]
 
+    # role, needed early: EVENT clips are consumed via action-peak centering,
+    # so their head checks are warnings, not blocks (see EVENT section).
+    act = P.SOURCES[key][2].upper() if key and key in P.SOURCES else None
+
     # ---- 2 OPENING SETTLE ----
     # AI clips open with a settle. Measured: a settle/static open reads < ~1.5 mean
     # |diff|; the approved Supra probe opened at 6.35. First 0.4s must move.
+    # WARN-only for EVENT clips: the engine centers the shot on the action peak,
+    # so a raw-head settle never reaches the delivered cut (WRX probe A, 2026-08-04).
     head = mot[:max(2, int(0.4 * fps))]
     hm = float(np.mean(head))
-    add("no-settle open", hm >= 1.5, f"first 0.4s motion {hm:.2f} (>=1.5; a settle reads <1.5)")
+    add("no-settle open", hm >= 1.5, f"first 0.4s motion {hm:.2f} (>=1.5; a settle reads <1.5)",
+        blocking=(act != "EVENT"))
 
     # ---- 3 DEAD TAIL ----
     # The failed probe spent 3.4s motionless after its event. A clip that dies early
@@ -107,20 +114,30 @@ def gate_clip(path, P, key=None):
     add("sharpness", sharp >= 25, f"laplacian var {sharp:.0f} (floor 25; LC300 sources ~56)")
 
     # ---- role-specific checks, driven by the PLAN ----
-    act = P.SOURCES[key][2].upper() if key and key in P.SOURCES else None
-
     if act == "EVENT":
-        # The whole thesis of the hook: the event must be OVER inside 2.00s and the
-        # first 2s must carry far more motion than the rest (approved-probe signature:
-        # 4.11 vs 0.41 — a 10x ratio; require >=2x and a real peak inside the window).
-        first2 = [m for i, m in enumerate(mot) if (i + 1) / fps <= 2.0]
-        rest = [m for i, m in enumerate(mot) if (i + 1) / fps > 2.0] or [0.0]
-        ratio = (np.mean(first2) + 1e-6) / (np.mean(rest) + 1e-6)
-        pk_t = (int(np.argmax(mot)) + 1) / fps
-        add("EVENT in window", np.mean(first2) >= 2.0 and pk_t <= 2.0,
-            f"first-2s motion {np.mean(first2):.2f} (>=2.0), peak at {pk_t:.2f}s (<=2.0)")
-        add("EVENT resolves", ratio >= 2.0,
-            f"first-2s/after ratio {ratio:.1f}x (>=2x: the event must be the loudest thing)", False)
+        # AMENDED 2026-08-04 after WRX probe A: measure what the EDIT CONSUMES, not
+        # the clip head. The engine centers every shot on its action peak, so the
+        # event may sit anywhere in the raw clip — probe A carried a perfect
+        # swerve-pass at 2.1-3.7s behind a 2s wind-up, and the old head-based check
+        # rejected a clip whose delivered window measured ~16. Gate the BEST
+        # shot-length window instead. Floor 4.0 = the approved Supra probe's 4.11.
+        try:
+            d = P.BEATS[P.SHOTS[0][2]] * P.BEAT          # the hook shot's real length
+        except Exception:
+            d = 1.6
+        wlen = max(2, int(d * fps))
+        best_m, best_i = -1.0, 0
+        for i in range(0, max(1, len(mot) - wlen + 1)):
+            m = float(np.mean(mot[i:i + wlen]))
+            if m > best_m:
+                best_m, best_i = m, i
+        rest = mot[:best_i] + mot[best_i + wlen:]
+        ratio = (best_m + 1e-6) / ((float(np.mean(rest)) if rest else 0.0) + 1e-6)
+        add("EVENT window (delivered)", best_m >= 4.0,
+            f"best {d:.2f}s window mean {best_m:.2f} at {best_i / fps:.2f}s "
+            f"(>=4.0; approved Supra probe 4.11)")
+        add("EVENT is the loudest thing", ratio >= 2.0,
+            f"delivered-window/rest ratio {ratio:.1f}x (>=2x)", False)
 
     stages_persona = bool(key) and key in P.SOURCES and "man from the" in P.SOURCES[key][4].lower()
     if act == "HUMAN" or (act == "EVENT" and stages_persona):

@@ -29,7 +29,10 @@ TARGET_S  = 21.6                    # 54 beats. See docstring.
 
 # ---------------------------------------------------------------- PLATES
 PLATES = {
-    "wrx": {"job": None, "res": "4k", "ar": "16:9", "cr": 4, "status": "TO GENERATE",
+    "wrx": {"job": "42c29a3e-f348-4549-bcb5-61cdc23c8a3d", "res": "4k", "ar": "16:9",
+            "cr": 4, "status": "PASS by eye 2026-08-04: S4 badge, scoop, splitter+canards, "
+                              "skirts, tall GT wing on 2 uprights, flares, dark alloys, WR "
+                              "Blue, photoreal. Softbox in frame - harmless for identity.",
             "must_show": "VA-gen WRX S4 with FULL AERO KIT (his call 2026-08-04 - stock "
                          "was 'ugly'): deep front splitter + canards · side skirts · rear "
                          "diffuser · TALL CARBON GT WING on the boot · large hood scoop · "
@@ -236,6 +239,17 @@ PREVIZ = {  # sketch-grade, NEVER enters generation. v2 carries the Nev identity
 }
 
 PROBE_FIRST  = "A"      # the launch is the riskiest generation - probe it alone
+
+# PROBE VERDICT 2026-08-04: job 25e603b7-bd83-446a-b48a-56a8b8e7faa5, 22.5cr.
+# ACCEPTED by both eyes (his + mine). Event mis-timed in the RAW file (swerve-pass at
+# 2.1-3.7s behind a 2s wind-up; motion buckets 1.3..3.5 | 11.1 20.1 18.5 | ..) but the
+# delivered 1.6s window centered on the 2.62s peak IS the judged hook: charge, swerve
+# inches from the lens, GT WING RAKING OVER THE CAMERA, spray exit. Identity held.
+# fps=24 from the API (plan says 30 - engine conforms on render, same as LC300).
+# clipqc EVENT checks amended the same day to window-based measurement.
+CLIPS = {
+    "A": "hf_20260804_090255_25e603b7-bd83-446a-b48a-56a8b8e7faa5.mp4",
+}
 
 
 def timeline():
