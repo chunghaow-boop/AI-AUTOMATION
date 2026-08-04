@@ -8,9 +8,12 @@ REM  filesystem). Safe to re-run: downloads and bed are cached.
 REM ============================================================
 cd /d "%~dp0"
 
-echo [0/5] python deps (installs only if missing)...
-python -c "import cv2, numpy" 2>nul || python -m pip install --quiet opencv-python numpy
-python -c "import cv2, numpy" 2>nul || ( echo could not install cv2/numpy - tell Claude & pause & exit /b 1 )
+echo [0/5] python deps (opencv PINNED to 4.x - 5.x removed CascadeClassifier)...
+python -c "import cv2, numpy; cv2.CascadeClassifier" 2>nul || (
+  python -m pip uninstall -y -q opencv-python opencv-python-headless 2>nul
+  python -m pip install --quiet "opencv-python==4.10.0.84" "numpy<2.3"
+)
+python -c "import cv2, numpy; cv2.CascadeClassifier" 2>nul || ( echo cv2 4.x install failed - tell Claude & pause & exit /b 1 )
 
 echo [1/5] downloading the 9 gated clips (skips ones already here)...
 if not exist projects\wrx\clips mkdir projects\wrx\clips
