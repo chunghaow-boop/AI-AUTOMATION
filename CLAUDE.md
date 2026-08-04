@@ -202,3 +202,36 @@ Storyboard previz (the cheap 1cr nine-panel sheet) is sketch-grade and NEVER ent
 generation. But if the persona appears in ANY panel, the sheet MUST carry the identity
 reference — a text-only previz invented a stranger and was correctly rejected ("the man
 is not nev"). Persona = references, always, even in sketches.
+
+## THE MASTERMIND LOOP — his doctrine, stated 2026-08-04, codified same day
+The mastermind is the FIRST planner and the FINAL BOSS of QC, and the whole
+system is a loop that must get better every generation:
+
+```
+1 PLAN      full detailed storyboard BEFORE any generation - including a
+            PREMORTEM: predict the small mistakes this exact build will make
+            (from ledgers/knowledge.json - 31 lessons and counting) and plan
+            the fix INTO the plan. Sound (FOLEY/SOUND), overlays, ban spans,
+            linkage - all decided pre-spend. planqc enforces what it can.
+2 LINKAGE   every shot is planned to CONNECT to its neighbours - exit motion
+            into entry motion, lighting continuity, direction - so the
+            organizer (ingest.py manifest) hands the editor footage that
+            already wants to join. Relational, planned, not discovered.
+3 EXECUTE   organizer catalogs -> engine cuts/sounds/transitions to the
+            declared mood -> mechanical gates (planqc 22 / verify 13) all pass.
+4 FINAL BOSS mastermind cross-checks the FINISHED cut against the board and
+            against realism/smoothness - strictest gate, after all others.
+            THE PROCEDURE IS FILE `27-mastermind-qc.md` - read it, run it
+            top to bottom, use its verdict format. Every miss it finds
+            becomes (a) a fix now, (b) a LESSON in ledgers/knowledge.json,
+            (c) where possible a NEW MECHANICAL CHECK.
+5 LOOP      the next plan's premortem READS the ledger. A lesson that does not
+            change the next build is not learned.
+```
+
+Proven today, five times over: every defect his eye/ear caught (duplicates,
+softbox, blend-killed hook, bed breakdown, duck stepping) became a measured
+cause, then a permanent gate or engine behaviour the same day. That cadence IS
+the loop. NEXT to build: PREMORTEM block required by planqc; LINKAGE declaration
++ relational check (motion/lighting continuity across cuts); LESSONS_ACK so a
+plan cannot pass planqc without having read the newest ledger state.

@@ -185,10 +185,62 @@ def build(name, out_path=None, use_cache=True):
     import clipsense, fx, rhythm
 
     # ---- 1 PHASE, not just tempo ----
+    BED_TRIM = 0.0        # per-segment level compensation, set by the segment scan
     try:
+        import math
         _x = rhythm.pcm(BED); _f, _t = rhythm.stft_flux(_x)
         _on = rhythm.pick_onsets(_f, _t)
         BED_OFFSET = float(_on[0]) if len(_on) else 0.0
+        # PHASE UPGRADE (2026-08-04, real-bed lesson): the first transient is not
+        # necessarily ON the beat grid - a swung phonk intro starts off-grid and
+        # every cut inherits the error (measured: 69% on-grid trimming to first
+        # onset). Fit the grid phase over ALL onsets instead, then trim at the
+        # grid line nearest the first transient so the drop still opens the video.
+        if len(_on) > 4:
+            import numpy as _np
+            _dur = len(_f) * _t / rhythm.SR
+            _sc, _off = rhythm._fit_grid(P.BEAT, _np.array(_on), _dur, tol=0.035)
+            k = round((BED_OFFSET - _off) / P.BEAT)
+            cand = _off + k * P.BEAT
+            if cand >= -1e-3:
+                BED_OFFSET = max(0.0, float(cand))
+            # SEGMENT SCAN (2026-08-04, his ear: "silent 1-2s, track keeps
+            # switching"). A real track has an ARRANGEMENT - intro, drop,
+            # breakdown - and starting at the head dropped Skrrt Slide's
+            # breakdown into the middle of the video (measured: 1.4s of
+            # beat-gone at 6.6-8.0s). Scan beat-aligned start offsets and keep
+            # the one whose WEAKEST 0.8s of bed energy is strongest - the
+            # video rides the most continuous stretch the track has.
+            bed_dur = len(_x) / rhythm.SR
+            if bed_dur > TOTAL + 2 * P.BEAT:
+                hopw = int(0.2 * rhythm.SR)
+                env = _np.array([20 * _np.log10(float(_np.sqrt(_np.mean(
+                    _x[i:i + hopw] ** 2))) + 1e-9)
+                    for i in range(0, len(_x) - hopw, hopw)])
+                best = (-1e9, BED_OFFSET)
+                off = BED_OFFSET
+                while off + TOTAL + 0.2 <= bed_dur:
+                    a, b = int(off / 0.2), int((off + TOTAL) / 0.2)
+                    win = env[a:b]
+                    if len(win) >= 4:
+                        roll = _np.convolve(win, _np.ones(4) / 4, "valid")
+                        score = float(roll.min())
+                        if score > best[0] + 1e-9:
+                            best = (score, off)
+                    off += 2 * P.BEAT          # 2-beat steps keep the phase
+                head = env[int(BED_OFFSET / 0.2):int((BED_OFFSET + TOTAL) / 0.2)]
+                if best[1] != BED_OFFSET:
+                    print(f"      bed segment: start {best[1]:.2f}s (weakest 0.8s "
+                          f"{best[0]:.1f}dB vs {head.min():.1f}dB at the head)")
+                # LEVEL COMPENSATION: the mix gains were calibrated at one segment
+                # level; a hotter segment re-broke true-peak (+0.8 measured).
+                # Gain rides the segment's mean level so the bed hits the mix at
+                # a CONSTANT level whichever segment wins. Reference = -15.7dB
+                # mean (the calibration segment of bed_skrrt_slide_150).
+                seg = env[int(best[1] / 0.2):int((best[1] + TOTAL) / 0.2)]
+                if len(seg):
+                    BED_TRIM = max(-6.0, min(6.0, -15.7 - float(seg.mean())))
+                BED_OFFSET = best[1]
     except Exception as e:
         BED_OFFSET = 0.0
         print(f"  !! could not measure bed phase ({str(e)[:40]}) — assuming 0. "
@@ -198,22 +250,101 @@ def build(name, out_path=None, use_cache=True):
           f"{TOTAL:.2f}s")
 
     # ---- 2 segments, cut on action ----
-    print(f"\n[2/7] segments  centred on unused action peaks, frame-exact")
+    print(f"\n[2/7] segments  NON-OVERLAPPING windows centred on action peaks, frame-exact")
     sense = {k: clipsense.analyse(v) for k, v in clips.items()}
     xy = getattr(P, "CROP_XY", {})
-    used = {k: set() for k in clips}
-    rep = {k: 0 for k in clips}
-    shot_tin, segs, cuts, t = {}, [], [], 0.0
+
+    # WINDOW ALLOCATOR (2026-08-04, after Gavril caught duplicates BY EYE that every
+    # gate missed): the old picker deduped PEAKS, not WINDOWS — a hold consumed the
+    # whole clip head and a later burst from the same source landed INSIDE it. Measured
+    # on the v1 build: 9 overlapping pairs, three 100% contained (payoff replayed the
+    # tease frame-for-frame). Now each source hands out non-overlapping windows, minus
+    # BAN_SPANS from the plan and ban_spans from clips/manifest.json (ingest.py — e.g.
+    # the softbox in B's head, measured out at 2.0s). A source that cannot fit its
+    # shots FAILS THE BUILD LOUDLY: that is a plan overcommit (planqc 21 catches it
+    # pre-spend), never something to paper over with a repeat.
+    bans = {k: [tuple(b) for b in (getattr(P, "BAN_SPANS", {}) or {}).get(k, [])]
+            for k in clips}
+    mpath = os.path.join(pdir, "clips", "manifest.json")
+    if os.path.exists(mpath):
+        try:
+            mf = json.load(open(mpath))
+            for k in clips:
+                for sp in mf.get(k, {}).get("ban_spans", []):
+                    if tuple(sp) not in bans[k]:
+                        bans[k].append(tuple(sp))
+        except Exception as e:
+            print(f"  !! manifest.json unreadable ({str(e)[:40]}) — plan bans only")
+
+    def _sub(free, a, b):
+        out = []
+        for lo, hi in free:
+            if b <= lo or a >= hi:
+                out.append((lo, hi)); continue
+            if a - lo > 0.05:
+                out.append((lo, a))
+            if hi - b > 0.05:
+                out.append((b, hi))
+        return out
+
+    by_src = {}
+    for i, ((key, _c2, _kind2, _n2), (_s2, d2, _k2)) in enumerate(zip(P.SHOTS, tl)):
+        by_src.setdefault(key, []).append((i, d2))
+    shot_tin, alloc_fail = {}, []
+    for key, shots_of in by_src.items():
+        c = sense[key]
+        free = [(0.0, max(0.1, c["duration"] - 0.05))]
+        for a_, b_ in bans[key]:
+            free = _sub(free, a_, b_)
+        mc = c.get("motion_curve") or []
+        cfps = c.get("fps", 24.0)
+
+        def _mot(ts):
+            if not mc:
+                return None
+            return mc[min(len(mc) - 1, max(0, int(ts * cfps / 2)))]
+
+        for i, d_ in sorted(shots_of, key=lambda s: (-s[1], s[0])):   # longest first
+            cands = []
+            for pk in c["action_peaks_s"]:
+                for lo, hi in free:
+                    if not (lo <= pk <= hi) or hi - lo < d_:
+                        continue
+                    tin_ = min(max(pk - d_ * 0.42, lo), hi - d_)
+                    if tin_ <= pk <= tin_ + d_:
+                        # ACTION RESOLUTION (2026-08-04, his catch: "clips cut
+                        # off way too early"). A window that ends while motion
+                        # is still >=80% of its peak cuts MID-action; prefer
+                        # windows whose end is past the action, then nearest
+                        # the clip's best moment.
+                        mp, me = _mot(pk), _mot(tin_ + d_)
+                        unresolved = 1 if (mp and me and me > 0.8 * mp) else 0
+                        cands.append((unresolved, abs(pk - c["best_in_s"]), tin_))
+            if cands:
+                tin_ = sorted(cands)[0][2]
+            else:
+                gaps = sorted(((hi - lo, lo) for lo, hi in free if hi - lo >= d_),
+                              reverse=True)
+                if not gaps:
+                    alloc_fail.append(f"{key}: shot {i} needs {d_:.2f}s, free "
+                                      f"{[(round(a_,2),round(b_,2)) for a_,b_ in free]}")
+                    continue
+                tin_ = gaps[0][1]
+                print(f"  !! shot {i} ({key}): window carries NO action peak "
+                      f"(free space, not choice)")
+            shot_tin[i] = tin_
+            free = _sub(free, tin_, tin_ + d_)
+    if alloc_fail:
+        print("!! SOURCE OVERCOMMITTED — the plan wants more footage than the clip has:")
+        for f_ in alloc_fail:
+            print(f"   {f_}")
+        print("   Fix the PLAN (re-source or shorten a shot). REFUSING to duplicate.")
+        return 1
+
+    segs, cuts, t = [], [], 0.0
     for i, ((key, cs, kind, note), (start, d, _k)) in enumerate(zip(P.SHOTS, tl)):
         c = sense[key]
-        peaks = [pk for pk in c["action_peaks_s"] if pk not in used[key]] or list(c["action_peaks_s"])
-        want = c["best_in_s"] + rep[key] * 1.25
-        pk = min(peaks, key=lambda x: abs(x - want)) if peaks else c["best_in_s"]
-        used[key].add(pk); rep[key] += 1
-        tin = max(0.0, pk - d * 0.42)
-        if c["duration"] < tin + d:
-            tin = max(0.0, c["duration"] - d - 0.05)
-        shot_tin[i] = tin
+        tin = shot_tin[i]
         cx, cy = xy.get(i, (0.50, 0.50))
         o = os.path.join(tmp, f"c{i:02d}.mp4")
         spec = f"{os.path.basename(clips[key])}|{tin:.3f}|{d:.3f}|{cs}|{cx}|{cy}|frames"
@@ -254,6 +385,7 @@ def build(name, out_path=None, use_cache=True):
     # ---- 4 blends ----
     print(f"\n[4/7] blends  {P.BLEND_KIND} {P.BLEND_WIDTH*1000:.0f}ms at declared boundaries")
     out, n = list(segs), 0
+    blend_ok = []      # successful boundaries — the foley layer needs the ACTUAL timeline
     for i in sorted(set(P.BLEND_AFTER)):
         if i + 1 >= len(out) or out[i] is None or out[i + 1] is None:
             continue
@@ -261,13 +393,13 @@ def build(name, out_path=None, use_cache=True):
         bspec = f"{os.path.basename(out[i])}|{os.path.basename(out[i+1])}|{P.BLEND_KIND}|{P.BLEND_WIDTH}"
         bsf = o + ".spec"
         if use_cache and os.path.exists(o) and os.path.exists(bsf) and open(bsf).read() == bspec:
-            out[i] = o; out[i + 1] = None; n += 1
+            out[i] = o; out[i + 1] = None; n += 1; blend_ok.append(i)
             continue
         try:
             fx.FX[P.BLEND_KIND](out[i], out[i + 1], o, d=P.BLEND_WIDTH, W=W, H=H, fps=FPS)
             open(bsf, "w").write(bspec)
             if os.path.exists(o) and dur(o) > 0.3:
-                out[i] = o; out[i + 1] = None; n += 1
+                out[i] = o; out[i + 1] = None; n += 1; blend_ok.append(i)
         except Exception as e:
             print(f"  !! {P.BLEND_KIND}@{i}: {str(e)[:70]}")
     segs = [x for x in out if x]
@@ -387,6 +519,10 @@ def build(name, out_path=None, use_cache=True):
     else:
         dt = []
         for txt, st_, ln, kind in spans:
+            # drawtext ESCAPING (found 2026-08-04): the apostrophe in "WON'T" closed
+            # the text quote and ffmpeg read the enable timestamps as filter names.
+            # Typographic apostrophe renders correctly AND cannot break the parser.
+            txt = txt.replace("'", "’").replace(":", r"\:").replace("%", r"\%")
             # AUTO-FIT (WRX v1 lesson): the old max(56,...) FLOOR guaranteed overflow on
             # long text. Bound ~0.58*size px/char to <=0.92 of frame width, no floor.
             size = min(56 if kind == "cta" else 78, max(30, int(1100 / max(8, len(txt)))))
@@ -431,41 +567,250 @@ def build(name, out_path=None, use_cache=True):
             elif c in hold:
                 place(sfxgen.sub_drop(1.4), c - 0.05, 0.42); ni += 1
             else:
-                place(sfxgen.whoosh(0.30, up=True), max(0.0, c - P.SFX_LEAD), 0.34); nw += 1
+                # whoosh 0.34 -> 0.15 (2026-08-04, his ear v5+v6: the noise sweep
+                # dominates the CUT MOMENT because the sidechain ducks the bed at
+                # exactly that instant - average level comparisons miss this.
+                # Impacts/sub-drops keep full weight; only the sand gets cut.)
+                place(sfxgen.whoosh(0.30, up=True), max(0.0, c - P.SFX_LEAD), 0.15); nw += 1
+        # SAFETY ONLY, never normalize UP (2026-08-04): dividing by the peak
+        # BOOSTED the impacts +2.3dB the moment the whooshes got quieter —
+        # the placement gains ARE the design; the peak scale only protects.
         pk = float(np.max(np.abs(track))) or 1.0
-        sfxgen._w(sfx_path, track / pk * 0.72)
+        sfxgen._w(sfx_path, track * min(1.0, 0.72 / pk))
         HAVE_SFX = os.path.exists(sfx_path)
         print(f"\n[7/7] sfx    {nw} whoosh + {ni} impact/drop, leading each cut by "
               f"{P.SFX_LEAD*1000:.0f}ms")
     except Exception as e:
         print(f"\n[7/7] !! SFX FAILED: {str(e)[:80]} — cuts have NO transient design")
 
+    # ---- 7b DIEGETIC / FOLEY (added 2026-08-04, Gavril's catch) ----
+    # Whoosh/impact on cuts is EDIT sound, not foley. In a sound-led genre the launch
+    # had no engine, the rolling shot no spray, the cockpit no boxer idle. The clips
+    # were generated WITH audio (probe A measured -12.8 LUFS of real engine/spray) and
+    # the obsolete "silent" rule stripped it all with -an. 0 credits to fix: extract
+    # each shot's audio from its OWN clip window (same trim as the video) and lay it
+    # on the ACTUAL post-blend timeline. The plan decides the mix: FOLEY={shot: gain_db}
+    # (foreground on EVENT/PAYOFF, low under HUMAN/stills) + SOUND{hero, duck_shots,
+    # silence}. planqc check 19 blocks a car_cinematic plan that never decided.
+    FOLEY = getattr(P, "FOLEY", {}) or {}
+    SOUND = getattr(P, "SOUND", {}) or {}
+    foley_path = os.path.join(tmp, "foley.wav")
+    HAVE_FOLEY = False
+    fg_spans = []          # video-time spans where foley is FOREGROUND (>= -6dB)
+    # each successful blend pulls every LATER shot forward by BLEND_WIDTH
+    # (measured: 3 x 0.4s took 21.6s -> 20.4s). Place foley on the shifted grid.
+    shift = [P.BLEND_WIDTH * sum(1 for b in blend_ok if b < j) for j in range(len(P.SHOTS))]
+    if FOLEY:
+        try:
+            import numpy as np, wave
+            SRF = 44100
+            ftr = np.zeros(int(vd * SRF) + SRF)
+            n_laid = 0
+            for i, ((key, _cs, _kind, _note), (start, d, _k)) in enumerate(zip(P.SHOTS, tl)):
+                if i not in FOLEY or shot_tin.get(i) is None:
+                    continue
+                aw = os.path.join(tmp, f"a{i:02d}.wav")
+                rc2, _ = sh(f'ffmpeg -y -v error -ss {shot_tin[i]:.3f} -i "{clips[key]}" '
+                            f'-t {d:.3f} -vn -ac 1 -ar {SRF} -c:a pcm_s16le "{aw}"')
+                if rc2 != 0 or not os.path.exists(aw) or os.path.getsize(aw) < 1000:
+                    continue        # a clip with no audio stream is skipped, not fatal
+                wv = wave.open(aw)
+                x = np.frombuffer(wv.readframes(wv.getnframes()),
+                                  dtype=np.int16).astype(float) / 32768.0
+                wv.close()
+                if not len(x):
+                    continue
+                e = int(0.015 * SRF)        # 15ms edge fades — no clicks at the cuts
+                if len(x) > 2 * e:
+                    x = x.copy()
+                    x[:e] *= np.linspace(0, 1, e)
+                    x[-e:] *= np.linspace(1, 0, e)
+                at = int(max(0.0, start - shift[i]) * SRF)
+                b = min(at + len(x), len(ftr))
+                if b > at:
+                    ftr[at:b] += x[:b - at] * (10.0 ** (FOLEY[i] / 20.0))
+                    n_laid += 1
+                    if FOLEY[i] >= -6.0:
+                        fg_spans.append((at / SRF, b / SRF))
+            # SFX_OVERLAYS (2026-08-04, his idea): plan-declared snippets from the
+            # clips' own audio, covering the bed's arrangement gaps with something
+            # DIEGETIC (idle swell under Nev, spray under the payoff). 0 credits.
+            for ov in getattr(P, "SFX_OVERLAYS", []) or []:
+                skey, ct, dv, vt, gdb = ov[0], ov[1], ov[2], ov[3], ov[4]
+                if skey not in clips:
+                    continue
+                aw = os.path.join(tmp, f"ov_{skey}_{int(vt*100)}.wav")
+                rc2, _ = sh(f'ffmpeg -y -v error -ss {ct:.3f} -i "{clips[skey]}" '
+                            f'-t {dv:.3f} -vn -ac 1 -ar {SRF} -c:a pcm_s16le "{aw}"')
+                if rc2 != 0 or not os.path.exists(aw) or os.path.getsize(aw) < 1000:
+                    print(f"      !! overlay {skey}@{vt:.2f}s: no audio - skipped")
+                    continue
+                wv = wave.open(aw)
+                x = np.frombuffer(wv.readframes(wv.getnframes()),
+                                  dtype=np.int16).astype(float) / 32768.0
+                wv.close()
+                e = int(0.06 * SRF)              # slow 60ms fades - a swell, not a cut
+                if len(x) > 2 * e:
+                    x = x.copy()
+                    x[:e] *= np.linspace(0, 1, e)
+                    x[-e:] *= np.linspace(1, 0, e)
+                at = int(vt * SRF)
+                b = min(at + len(x), len(ftr))
+                if b > at:
+                    ftr[at:b] += x[:b - at] * (10.0 ** (gdb / 20.0))
+                    n_laid += 1
+                    fg_spans.append((at / SRF, b / SRF))
+                    print(f"      overlay {skey} {ct:.1f}s -> video {vt:.2f}s "
+                          f"({gdb:+.0f}dB): {ov[5] if len(ov) > 5 else ''}")
+            if n_laid:
+                pk = float(np.max(np.abs(ftr)))
+                if pk > 0.98:               # safety clip only — never normalize UP:
+                    ftr *= 0.98 / pk        # the plan's relative gains ARE the mix
+                y = (np.clip(ftr, -1, 1) * 32767).astype("<i2")
+                wv = wave.open(foley_path, "w")
+                wv.setnchannels(1); wv.setsampwidth(2); wv.setframerate(SRF)
+                wv.writeframes(y.tobytes()); wv.close()
+                HAVE_FOLEY = os.path.exists(foley_path)
+                print(f"      foley  {n_laid}/{len(P.SHOTS)} shots carry their own clip "
+                      f"audio (diegetic, plan-gained)")
+            else:
+                print("      !! FOLEY planned but NO clip carried audio — diegetic skipped")
+        except Exception as e:
+            print(f"      !! FOLEY FAILED: {str(e)[:70]} — diegetic layer skipped")
+    else:
+        print("      NO FOLEY block in plan — edit-sfx only (pre-2026-08-04 plan)")
+
     OUT = out_path or os.path.join(pdir, "output", f"{name.upper()}_CINEMATIC_v1.mp4")
     A = "aformat=sample_fmts=fltp:sample_rates=44100:channel_layouts=stereo"
+    # MIX TUNING LOG (2026-08-04, WRX, both MEASURED - do not re-try blind):
+    #   original (12/13.5, thr .05, limit .76): lift -0.5dB FAIL, -8.3 LUFS OK, peak +0.2dBTP FAIL
+    #   experiment (9/16.5, thr .03, limit .62): lift -2.8dB WORSE, -10.4 LUFS FAIL, peak -0.6 ok
+    # Lesson: a LOWER limiter ceiling squashes the very transients the lift check
+    # measures. Keep original balance; trim only the ceiling slightly for true-peak.
+    # Next lever if lift still fails: raise impact/sub-drop amplitudes in sfxgen
+    # placement (0.55/0.42), NOT the master gains.
+    #
+    # 3-LAYER MIX (2026-08-04, REVISED same day): diegetic + bed + edit-sfx.
+    # v4 lesson (his ear: "music breaks ~1s at every cut then continues"): the
+    # binary hard-duck windows STEPPED 12dB in and out, and thr .03 / ratio 8 /
+    # release 180 punched holes under every whoosh. Replaced with ONE smooth
+    # sidechain whose KEY is edit-sfx + foley summed: the loud launch foley ducks
+    # the bed by itself (no windows, no steps), quiet HUMAN foley leaves it alone,
+    # and gentler settings (thr .06, ratio 6, release 120) pump musically instead
+    # of gating. SOUND.duck_shots is now legacy — kept in plans as documentation.
+    # ---- 7c SOUND ENGINEER — automatic layer calibration (file 19, AUTOMATED;
+    # his order 2026-08-04: "analyze and calibrate all the decibels so bgm/sfx/
+    # foley are balanced — the bgm was so loud you can't hear Nev"). Hand-tuned
+    # constants broke three times today the moment any one layer changed
+    # (lessons 32/33). Now the BED is the anchor and every layer is MEASURED at
+    # its mix gain, then trimmed to a target RELATIONSHIP before the master:
+    #     edit-sfx active RMS      -> bed - 6 dB  (marks the cut, never sand)
+    #     foley FOREGROUND moments -> bed - 2 dB  (hero/Nev moments read over
+    #                                              the music; per-shot design
+    #                                              inside the layer is preserved)
+    SFX_DB, FOL_DB = 13.5, 0.0
+    bed_gain_num = (17.0 if HAVE_SFX else 11.0) + BED_TRIM
+
+    def _active_rms(path, gain_db=0.0, spans=None):
+        try:
+            import numpy as np, wave
+            wv = wave.open(path)
+            sr_ = wv.getframerate()
+            xx = np.frombuffer(wv.readframes(wv.getnframes()),
+                               dtype=np.int16).astype(float) / 32768.0
+            wv.close()
+            if spans:
+                xx = np.concatenate([xx[int(a1*sr_):int(b1*sr_)] for a1, b1 in spans]
+                                    ) if spans else xx
+            a2 = xx[np.abs(xx) > 10 ** (-45 / 20.0)]
+            if not len(a2):
+                return None
+            return 20.0 * float(np.log10(float(np.sqrt(np.mean(a2 ** 2))) + 1e-12)) + gain_db
+        except Exception:
+            return None
+    try:
+        seg_wav = os.path.join(tmp, "bedseg.wav")
+        sh(f'ffmpeg -y -v error -ss {BED_OFFSET:.3f} -t {vd:.2f} -i "{BED}" '
+           f'-ac 1 -ar 44100 -c:a pcm_s16le "{seg_wav}"')
+        bl = _active_rms(seg_wav, bed_gain_num)
+        rows = [("bed (anchor)", bl, bl, 0.0)]
+        if bl is not None and HAVE_SFX:
+            sl = _active_rms(sfx_path, SFX_DB)
+            if sl is not None:
+                trim = max(-8.0, min(8.0, (bl - 6.0) - sl))
+                SFX_DB += trim
+                rows.append(("edit-sfx", sl, bl - 6.0, trim))
+        if bl is not None and HAVE_FOLEY and fg_spans:
+            flv = _active_rms(foley_path, 0.0, spans=fg_spans)
+            if flv is not None:
+                FOL_DB = max(-8.0, min(8.0, (bl - 2.0) - flv))
+                rows.append(("foley (foreground)", flv, bl - 2.0, FOL_DB))
+        print("      SOUND ENGINEER calibration (active RMS at mix gain):")
+        for nm, meas, tgt, tr in rows:
+            print(f"        {nm:20s} measured {meas:6.1f}dB  target {tgt:6.1f}dB  "
+                  f"trim {tr:+.1f}dB")
+    except Exception as e:
+        print(f"      !! calibration failed ({str(e)[:50]}) — falling back to constants")
+
+    ins = f'-i "{graded}" -stream_loop -1 -i "{BED}"'
+    bed_db = f"{bed_gain_num:.1f}"
+    if abs(BED_TRIM) > 0.05:
+        print(f"      bed level: {BED_TRIM:+.1f}dB segment compensation -> {bed_db}dB")
+    fp = [f"[1:a]atrim={BED_OFFSET:.4f}:{vd+BED_OFFSET:.2f},asetpts=N/SR/TB,{A},"
+          f"volume={bed_db}dB[bedraw]"]
+    nxt = 2
     if HAVE_SFX:
-        # MIX TUNING LOG (2026-08-04, WRX, both MEASURED - do not re-try blind):
-        #   original (12/13.5, thr .05, limit .76): lift -0.5dB FAIL, -8.3 LUFS OK, peak +0.2dBTP FAIL
-        #   experiment (9/16.5, thr .03, limit .62): lift -2.8dB WORSE, -10.4 LUFS FAIL, peak -0.6 ok
-        # Lesson: a LOWER limiter ceiling squashes the very transients the lift check
-        # measures. Keep original balance; trim only the ceiling slightly for true-peak.
-        # Next lever if lift still fails: raise impact/sub-drop amplitudes in sfxgen
-        # placement (0.55/0.42), NOT the master gains.
-        f = (f"[1:a]atrim={BED_OFFSET:.4f}:{vd+BED_OFFSET:.2f},asetpts=N/SR/TB,{A},"
-             f"volume=12.0dB[bedraw];"
-             f"[2:a]atrim=0:{vd:.2f},asetpts=N/SR/TB,{A},volume=13.5dB,asplit=2[sfx][key];"
-             f"[bedraw][key]sidechaincompress=threshold=0.05:ratio=8:attack=4:"
-             f"release=180:makeup=1[bed];"
-             f"[bed][sfx]amix=inputs=2:duration=first:normalize=0,"
-             f"alimiter=limit=0.72:level=disabled:attack=5:release=50[aout]")
-        cmd = (f'ffmpeg -y -v error -i "{graded}" -stream_loop -1 -i "{BED}" -i "{sfx_path}" '
-               f'-filter_complex "{f}" -map 0:v -map "[aout]" -c:v copy -c:a aac '
-               f'-b:a 192k -t {vd:.2f} "{OUT}.part.mp4"')
+        ins += f' -i "{sfx_path}"'
+        # volume comes from the SOUND ENGINEER calibration above (target: bed-6).
+        fp.append(f"[{nxt}:a]atrim=0:{vd:.2f},asetpts=N/SR/TB,{A},volume={SFX_DB:.1f}dB,"
+                  f"asplit=2[sfx][sk]")
+        nxt += 1
+    if HAVE_FOLEY:
+        ins += f' -i "{foley_path}"'
+        # volume comes from the SOUND ENGINEER calibration (target: foreground bed-2)
+        fp.append(f"[{nxt}:a]atrim=0:{vd:.2f},asetpts=N/SR/TB,{A},"
+                  f"volume={FOL_DB:.1f}dB,asplit=2[fol][fk]")
+        nxt += 1
+    if HAVE_SFX and HAVE_FOLEY:
+        fp.append("[sk][fk]amix=inputs=2:duration=first:normalize=0[key]")
+    elif HAVE_SFX:
+        fp.append("[sk]anull[key]")
+    elif HAVE_FOLEY:
+        fp.append("[fk]anull[key]")
+    if HAVE_SFX or HAVE_FOLEY:
+        fp.append("[bedraw][key]sidechaincompress=threshold=0.06:ratio=6:attack=4:"
+                  "release=120:makeup=1[bed]")
     else:
-        f = (f"[1:a]atrim={BED_OFFSET:.4f}:{vd+BED_OFFSET:.2f},asetpts=N/SR/TB,{A},"
-             f"volume=11.0dB,alimiter=limit=0.76:level=disabled:attack=5:release=50[aout]")
-        cmd = (f'ffmpeg -y -v error -i "{graded}" -stream_loop -1 -i "{BED}" '
-               f'-filter_complex "{f}" -map 0:v -map "[aout]" -c:v copy -c:a aac '
-               f'-b:a 192k -t {vd:.2f} "{OUT}.part.mp4"')
+        fp.append("[bedraw]anull[bed]")
+    mix_in = ["[bed]"]
+    if HAVE_SFX:
+        mix_in.append("[sfx]")
+    if HAVE_FOLEY:
+        mix_in.append("[fol]")
+    lim = "0.72" if HAVE_SFX else "0.76"
+    # MASTER STAGE (2026-08-04, ~20 combos MEASURED across BOTH beds - the log):
+    #   synth bed era: aac overshot +2..3.4dB on 81% sub-low energy; TP/LUFS/lift
+    #     were jointly infeasible at ANY ceiling. Root cause was the bed.
+    #   real bed era (bed_skrrt_slide_150, mastered stereo phonk): codec overshoot
+    #     collapsed as predicted. Locked, all MEASURED on the delivered aac:
+    #     bed +17 / sfx +18 / duck thr .03 / HP30 / relimit 0.70
+    #     -> -9.5 LUFS (in band) and -1.5 dBTP (passes) simultaneously.
+    #   A mastered bed is ~5dB hotter than the synth was quiet - hence bed 12->17,
+    #   sfx 13.5->18 (whoosh must sit over real 808s), duck .05->.03 (deeper hole
+    #   for the transient). HP30 stays: subsonics only feed codec overshoot.
+    safety = (",highpass=f=30:poles=2"
+              ",alimiter=limit=0.70:level=disabled:attack=3:release=30")
+    if len(mix_in) == 1:
+        fp.append(f"[bed]alimiter=limit={lim}:level=disabled:attack=5:release=50"
+                  f"{safety}[aout]")
+    else:
+        fp.append(f"{''.join(mix_in)}amix=inputs={len(mix_in)}:duration=first:normalize=0,"
+                  f"alimiter=limit={lim}:level=disabled:attack=5:release=50"
+                  f"{safety}[aout]")
+    layers = "bed" + ("+sfx" if HAVE_SFX else "") + ("+diegetic" if HAVE_FOLEY else "")
+    print(f"      mix    {layers}, bed smooth-ducked by sfx+foley key")
+    cmd = (f'ffmpeg -y -v error {ins} -filter_complex "{";".join(fp)}" '
+           f'-map 0:v -map "[aout]" -c:v copy -c:a aac -b:a 256k -t {vd:.2f} "{OUT}.part.mp4"')
     rc, err = sh(cmd)
     if rc == 0 and os.path.exists(OUT + ".part.mp4") and dur(OUT + ".part.mp4") > 1:
         os.replace(OUT + ".part.mp4", OUT)      # ATOMIC — never publish a partial file
@@ -478,7 +823,14 @@ def build(name, out_path=None, use_cache=True):
     for s in segs:
         tt += dur(s); actual.append(round(tt, 3))
     actual = actual[:-1]
-    json.dump({"cuts": actual, "planned": cuts, "bpm": P.BPM, "beat": P.BEAT},
+    # blends declared for verify's transition QC: seam END = planned shot end minus
+    # the shift from earlier blends; seam START = end - width. With width == beat,
+    # both sit on the grid by construction — verify measures it anyway.
+    blends_meta = [{"after_shot": i,
+                    "start": round(tl[i][0] + tl[i][1] - shift[i] - P.BLEND_WIDTH, 3),
+                    "end": round(tl[i][0] + tl[i][1] - shift[i], 3)} for i in blend_ok]
+    json.dump({"cuts": actual, "planned": cuts, "bpm": P.BPM, "beat": P.BEAT,
+               "blends": blends_meta, "blend_width": P.BLEND_WIDTH},
               open(os.path.join(pdir, "audio", f"{name}_cuts.json"), "w"), indent=1)
 
     pm = []

@@ -156,7 +156,7 @@ SHOTS = [
  ("E", 1.00, "burst", "cockpit empty"),
  ("F", 1.00, "hold",  "NEV - about to launch"),  # human hold, uncropped
  ("H", 1.35, "burst", "rolling tease"),
- ("B", 1.35, "burst", "hawk eyes"),
+ ("A", 1.35, "burst", "hawk eyes - the charge, mid-story"),   # was B; see BAN_SPANS note
  ("I", 1.00, "burst", "NEV + car"),
  ("D", 1.35, "burst", "caliper"),
  ("H", 1.00, "hold",  "ROLLING PAYOFF"),         # highest motion, uncropped
@@ -169,17 +169,81 @@ SHOTS = [
  ("B", 1.00, "med",   "FRONT - CTA"),
 ]
 
-CALLBACKS = [(1, 18)]       # front 3/4 opens the montage and closes it
+CALLBACKS = [(1, 18), (8, 16)]  # front 3/4 opens+closes; the charge re-hits mid+late
+
+# BAN_SPANS (2026-08-04): windows may never come from these clip spans.
+# B: softbox in frame - MEASURED out at 2.0s (blob >2% of top-left until 1.9s).
+# This is also why shot 8 moved B->A: with the ban, B holds 2.9s usable and
+# carried 3.2s of shots - planqc 21 (source capacity) now catches this class.
+BAN_SPANS = {"B": [(0.0, 2.0)]}
 
 BEATS = {"burst": 2, "med": 4, "hold": 8}
 
-BLEND_AFTER  = [0, 6, 11]           # event exit + both hold exits = 3/18 cuts = 17%
+# BLEND CHANGE (2026-08-04, his catch: "cuts the first clip way too early"):
+# the blend after shot 0 dissolved the swerve-pass - the EVENT resolved inside
+# the fade. Hard cut out of the hook; blends only at the two hold exits.
+# planqc 20 (transitions) now blocks any blend touching an EVENT.
+BLEND_AFTER  = [6, 11]              # hold exits only = 2/18 cuts = 11%
 BLEND_KIND   = "mask_slice"
 BLEND_WIDTH  = 0.40
 
 SFX_LEAD     = 0.22
 IMPACT_AT    = [1, 7, 12]           # SHOT indices - sound lands on the cut ENTERING them
 SUBDROP_AT   = [6, 11]              # the two HOLDS: hit going IN
+
+# ---------------------------------------------------------------- SOUND (2026-08-04)
+# Gavril's catch: the v1 cut had EDIT sound only - whoosh/impact on cuts, no foley -
+# in a genre that is sound-led. The foley already EXISTS: every clip was generated
+# WITH audio (probe A measured -12.8 LUFS of real engine/spray) and engine.py was
+# stripping it. 0 credits: the engine now extracts each shot's audio from its own
+# clip window and lays it on the actual timeline at these gains. planqc 19 blocks
+# any car_cinematic plan that skips this decision.
+SOUND = {
+    "bed":        "BGM/Skrrt Slide.mp3, HIS PICK 2026-08-04, sped +7.73% (asetrate) "
+                  "to a measured 150.00 BPM -> projects/wrx/audio/bed_skrrt_slide_150.wav. "
+                  "Chosen from his 25 tracks by bedqc rank (stereo, 36dB dynamics, "
+                  "139.7 native). Sped-phonk is on-genre.",
+    "hero":       "the AWD launch - spray + boxer ramp charging the lens (shot 0, "
+                  "replayed at 16). ONE hero sound per video (file 04, law 4).",
+    "duck_shots": [0, 16],   # bed HARD-ducks (x0.25) while the launch owns the mix
+    "silence":    "no full drop-out - the launch IS the loud open. The rest is shot 6 "
+                  "(hold on Nev): boxer idle only, lowest diegetic point before payoff",
+    "layers":     "diegetic (per-shot gains below) + bed (sidechain-ducked under sfx, "
+                  "hard-ducked under the launch) + edit-sfx (whoosh/impact, as before)",
+}
+# SFX_OVERLAYS (2026-08-04, his idea: cover the bed's breathing gaps with NEV /
+# car sound instead of leaving holes). Each = (src, clip_t, dur, video_t, gain_db,
+# why). Extracted from the PAID clip audio - 0 credits. MEASURED placement: the
+# two dips in v4 sat at 6.35-6.85 (inside shot 6, HIS cockpit - idle swell reads
+# as Nev presence; no clean isolated exhale exists in F's audio, measured) and
+# 13.0-13.25 (payoff hold - spray/engine swell).
+SFX_OVERLAYS = [
+    ("F", 2.15, 0.95, 6.10, -0.5, "cockpit idle swell under the hold gap - idle is "
+                                  "quiet source material, it needs to sit HOT"),
+    ("H", 3.90, 0.70, 12.85, -5.0, "spray/engine swell under the payoff gap"),
+]
+
+FOLEY = {   # shot_index: gain_db. Foreground >= -6 on EVENT/PAYOFF; low under HUMAN.
+     0:   0.0,   # A  LAUNCH AT LENS - full throttle + spray, THE sound of the video
+     1: -10.0,   # B  front 3/4 - ambience under the first impact
+     2:  -8.0,   # C  scoop macro - rain beads + heat shimmer + one rev
+     3:  -8.0,   # D  wheel spray - tread flicking water
+     4: -10.0,   # G  rear 3/4 - exhaust breathing vapour
+     5: -12.0,   # E  cockpit empty - boxer idle floor
+     6: -12.0,   # F  NEV hold - idle only under the human beat (quietest point)
+     7:  -6.0,   # H  rolling tease - AWD spray, foreground begins
+     8:  -6.0,   # A  hawk eyes / the charge - engine ramp reads mid-story
+     9: -14.0,   # I  NEV + car - street tone under the face
+    10:  -8.0,   # D  caliper - spray detail
+    11:  -2.0,   # H  ROLLING PAYOFF hold - engine + spray carry the payoff
+    12:  -8.0,   # C  scoop breathes - rev + intake wisp
+    13: -12.0,   # E  boost gauge - idle floor
+    14: -14.0,   # F  NEV grin - lowest, the face is the shot
+    15:  -6.0,   # G  dual tips - exhaust note foreground
+    16:  -2.0,   # A  lens-pass replay - the hero sound returns
+    17: -14.0,   # I  NEV punch-in
+    18: -12.0,   # B  FRONT CTA - settle under the card
+}
 
 CARD_Y       = 0.72
 # NARRATIVE CARDS (2026-08-04, after "the story is too common"): the field's cards are

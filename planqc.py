@@ -362,6 +362,88 @@ def check_content(P):
                f"claim: \"{c['claim'][:58]}...\" verified: {c['verified'][:40]}")
 
 
+def check_sound(P):
+    """SOUND DESIGN, made blocking (2026-08-04, Gavril's catch: the WRX shipped with
+    whoosh/impact only — EDIT sound, not foley — in a genre that is sound-led. No
+    engine under the launch, no spray, no boxer idle). Clip audio is generated and
+    PAID FOR; a car_cinematic plan without a diegetic decision NEVER reaches spend.
+    File 19 (sound engineer) judges the mix; file 04 (foley) picks the sounds; this
+    check only verifies the DECISION exists and is coherent — mechanical, not taste."""
+    if getattr(P, "PILLAR", "") != "car_cinematic":
+        return warn("19 sound design", f"pillar {getattr(P,'PILLAR','?')} — check scoped "
+                    "to car_cinematic (speech-led plans cut to the sentence, not the mix)")
+    foley = getattr(P, "FOLEY", None)
+    snd = getattr(P, "SOUND", None)
+    n = len(P.SHOTS)
+    if not foley or not snd:
+        return add("19 sound design", False,
+                   "NO SOUND/FOLEY BLOCK — the plan says how to cut but not what the "
+                   "video SOUNDS like. Required: FOLEY={shot: gain_db} for every shot "
+                   "+ SOUND{hero, duck_shots, silence}.")
+    missing = [i for i in range(n) if i not in foley]
+    mkeys = [k for k in ("hero", "duck_shots", "silence") if snd.get(k) is None]
+    quiet = []
+    for i, (s, _c, _k, _t) in enumerate(P.SHOTS):
+        act = P.SOURCES[s][2].upper()
+        if act in ("EVENT", "PAYOFF") and foley.get(i, -99) < -6:
+            quiet.append(f"shot {i} ({act.lower()}) at {foley.get(i)}dB")
+    bad_duck = [si for si in (snd.get("duck_shots") or []) if not 0 <= si < n]
+    ok = not missing and not mkeys and not quiet and not bad_duck
+    d = (f"FOLEY covers {n-len(missing)}/{n} shots, "
+         f"{sum(1 for g in foley.values() if g >= -6)} foreground (>=-6dB), "
+         f"hero: {str(snd.get('hero'))[:45]}")
+    if missing:
+        d += f" — shots with NO diegetic decision: {missing}"
+    if mkeys:
+        d += f" — SOUND block missing {mkeys}"
+    if quiet:
+        d += f" — EVENT/PAYOFF mixed to background: {quiet} (the hero moments must be HEARD)"
+    if bad_duck:
+        d += f" — duck_shots out of range: {bad_duck}"
+    return add("19 sound design", ok, d)
+
+
+def check_transitions_plan(P):
+    """Gavril: 'it cuts the first clip way too early' (2026-08-04). The v1 blend after
+    shot 0 dissolved the last 0.4s of a 1.6s EVENT — the swerve-pass resolved INSIDE
+    the fade. Mechanical rule: a blend never touches an EVENT. Its resolution is its
+    last frames (exiting side); its onset must be frame zero (entering side)."""
+    bad = []
+    for i in sorted(set(P.BLEND_AFTER)):
+        if i >= len(P.SHOTS) - 1:
+            continue                            # out-of-range is check 11's job
+        for j, side in ((i, "EXITS"), (i + 1, "ENTERS")):
+            act = P.SOURCES[P.SHOTS[j][0]][2].upper()
+            if act == "EVENT":
+                bad.append(f"blend after shot {i} {side} EVENT shot {j} — "
+                           f"the event dissolves instead of landing")
+    return add("20 transitions", not bad,
+               f"{len(P.BLEND_AFTER)} blend(s), none touching an EVENT boundary"
+               if not bad else " · ".join(bad))
+
+
+def check_capacity(P):
+    """Duplicates are a plan OVERCOMMIT before they are an engine bug: B carried 3.2s
+    of shots against ~3.0s of usable clip once the softbox head (measured out at
+    2.0s) was banned. Windows may not overlap — so the demand must FIT the clip."""
+    bans = getattr(P, "BAN_SPANS", {}) or {}
+    tl, _ = P.timeline()
+    need = {}
+    for (s, _c, _k, _t), (_st, d, _kk) in zip(P.SHOTS, tl):
+        need[s] = need.get(s, 0.0) + d
+    bad, det = [], []
+    for s in sorted(need):
+        banned = sum(b - a for a, b in bans.get(s, []))
+        have = P.CLIP_S - banned - 0.1
+        det.append(f"{s} {need[s]:.1f}/{have:.1f}")
+        if need[s] > have + 1e-6:
+            bad.append(f"source {s} needs {need[s]:.1f}s but has {have:.1f}s usable "
+                       f"(clip {P.CLIP_S}s - {banned:.1f}s banned)")
+    return add("21 source capacity", not bad,
+               "every source fits its windows (need/have s): " + " · ".join(det)
+               if not bad else " · ".join(bad))
+
+
 # ---------------------------------------------------------------- 17 COST
 def check_cost(P, balance):
     c = P.cost()
@@ -470,6 +552,15 @@ def write_doc(P, path, name="?"):
       "t=0 (phase, not just tempo). SFX layer at +13.5dB with the bed SIDECHAIN-DUCKING "
       "under it; every whoosh LEADS its cut by 220ms and resolves ON it.")
     a("")
+    fo = getattr(P, "FOLEY", None)
+    sn = getattr(P, "SOUND", {}) or {}
+    if fo:
+        fg = sorted(i for i, g in fo.items() if g >= -6)
+        a(f"**Diegetic** — every shot lays its OWN clip audio (generated and paid for) "
+          f"on the actual timeline, plan-gained. Foreground (>=-6dB): shots {fg}. "
+          f"Bed HARD-ducks during shots {sn.get('duck_shots', [])}. "
+          f"Hero: {sn.get('hero', '?')}")
+        a("")
     a("| t (planned) | cut entering | sound |")
     a("|---|---|---|")
     for i in range(1, len(P.SHOTS)):
@@ -552,6 +643,9 @@ def main():
     check_defaults(P)
     check_shot_mix(P, pf)
     check_content(P)
+    check_sound(P)
+    check_transitions_plan(P)
+    check_capacity(P)
     check_cost(P, args.balance)
 
     print()
