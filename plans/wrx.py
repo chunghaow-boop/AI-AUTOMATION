@@ -249,7 +249,17 @@ PROBE_FIRST  = "A"      # the launch is the riskiest generation - probe it alone
 # clipqc EVENT checks amended the same day to window-based measurement.
 CLIPS = {
     "A": "hf_20260804_090255_25e603b7-bd83-446a-b48a-56a8b8e7faa5.mp4",
+    # batch of 8, all completed first try, 2026-08-04 (180cr):
+    "B": "hf_20260804_092131_fba6d6df-a444-4e66-82ca-0ea3f6d064fd.mp4",
+    "C": "hf_20260804_092131_e93e708b-ace7-4085-ba6f-6935bd187fe9.mp4",
+    "D": "hf_20260804_092131_0baee410-124b-4186-9874-5ad1ca96db5b.mp4",
+    "E": "hf_20260804_092131_97f49b91-20f5-4c31-aae2-9e44d5a17b65.mp4",
+    "F": "hf_20260804_092131_f0773cd0-4ddf-4d31-9f45-c03e78df9b8b.mp4",
+    "G": "hf_20260804_092131_0d24d3a0-d84a-4611-8ff8-f448b88ab9fc.mp4",
+    "H": "hf_20260804_092131_dd1a60de-9b55-46ff-9c3b-9e41c68bfae7.mp4",
+    "I": "hf_20260804_092131_b12932b6-d078-4246-8ce1-5569470b02f6.mp4",
 }
+CLIP_BASE = "https://d8j0ntlcm91z4.cloudfront.net/user_3AmHAoGOCTD0Ph5D4HI7jSA04wi/"
 
 
 def timeline():
