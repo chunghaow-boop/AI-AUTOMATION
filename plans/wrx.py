@@ -206,17 +206,24 @@ CONTENT = {
     "verified": "Subaru JDM lineup / Wikipedia VA-series S4 (JDM-only trim, 300PS FA20, "
                 "CVT), cross-checked BeForward JDM export listings - 2026-08-03 Phase 0",
     "twist":    "the cards ARE the story - four lines that read as a sentence "
-                "(KEPT / NEVER SOLD / FOUND ANYWAY / GONE) over a forbidden-fruit arc. "
-                "The payoff still lands FIRST and AT the viewer.",
+                "(WON'T SELL / JAPAN-ONLY / LANDED ANYWAY / ASK ME) over a "
+                "dealer-insider refusal arc. The payoff still lands FIRST and AT "
+                "the viewer; the withheld price is the CTA's engine.",
     "why_stop": "threat-read hook + a REFUSAL in card 1 (SUBARU WON'T SELL YOU THIS - "
                 "telling the viewer no is the oldest stopper there is), receipt with a "
                 "real number (300PS, verified), price withheld to force the DM",
 
     # Judge panel verdict, recorded (the Wow Test the merge had dropped):
-    "judged":   "2026-08-04 panel, twice. HOOK v1: weak-pass/novelty-FAIL -> v2 "
-                "toward-camera. STORY v1 (Gavril: 'too common'): montage skeleton same "
-                "as every field edit -> narrative cards adopted, cards form a sentence. "
-                "Lesson: the panel must judge HOOK and ARC separately.",
+    "judged":   "2026-08-04 panel, THREE times - every content change re-judges. "
+                "HOOK v1: weak-pass/novelty-FAIL -> v2 toward-camera. "
+                "STORY v1 (Gavril: 'too common') -> narrative cards. "
+                "CONTENT v3 panel (Gavril asked 'did this pass mastermind QC?' - it "
+                "had NOT yet): HOOK PASS - refusal card stacks on the threat-read, 5 "
+                "words across 4.0s is legible. ARC PASS - refusal/receipt/landed/"
+                "withheld-price, direct address, verified number, CTA has an engine. "
+                "DEFECT CAUGHT: twist field still described v2's dead cards - fixed. "
+                "Lesson: planqc passing is NOT the panel passing. Separate gates, "
+                "and a changed CONTENT block ALWAYS re-runs the panel before spend.",
 }
 
 PREVIZ = {  # sketch-grade, NEVER enters generation. v2 carries the Nev identity ref.
