@@ -71,8 +71,8 @@ def _assert_not_dead(path, mode):
     """A transition that renders SOLID GREEN passed every previous check: rc=0, file exists,
     duration correct. Only looking at pixels caught it. So look at pixels, always."""
     rc, o = sh(f'ffmpeg -v error -ss 0.3 -i "{path}" -frames:v 1 -f rawvideo '
-               f'-pix_fmt rgb24 -s 8x8 - 2>/dev/null | xxd -p -l 192')
-    hexs = o.strip().replace("\n", "")
+               f'-pix_fmt rgb24 -s 8x8 - 2>/dev/null | od -An -tx1 -N 192')
+    hexs = o.strip().replace("\n", "").replace(" ", "")
     if len(hexs) < 96:
         raise RuntimeError(f"{mode}: no readable frame")
     px = [int(hexs[i:i+2], 16) for i in range(0, min(len(hexs), 192), 2)]

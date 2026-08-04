@@ -94,7 +94,9 @@ def _level(p):
     return float(np.mean(v)) if v else None
 
 
-def shot_match(segs, W, H, FPS, tmp, tol=10.0, max_gain=0.10):
+def shot_match(segs, W, H, FPS, tmp, tol=10.0, max_gain=0.14):
+    # clamp 0.10 -> 0.14 (2026-08-04): WRX v1 measured 4/15 cuts swinging >18, worst 32.
+    # 32/255*1.9 = 0.24 needed; 0.14 halves the worst swing without relighting.
     """Pull each RENDERED segment toward the running level. Never the source clip: a
     1.90x punch crops into the dark part of frame, so source B averages 73.7 while its
     punch renders at 50. The source average is the wrong statistic.
@@ -307,11 +309,49 @@ def build(name, out_path=None, use_cache=True):
                          "--text", txt, "-o", o], capture_output=True, text=True, timeout=30)
             import cv2 as _cv
             im = _cv.imread(o, _cv.IMREAD_UNCHANGED)
-            if im is None or im.shape[2] != 4:      # no alpha = full-frame fallback = unusable as overlay
+            # a usable card is a CHIP with alpha. A full-frame canvas (cards.py's own
+            # ffmpeg fallback, 1920x1080) scales into a letterbox and CLIPS long text -
+            # measured on WRX v1, which shipped "RU WON'T SELL YOU". Reject portrait/
+            # full-frame outputs, not just missing alpha.
+            if im is None or im.shape[2] != 4 or im.shape[0] >= im.shape[1] // 2:
                 cards_png = []; break
             cards_png.append(o)
     except Exception:
         cards_png = []
+    if not cards_png:
+        # PIL CHIP RENDERER - the middle rung of the quality ladder (added 2026-08-04
+        # after WRX v1): cards.py/Playwright > PIL chip > drawtext. Measured type
+        # (textlength), AUTO-FIT so five-word narrative cards can never clip, real
+        # alpha, CapCut font from the repo. Runs anywhere Pillow exists.
+        try:
+            from PIL import Image as _Im, ImageDraw as _Dr, ImageFont as _Ft
+            _fd = os.path.join(HERE, "assets", "fonts", "loose")
+            _fp = next(os.path.join(_fd, f) for f in
+                       ("CapCutSansText-Bold.otf", "NotoSans-Regular.ttf")
+                       if os.path.exists(os.path.join(_fd, f)))
+            cards_png = []
+            for ci, (txt, first, ncards, kind) in enumerate(P.CARDS):
+                size = 84
+                while size > 34:
+                    _f = _Ft.truetype(_fp, size)
+                    if _Dr.Draw(_Im.new("RGBA", (8, 8))).textlength(txt, font=_f) <= 980:
+                        break
+                    size -= 2
+                _f = _Ft.truetype(_fp, size)
+                _w = int(_Dr.Draw(_Im.new("RGBA", (8, 8))).textlength(txt, font=_f))
+                _h = int(size * 2.0)
+                _im = _Im.new("RGBA", (1080, _h), (0, 0, 0, 0))
+                _d = _Dr.Draw(_im)
+                _x, _y = (1080 - _w) // 2, (_h - size) // 2 - size // 6
+                _d.text((_x + 3, _y + 4), txt, font=_f, fill=(0, 0, 0, 140))
+                _d.text((_x, _y), txt, font=_f, fill=(255, 255, 255, 255),
+                        stroke_width=max(3, size // 14), stroke_fill=(0, 0, 0, 220))
+                o = os.path.join(tmp, f"card{ci}.png")
+                _im.save(o)
+                cards_png.append(o)
+            print("      cards: PIL chip renderer (auto-fit, CapCut font)")
+        except Exception:
+            cards_png = []
     if not cards_png:
         print("      cards.py unusable here (Playwright blocked) -> drawtext FALLBACK. "
               "On the DESKTOP this build upgrades itself automatically.")
@@ -347,7 +387,9 @@ def build(name, out_path=None, use_cache=True):
     else:
         dt = []
         for txt, st_, ln, kind in spans:
-            size = 56 if kind == "cta" else max(56, min(78, int(560 / max(4, len(txt)))))
+            # AUTO-FIT (WRX v1 lesson): the old max(56,...) FLOOR guaranteed overflow on
+            # long text. Bound ~0.58*size px/char to <=0.92 of frame width, no floor.
+            size = min(56 if kind == "cta" else 78, max(30, int(1100 / max(8, len(txt)))))
             dt.append(f"drawtext=fontfile='{FONT}':text='{txt}':fontcolor=white:fontsize={size}:"
                       f"borderw=6:bordercolor=black@0.85:x=(w-text_w)/2:y=(h*{P.CARD_Y}):"
                       f"enable='between(t,{st_:.2f},{st_+ln:.2f})'")
@@ -401,13 +443,17 @@ def build(name, out_path=None, use_cache=True):
     OUT = out_path or os.path.join(pdir, "output", f"{name.upper()}_CINEMATIC_v1.mp4")
     A = "aformat=sample_fmts=fltp:sample_rates=44100:channel_layouts=stereo"
     if HAVE_SFX:
+        # REMIXED 2026-08-04 (WRX v1 measured: sfx lift -0.5dB, true-peak +0.2dBTP):
+        # bed down 3dB and sfx up 3dB so transients CLEAR the bed (verify wants >=2dB
+        # crest lift at cuts); deeper sidechain; ceiling 0.62 (~-4dBFS) because AAC
+        # inter-sample peaks overshot the old 0.76 ceiling to +0.2dBTP.
         f = (f"[1:a]atrim={BED_OFFSET:.4f}:{vd+BED_OFFSET:.2f},asetpts=N/SR/TB,{A},"
-             f"volume=12.0dB[bedraw];"
-             f"[2:a]atrim=0:{vd:.2f},asetpts=N/SR/TB,{A},volume=13.5dB,asplit=2[sfx][key];"
-             f"[bedraw][key]sidechaincompress=threshold=0.05:ratio=8:attack=4:"
+             f"volume=9.0dB[bedraw];"
+             f"[2:a]atrim=0:{vd:.2f},asetpts=N/SR/TB,{A},volume=16.5dB,asplit=2[sfx][key];"
+             f"[bedraw][key]sidechaincompress=threshold=0.03:ratio=8:attack=4:"
              f"release=180:makeup=1[bed];"
              f"[bed][sfx]amix=inputs=2:duration=first:normalize=0,"
-             f"alimiter=limit=0.76:level=disabled:attack=5:release=50[aout]")
+             f"alimiter=limit=0.62:level=disabled:attack=5:release=50[aout]")
         cmd = (f'ffmpeg -y -v error -i "{graded}" -stream_loop -1 -i "{BED}" -i "{sfx_path}" '
                f'-filter_complex "{f}" -map 0:v -map "[aout]" -c:v copy -c:a aac '
                f'-b:a 192k -t {vd:.2f} "{OUT}.part.mp4"')
