@@ -166,7 +166,11 @@ sequence, mandatory, all steps before any credit:
 4 HIS PICKS      30 seconds of his time. Cheapest disambiguation in the pipeline.
 5 PLAN           plans/<name>.py, with a CONTENT block (claim + verification source,
                  twist, why_stop) that planqc REQUIRES.
-6 GATES          planqc -> JUDGE PANEL ON HOOK **AND STORY ARC** (file 01/06, FREE, verdict
+6 GATES          planqc -> JUDGE PANEL ON HOOK **AND STORY ARC** -> SOUND ENGINEER QC
+                 (file 19+04: foley/diegetic design judged BEFORE spend - added 2026-08-04
+                 after the WRX shipped with edit-sfx only and Gavril caught it; clip audio
+                 is generated and PAID FOR, the plan must decide how it is used)
+                 (file 01/06, FREE, verdict
                  recorded in the plan's CONTENT block - restored 2026-08-04 after Gavril
                  caught that the merge had dropped the pre-spend J0/Wow step) -> board
                  -> approve -> probe -> generate -> clipqc -> build -> verify -> JUDGES
