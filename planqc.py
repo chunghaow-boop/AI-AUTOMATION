@@ -412,6 +412,20 @@ def write_doc(P, path):
     a("")
     a("---")
     a("")
+    pv = getattr(P, "PREVIZ", None)
+    if pv:
+        a("## PREVIZ — sketch-grade, never enters generation")
+        a("")
+        a(f"![previz]({pv['sheet_v2']})")
+        a("")
+        a(f"_{pv['note']}_")
+        a("")
+        a("Timeline board (real frames appear here automatically once clips exist):")
+        a("")
+        a("![board](analysis/STORYBOARD.png)")
+        a("")
+        a("---")
+        a("")
     a("## GENERATION PROMPTS — verbatim, as they will be sent")
     a("")
     for k, (lab, _col, act, plates, prompt) in P.SOURCES.items():
@@ -421,6 +435,60 @@ def write_doc(P, path):
         a(prompt)
         a("```")
         a("")
+    a("---")
+    a("")
+    a("## THE EDIT — what the engine will do, with computed times")
+    a("")
+    scale_note = "times below are PLANNED; blends compress them - the engine re-times "\
+                 "cards and declares ACTUAL cut boundaries after building."
+    a(f"_{scale_note}_")
+    a("")
+    a("**Cut grid** — every boundary on the 150 BPM beat (0.400s), frame-exact "
+      "(`-frames:v`), each shot centred on a measured action peak, exposure matched on "
+      "rendered segments BEFORE blending.")
+    a("")
+    a("| after shot | t (planned) | treatment |")
+    a("|---|---|---|")
+    for i in sorted(P.BLEND_AFTER):
+        t_end = tl[i][0] + tl[i][1]
+        a(f"| {i} ({P.SHOTS[i][3]}) | {t_end:.2f}s | {P.BLEND_KIND} {P.BLEND_WIDTH*1000:.0f}ms |")
+    a("")
+    a(f"All other cuts HARD (33-67ms). Blends {len(P.BLEND_AFTER)}/{len(P.SHOTS)-1} "
+      f"= {100*len(P.BLEND_AFTER)//(len(P.SHOTS)-1)}% (profile 6-33%).")
+    a("")
+    a("**Sound** — synthesized drift-phonk bed at 150 BPM, first transient trimmed to "
+      "t=0 (phase, not just tempo). SFX layer at +13.5dB with the bed SIDECHAIN-DUCKING "
+      "under it; every whoosh LEADS its cut by 220ms and resolves ON it.")
+    a("")
+    a("| t (planned) | cut entering | sound |")
+    a("|---|---|---|")
+    for i in range(1, len(P.SHOTS)):
+        t = tl[i][0]
+        if i in P.IMPACT_AT:
+            snd = "IMPACT (section)"
+        elif i in P.SUBDROP_AT:
+            snd = "SUB-DROP (into hold)"
+        else:
+            snd = "whoosh"
+        a(f"| {t:.2f}s | shot {i} · {P.SHOTS[i][3]} | {snd} |")
+    a("")
+    a("**Captions** — cards.py PNGs on desktop (drawtext fallback flagged loudly), "
+      f"lower third y={P.CARD_Y}, re-timed to actual duration:")
+    a("")
+    a("| card | shots | planned window |")
+    a("|---|---|---|")
+    for t_, f_, n_, kind in P.CARDS:
+        st_ = tl[f_][0]; en = tl[min(f_+n_-1, len(tl)-1)]
+        a(f"| **{t_}** ({kind}) | {f_}-{f_+n_-1} | {st_:.2f}-{en[0]+en[1]:.2f}s |")
+    a("")
+    a(f"**Grade** — saturation {P.GRADE_SAT} ONLY (never double-grade; prompts already "
+      f"carry the night look), measured toward black_point {P.TARGET_BLACK} / "
+      f"saturation {P.TARGET_SAT}. Mix: bed +12dB, limiter 0.76 level=disabled, "
+      f"target -7..-9 LUFS. Output written atomically.")
+    a("")
+    a("**Then the gates:** clipqc per clip -> engine build -> verify (10 checks, "
+      "freshness first) -> JUDGES (kill-boring) -> Gavril.")
+    a("")
     a("---")
     a("")
     a("## COST")

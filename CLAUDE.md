@@ -167,6 +167,14 @@ LLM reception gate - kills boring, which no mechanical check can) -> Gavril. Pla
 GEN_MODE = "coverage" (beat-cut phonk pillar) or "multishot" (file 17, 67.5cr dissolve film).
 Persona = references only; product = describe the geometry.
 
+### STORYBOARD RULE — added 2026-08-04, his standing order
+"I want the storyboard to be full and detailed with images as reference." Every gate
+presentation ships the FULL PRODUCTION.md, generated from the plan (never typed beside
+it), containing: previz image sheet (identity-ref'd) + timeline board + every verbatim
+generation prompt + the complete edit treatment (cut grid, blends, SFX map, cards,
+grade, mix) with computed times + cost. The timeline board upgrades itself to REAL
+frames as clips arrive.
+
 ### PREVIZ RULE — added 2026-08-04
 Storyboard previz (the cheap 1cr nine-panel sheet) is sketch-grade and NEVER enters
 generation. But if the persona appears in ANY panel, the sheet MUST carry the identity

@@ -197,6 +197,12 @@ CONTENT = {
                 "2 seconds - not adjectives",
 }
 
+PREVIZ = {  # sketch-grade, NEVER enters generation. v2 carries the Nev identity ref.
+    "sheet_v2": "https://d8j0ntlcm91z4.cloudfront.net/user_3AmHAoGOCTD0Ph5D4HI7jSA04wi/hf_20260804_034747_07154d6b-f379-44cc-bc7b-bac104adfd3e.png",
+    "note": "panel letters partly scrambled by the model; CONTENT mapping: "
+            "launch=A front=B scoopmacro=C wheel=D cockpit=E nev-seat=F rear=G rolling=H nev-lean=I",
+}
+
 PROBE_FIRST  = "A"      # the launch is the riskiest generation - probe it alone
 
 

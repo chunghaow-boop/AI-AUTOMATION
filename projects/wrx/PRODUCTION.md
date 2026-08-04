@@ -53,6 +53,18 @@
 
 ---
 
+## PREVIZ — sketch-grade, never enters generation
+
+![previz](https://d8j0ntlcm91z4.cloudfront.net/user_3AmHAoGOCTD0Ph5D4HI7jSA04wi/hf_20260804_034747_07154d6b-f379-44cc-bc7b-bac104adfd3e.png)
+
+_panel letters partly scrambled by the model; CONTENT mapping: launch=A front=B scoopmacro=C wheel=D cockpit=E nev-seat=F rear=G rolling=H nev-lean=I_
+
+Timeline board (real frames appear here automatically once clips exist):
+
+![board](analysis/STORYBOARD.png)
+
+---
+
 ## GENERATION PROMPTS — verbatim, as they will be sent
 
 ### `A` · EVENT · AWD LAUNCH, car GONE  ·  act: EVENT  ·  plates: wrx
@@ -108,6 +120,58 @@ Vertical 9:16. THE PAYOFF - sustained motion, unbroken, no settle at the head. T
 ```
 Vertical 9:16. The man from the FIRST reference images leaning back against the front fender of the Subaru WRX S4 from the LAST reference image on a wet street at night, arms crossed, relaxed, looking at the lens. Black tee. Framed close enough that his face is large and clearly readable. Headlight glow rims him from behind. Face, hair and EARRING match the references exactly - real skin, no smoothing. Night. One hard artificial key plus the car's own light; deep shaped shadows; wet asphalt doubling every light source. WR Blue paint reads deep and saturated in the highlights, near-black in shadow. Neutral white balance, no HDR halos. REAL FOOTAGE, NOT A RENDER: true specular roll-off along the creases, clear-coat orange peel, faint panel-gap shadows, fine rain mist catching the key light, accurate glass reflections, natural depth of field. Negative: CGI, videogame look, plastic-smooth surfaces, over-bright fill, invented badges, tall rear wing.
 ```
+
+---
+
+## THE EDIT — what the engine will do, with computed times
+
+_times below are PLANNED; blends compress them - the engine re-times cards and declares ACTUAL cut boundaries after building._
+
+**Cut grid** — every boundary on the 150 BPM beat (0.400s), frame-exact (`-frames:v`), each shot centred on a measured action peak, exposure matched on rendered segments BEFORE blending.
+
+| after shot | t (planned) | treatment |
+|---|---|---|
+| 0 (LAUNCH - GONE) | 1.60s | mask_slice 400ms |
+| 6 (NEV - about to launch) | 8.80s | mask_slice 400ms |
+| 11 (ROLLING PAYOFF) | 15.20s | mask_slice 400ms |
+
+All other cuts HARD (33-67ms). Blends 3/18 = 16% (profile 6-33%).
+
+**Sound** — synthesized drift-phonk bed at 150 BPM, first transient trimmed to t=0 (phase, not just tempo). SFX layer at +13.5dB with the bed SIDECHAIN-DUCKING under it; every whoosh LEADS its cut by 220ms and resolves ON it.
+
+| t (planned) | cut entering | sound |
+|---|---|---|
+| 1.60s | shot 1 · front 3/4 | IMPACT (section) |
+| 2.40s | shot 2 · scoop macro | whoosh |
+| 3.20s | shot 3 · wheel spray | whoosh |
+| 4.00s | shot 4 · rear 3/4 | whoosh |
+| 4.80s | shot 5 · cockpit empty | whoosh |
+| 5.60s | shot 6 · NEV - about to launch | SUB-DROP (into hold) |
+| 8.80s | shot 7 · rolling tease | IMPACT (section) |
+| 9.60s | shot 8 · hawk eyes | whoosh |
+| 10.40s | shot 9 · NEV + car | whoosh |
+| 11.20s | shot 10 · caliper | whoosh |
+| 12.00s | shot 11 · ROLLING PAYOFF | SUB-DROP (into hold) |
+| 15.20s | shot 12 · scoop breathes | IMPACT (section) |
+| 16.00s | shot 13 · boost gauge | whoosh |
+| 16.80s | shot 14 · NEV grin | whoosh |
+| 17.60s | shot 15 · dual tips | whoosh |
+| 18.40s | shot 16 · launch replay | whoosh |
+| 19.20s | shot 17 · NEV punch-in | whoosh |
+| 20.00s | shot 18 · FRONT - CTA | whoosh |
+
+**Captions** — cards.py PNGs on desktop (drawtext fallback flagged loudly), lower third y=0.72, re-timed to actual duration:
+
+| card | shots | planned window |
+|---|---|---|
+| **JAPAN ONLY** (cap) | 0-3 | 0.00-4.00s |
+| **WRX S4** (cap) | 6-7 | 5.60-9.60s |
+| **AWD** (cap) | 11-12 | 12.00-16.00s |
+| **DM FOR PRICE** (cta) | 16-18 | 18.40-21.60s |
+
+**Grade** — saturation 1.15 ONLY (never double-grade; prompts already carry the night look), measured toward black_point 2.0 / saturation 91.5. Mix: bed +12dB, limiter 0.76 level=disabled, target -7..-9 LUFS. Output written atomically.
+
+**Then the gates:** clipqc per clip -> engine build -> verify (10 checks, freshness first) -> JUDGES (kill-boring) -> Gavril.
 
 ---
 
