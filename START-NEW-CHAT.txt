@@ -1,0 +1,14 @@
+HOW TO END A CHAT AND START A NEW ONE (nothing can be messed up)
+
+WHEN CLAUDE SAYS "run PUSH.bat and clear the chat now":
+  1. Double-click PUSH.bat  (wait for it to finish)
+  2. Start a NEW chat in Cowork, same AI folder selected
+  3. Copy-paste this one line as your first message:
+
+     Read CLAUDE.md and the newest RESUME file in this folder, then continue where we left off.
+
+That is everything. The new Claude reads 2 files and knows the whole project.
+
+IF YOU FORGET TO PUSH before clearing: nothing is lost - the files are still on
+this computer. Just push whenever, the new chat works either way.
+IF YOU'RE ON THE OTHER MACHINE: double-click PULL.bat first, then step 2-3.
