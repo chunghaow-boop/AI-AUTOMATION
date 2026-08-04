@@ -166,3 +166,9 @@ block (file 01 / planqc 18) -> probe -> clipqc -> engine -> verify 10 -> JUDGES 
 LLM reception gate - kills boring, which no mechanical check can) -> Gavril. Plans may set
 GEN_MODE = "coverage" (beat-cut phonk pillar) or "multishot" (file 17, 67.5cr dissolve film).
 Persona = references only; product = describe the geometry.
+
+### PREVIZ RULE — added 2026-08-04
+Storyboard previz (the cheap 1cr nine-panel sheet) is sketch-grade and NEVER enters
+generation. But if the persona appears in ANY panel, the sheet MUST carry the identity
+reference — a text-only previz invented a stranger and was correctly rejected ("the man
+is not nev"). Persona = references, always, even in sketches.
