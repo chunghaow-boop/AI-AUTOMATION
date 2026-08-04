@@ -416,9 +416,13 @@ def write_doc(P, path, name="?"):
     if pv:
         a("## PREVIZ — sketch-grade, never enters generation")
         a("")
-        a(f"![previz]({pv['sheet_v2']})")
+        sheet = pv[sorted(k for k in pv if k.startswith("sheet"))[-1]]
+        a(f"![previz]({sheet})")
         a("")
         a(f"_{pv['note']}_")
+        if pv.get("limit"):
+            a("")
+            a(f"**LIMIT:** {pv['limit']}")
         a("")
         a("Timeline board (real frames appear here automatically once clips exist):")
         a("")

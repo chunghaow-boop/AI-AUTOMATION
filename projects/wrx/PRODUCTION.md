@@ -55,9 +55,11 @@
 
 ## PREVIZ — sketch-grade, never enters generation
 
-![previz](https://d8j0ntlcm91z4.cloudfront.net/user_3AmHAoGOCTD0Ph5D4HI7jSA04wi/hf_20260804_034747_07154d6b-f379-44cc-bc7b-bac104adfd3e.png)
+![previz](https://d8j0ntlcm91z4.cloudfront.net/user_3AmHAoGOCTD0Ph5D4HI7jSA04wi/hf_20260804_043249_35fadfd8-8a81-4f91-b7e7-f3f9d0883ffa.png)
 
 _panel letters partly scrambled by the model; CONTENT mapping: launch=A front=B scoopmacro=C wheel=D cockpit=E nev-seat=F rear=G rolling=H nev-lean=I_
+
+**LIMIT:** STILL PREVIZ CANNOT DEPICT THE v2 HOOK - a static frame cannot show 'charging at the lens'; the model rendered a parked front view. The hook is judged at the PROBE, never at previz. Do not reroll sketches.
 
 Timeline board (real frames appear here automatically once clips exist):
 
