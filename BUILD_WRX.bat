@@ -15,6 +15,24 @@ python -c "import cv2, numpy; cv2.CascadeClassifier" 2>nul || (
 )
 python -c "import cv2, numpy; cv2.CascadeClassifier" 2>nul || ( echo cv2 4.x install failed - tell Claude & pause & exit /b 1 )
 
+echo [0.5/5] ffmpeg (find local copy, else download once)...
+where ffmpeg >nul 2>nul
+if errorlevel 1 (
+  if exist ffmpeg-extracted (
+    for /d %%D in (ffmpeg-extracted\ffmpeg-*) do set "FFBIN=%%~fD\bin"
+  )
+  if not defined FFBIN (
+    echo   downloading ffmpeg essentials ~80MB - one time only...
+    curl -sfL -o ffmpeg.zip https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip || ( echo ffmpeg download failed - tell Claude & pause & exit /b 1 )
+    mkdir ffmpeg-extracted 2>nul
+    tar -xf ffmpeg.zip -C ffmpeg-extracted
+    del ffmpeg.zip
+    for /d %%D in (ffmpeg-extracted\ffmpeg-*) do set "FFBIN=%%~fD\bin"
+  )
+)
+if defined FFBIN set "PATH=%FFBIN%;%PATH%"
+ffmpeg -version >nul 2>nul || ( echo ffmpeg still not available - tell Claude & pause & exit /b 1 )
+
 echo [1/5] downloading the 9 gated clips (skips ones already here)...
 if not exist projects\wrx\clips mkdir projects\wrx\clips
 cd projects\wrx\clips
