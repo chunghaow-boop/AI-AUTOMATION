@@ -261,6 +261,14 @@ CLIPS = {
 }
 CLIP_BASE = "https://d8j0ntlcm91z4.cloudfront.net/user_3AmHAoGOCTD0Ph5D4HI7jSA04wi/"
 
+# INGEST VERDICT 2026-08-04 (remote gate, evidence sheet ae6a0e62, viewed by eye):
+# 9/9 ACCEPT. Faces READ: F profile 17.9%, I push-in 7.2% (Supra probe failed at 2.0%).
+# C settled at the head (0.27) but delivered window 3.53@2.25s - second false-reject
+# of the head measurement in one day; clipqc amended: delivered-window is now the
+# blocking check for ALL roles. WATCH ITEM: B inherits the plate's softbox at its
+# left edge in the first ~1.7s - B's action window sits at 1.92s so the edit should
+# clear it, but VERIFY B's actual cut windows on the evidence strip at build.
+
 
 def timeline():
     out, t = [], 0.0

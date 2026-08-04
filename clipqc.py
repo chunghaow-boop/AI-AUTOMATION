@@ -85,15 +85,32 @@ def gate_clip(path, P, key=None):
     # so their head checks are warnings, not blocks (see EVENT section).
     act = P.SOURCES[key][2].upper() if key and key in P.SOURCES else None
 
-    # ---- 2 OPENING SETTLE ----
-    # AI clips open with a settle. Measured: a settle/static open reads < ~1.5 mean
-    # |diff|; the approved Supra probe opened at 6.35. First 0.4s must move.
-    # WARN-only for EVENT clips: the engine centers the shot on the action peak,
-    # so a raw-head settle never reaches the delivered cut (WRX probe A, 2026-08-04).
+    # ---- 2 OPENING SETTLE (warn) + 2b DELIVERED WINDOW (blocking) ----
+    # AMENDED AGAIN 2026-08-04, WRX batch: clip C (scoop macro) repeated probe A's
+    # false-reject - static raw head, live delivered window (3.53 at 2.25s). The
+    # engine centers EVERY shot on its action peak, so the clip head is the wrong
+    # measurement for ALL roles, not just EVENT. The honest gate: no-settle drops to
+    # warn, and the BEST shot-length window becomes the blocking check - a clip that
+    # is dead everywhere still fails, on the measurement the edit actually consumes.
     head = mot[:max(2, int(0.4 * fps))]
     hm = float(np.mean(head))
-    add("no-settle open", hm >= 1.5, f"first 0.4s motion {hm:.2f} (>=1.5; a settle reads <1.5)",
-        blocking=(act != "EVENT"))
+    add("no-settle open", hm >= 1.5, f"first 0.4s motion {hm:.2f} "
+        f"(raw head only - engine centers on action peak)", False)
+    try:
+        _shot_ds = sorted({P.BEATS[k2] * P.BEAT for _s, _c, k2, _n in P.SHOTS
+                           if _s == key} | {1.35})
+        _d2 = _shot_ds[-1]                       # longest use of this source
+    except Exception:
+        _d2 = 1.35
+    _w2 = max(2, int(_d2 * fps))
+    _bw, _bi = -1.0, 0
+    for _i in range(0, max(1, len(mot) - _w2 + 1)):
+        _m = float(np.mean(mot[_i:_i + _w2]))
+        if _m > _bw:
+            _bw, _bi = _m, _i
+    add("delivered window", _bw >= 1.5,
+        f"best {_d2:.2f}s window mean {_bw:.2f} at {_bi / fps:.2f}s "
+        f"(>=1.5: the edit consumes this window, not the head)")
 
     # ---- 3 DEAD TAIL ----
     # The failed probe spent 3.4s motionless after its event. A clip that dies early
