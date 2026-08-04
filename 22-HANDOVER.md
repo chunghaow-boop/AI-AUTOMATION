@@ -1,7 +1,7 @@
 # HANDOVER — session state
 ### File 22 · READ THIS FIRST, before any other file. Hard cap 200 lines (auto-archives above).
 ### File 16 = architecture (what the system IS). This = state (where we ARE).
-### Last updated: session ending 2026-07-21
+### Last updated: 2026-08-03 (laptop sync - see RECONCILE.md for the merged architecture)
 
 ---
 
@@ -28,7 +28,7 @@ Trigger the end-ritual on "wrap up" / "I'm closing" / "clear chat", or unprompte
 
 ## PROJECT FACTS (stable — verify only if something breaks)
 ```
-Model:        seedance_2_0 · 9:16 · silent always (generate_audio:false)
+Model:        seedance_2_0 · 9:16 · cinematics silent; TALKING formats generate_audio:true (old rule obsolete)
 Rates:        1080p std 9cr/s · 720p std 4.5cr/s · 720p fast 5s = 17.5 flat
               15s cinematic: 1080p=135 · 720p=67.5
 Decline:      preset 24bae836-2c4a-48e0-89b6-49fcc0b21612  (every job)
@@ -36,7 +36,7 @@ KOL refs:     96589a64-d346-4610-992e-532ef97517e8
               e3153edb-64a0-4276-a0c2-814ef0ae5cf5
               1b59b766-f08b-44b0-aba5-0e6ead2f99f3   (Higgsfield-side, re-upload if expired)
 Soul:         Nev_KOL 7b917947-a6aa-44af-b0d2-401bd45adfd0 (image refs preferred over Soul)
-Credits:      **2,073.17 MEASURED 2026-07-24.** ⚠️ NEVER estimate this — a prior estimate
+Credits:      **5,852.16 MEASURED 2026-08-01 (laptop). Spending since - MEASURE at session start.** was 2,073.17 on 07-24. ⚠️ NEVER estimate this — a prior estimate
               was off by 352cr. Always run Higgsfield:balance and record the real number.
 Repo:         https://github.com/chunghaow-boop/AI-AUTOMATION  (public, clone verified ✅)
               git clone --depth 1 https://github.com/chunghaow-boop/AI-AUTOMATION.git /home/claude/sys

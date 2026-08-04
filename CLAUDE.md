@@ -159,3 +159,10 @@ Two failure modes, kept separate on purpose:
 - MISREADING THE TITLE — fixed by steps 2-4 (readback + picks + board).
 - CRAFT ERRORS — a correctly-understood title can still produce an overloaded 5s clip
   (shot A: door + engine in one clip, 22.5cr). Fixed by the probe, never by more questions.
+
+## MERGED WITH THE DESKTOP SYSTEM — 2026-08-03
+Read `RECONCILE.md`. One flow now: Strategist readback (file 08) -> Four Gates as CONTENT
+block (file 01 / planqc 18) -> probe -> clipqc -> engine -> verify 10 -> JUDGES (file 06,
+LLM reception gate - kills boring, which no mechanical check can) -> Gavril. Plans may set
+GEN_MODE = "coverage" (beat-cut phonk pillar) or "multishot" (file 17, 67.5cr dissolve film).
+Persona = references only; product = describe the geometry.
