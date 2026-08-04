@@ -184,11 +184,13 @@ CARD_Y       = 0.72
 # resolution. This is the improvise-above move at STORY level, not just hook level.
 CARD_STYLE = "narrative"   # DECLARED deviation from the profile's 1-2 word label style.
                            # The deviation IS the improvisation: cards read as a sentence.
+# CONTENT v3 (his pick 2026-08-04): DEALER-INSIDER angle, no public price
+# (his call - price stays in the DMs, which itself drives the DM).
 CARDS = [   # (text, first_shot, n_shots, kind)
-    ("JAPAN KEPT IT",       0, 4, "cap"),   # Act 1 FORBIDDEN
-    ("NEVER SOLD HERE",     6, 2, "cap"),   # Act 2 THE PROOF
-    ("HE FOUND ONE",       11, 2, "cap"),   # Act 3 THE TAKE
-    ("DM BEFORE IT'S GONE",16, 3, "cta"),
+    ("SUBARU WON'T SELL YOU THIS", 0, 4, "cap"),   # Act 1: the refusal
+    ("JAPAN-ONLY. 300PS",          6, 2, "cap"),   # Act 2: the receipt, with a number
+    ("FROM JAPAN. LANDED.",       11, 2, "cap"),   # Act 3: it's HERE
+    ("PRICE IN THE DM",           16, 3, "cta"),   # the number is the bait, not the card
 ]
 AI_LABEL_BURNED_IN = False
 
@@ -206,9 +208,9 @@ CONTENT = {
     "twist":    "the cards ARE the story - four lines that read as a sentence "
                 "(KEPT / NEVER SOLD / FOUND ANYWAY / GONE) over a forbidden-fruit arc. "
                 "The payoff still lands FIRST and AT the viewer.",
-    "why_stop": "threat-read: a car at full throttle AT the viewer, identity visible "
-                "(scoop + hawk eyes), swerve at 1.2s + receipt card (JAPAN ONLY) - "
-                "no reference edit opens toward-camera because real crews cannot",
+    "why_stop": "threat-read hook + a REFUSAL in card 1 (SUBARU WON'T SELL YOU THIS - "
+                "telling the viewer no is the oldest stopper there is), receipt with a "
+                "real number (300PS, verified), price withheld to force the DM",
 
     # Judge panel verdict, recorded (the Wow Test the merge had dropped):
     "judged":   "2026-08-04 panel, twice. HOOK v1: weak-pass/novelty-FAIL -> v2 "

@@ -46,10 +46,10 @@
 
 | text | shots | kind |
 |---|---|---|
-| **JAPAN KEPT IT** | 0–3 | cap |
-| **NEVER SOLD HERE** | 6–7 | cap |
-| **HE FOUND ONE** | 11–12 | cap |
-| **DM BEFORE IT'S GONE** | 16–18 | cta |
+| **SUBARU WON'T SELL YOU THIS** | 0–3 | cap |
+| **JAPAN-ONLY. 300PS** | 6–7 | cap |
+| **FROM JAPAN. LANDED.** | 11–12 | cap |
+| **PRICE IN THE DM** | 16–18 | cta |
 
 ---
 
@@ -166,10 +166,10 @@ All other cuts HARD (33-67ms). Blends 3/18 = 16% (profile 6-33%).
 
 | card | shots | planned window |
 |---|---|---|
-| **JAPAN KEPT IT** (cap) | 0-3 | 0.00-4.00s |
-| **NEVER SOLD HERE** (cap) | 6-7 | 5.60-9.60s |
-| **HE FOUND ONE** (cap) | 11-12 | 12.00-16.00s |
-| **DM BEFORE IT'S GONE** (cta) | 16-18 | 18.40-21.60s |
+| **SUBARU WON'T SELL YOU THIS** (cap) | 0-3 | 0.00-4.00s |
+| **JAPAN-ONLY. 300PS** (cap) | 6-7 | 5.60-9.60s |
+| **FROM JAPAN. LANDED.** (cap) | 11-12 | 12.00-16.00s |
+| **PRICE IN THE DM** (cta) | 16-18 | 18.40-21.60s |
 
 **Grade** — saturation 1.15 ONLY (never double-grade; prompts already carry the night look), measured toward black_point 2.0 / saturation 91.5. Mix: bed +12dB, limiter 0.76 level=disabled, target -7..-9 LUFS. Output written atomically.
 
