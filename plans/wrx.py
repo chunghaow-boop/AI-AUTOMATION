@@ -75,15 +75,19 @@ _LOOK = (
 
 # ---------------------------------------------------------------- SOURCES  (9 × 22.5cr)
 SOURCES = {
- "A": ("EVENT · AWD LAUNCH, car GONE", "#C4562F", "EVENT", ["wrx"],
+ # HOOK v2 after the Judge panel (2026-08-04): v1 launched AWAY - taillights of an
+ # unidentifiable car, the field's most common opening. v2 launches AT THE LENS:
+ # threat-read, the car's face in frame 1, and an angle real crews can't safely shoot.
+ "A": ("EVENT · LAUNCH AT THE LENS", "#C4562F", "EVENT", ["wrx"],
        "Vertical 9:16. THE EVENT SHOT - ONE action only, over inside 1.5 seconds, NO "
-       "settle, motion already happening at frame zero. Static low camera at bumper "
-       "height on a wet night street. The Subaru WRX S4 from the reference image is "
-       "already at full throttle as the clip opens: all four tyres bite, the body squats "
-       "then surges, spray kicks from all four arches, and the car EXITS THE FRAME "
-       "completely by 1.5 seconds, headlights raking across the lens as it passes. The "
-       "rest of the clip is the empty wet street, spray drifting through the light. "
-       + _LOOK),
+       "settle, motion already happening at frame zero. Static camera at knee height in "
+       "the MIDDLE OF THE LANE on a wet night street. The Subaru WRX S4 from the "
+       "reference image is already at full throttle COMING STRAIGHT AT THE CAMERA as the "
+       "clip opens - hood scoop and angular headlights filling more of the frame every "
+       "frame, all four wheels throwing spray. At about 1.2 seconds it SWERVES and rips "
+       "past within inches, spray and wind shear whipping across the lens, headlight "
+       "flare raking over it. The rest of the clip is the empty wet street it left, "
+       "mist drifting through the streetlight. " + _LOOK),
  "B": ("front 3/4, scoop + hawk eyes", "#4A6FA5", "EXTERIOR", ["wrx"],
        "Vertical 9:16. The Subaru WRX S4 from the reference image, front three-quarter, "
        "parked, night, wet ground. Slow arc across the nose. The LARGE HOOD SCOOP is the "
@@ -137,7 +141,7 @@ SOURCES = {
 # First draft had 50 beats against a 21.6 target and a 3-crop run - planqc caught its
 # own author. Rebuilt: crop halves 44%/50%, longest run 2, hook and holds uncropped.
 SHOTS = [
- ("A", 1.00, "med",   "LAUNCH - GONE"),          # EVENT, 1.6s
+ ("A", 1.00, "med",   "LAUNCH AT LENS"),         # EVENT, 1.6s
  ("B", 1.00, "burst", "front 3/4"),
  ("C", 1.35, "burst", "scoop macro"),
  ("D", 1.00, "burst", "wheel spray"),
@@ -153,7 +157,7 @@ SHOTS = [
  ("E", 1.35, "burst", "boost gauge"),
  ("F", 1.35, "burst", "NEV grin"),
  ("G", 1.00, "burst", "dual tips"),
- ("A", 1.35, "burst", "launch replay"),
+ ("A", 1.35, "burst", "lens-pass replay"),
  ("I", 1.35, "burst", "NEV punch-in"),
  ("B", 1.00, "med",   "FRONT - CTA"),
 ]
@@ -190,11 +194,17 @@ CONTENT = {
                 "unit in Malaysia is a JDM import by definition.",
     "verified": "Subaru JDM lineup / Wikipedia VA-series S4 (JDM-only trim, 300PS FA20, "
                 "CVT), cross-checked BeForward JDM export listings - 2026-08-03 Phase 0",
-    "twist":    "the launch happens FIRST - the car is gone in 1.5s and the video spends "
-                "the rest earning the rewatch: who was driving, what left, why it exists "
-                "here at all",
-    "why_stop": "an actual event (launch, gone) + a receipt (JAPAN ONLY) inside the first "
-                "2 seconds - not adjectives",
+    "twist":    "the payoff happens FIRST and AT you - the car nearly takes the lens off "
+                "in second one, then the video earns the rewatch: who was driving, what "
+                "that was, why it exists here at all",
+    "why_stop": "threat-read: a car at full throttle AT the viewer, identity visible "
+                "(scoop + hawk eyes), swerve at 1.2s + receipt card (JAPAN ONLY) - "
+                "no reference edit opens toward-camera because real crews cannot",
+
+    # Judge panel verdict, recorded (the Wow Test the merge had dropped):
+    "judged":   "2026-08-04 panel on hook v1: J-Hook weak-pass (launch = the field's "
+                "default opening), J-Novelty FAIL (face+receipt upgrade absent from "
+                "shot 0). v2 toward-camera adopted. Panel runs BEFORE the gate now.",
 }
 
 PREVIZ = {  # sketch-grade, NEVER enters generation. v2 carries the Nev identity ref.

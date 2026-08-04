@@ -18,7 +18,7 @@
 
 | # | in | dur | kind | source | crop | note |
 |---|---|---|---|---|---|---|
-| 0 | 0.00 | 1.60 | med ◆ | `A` EVENT · AWD LAUNCH, car GONE | 1.00x | LAUNCH - GONE |
+| 0 | 0.00 | 1.60 | med ◆ | `A` EVENT · LAUNCH AT THE LENS | 1.00x | LAUNCH AT LENS |
 | 1 | 1.60 | 0.80 | burst | `B` front 3/4, scoop + hawk eyes | 1.00x | front 3/4 |
 | 2 | 2.40 | 0.80 | burst | `C` SCOOP macro, rain + heat | 1.35x | scoop macro |
 | 3 | 3.20 | 0.80 | burst | `D` wheel + brake, spray | 1.00x | wheel spray |
@@ -34,7 +34,7 @@
 | 13 | 16.00 | 0.80 | burst | `E` cockpit, no person | 1.35x | boost gauge |
 | 14 | 16.80 | 0.80 | burst | `F` NEV cockpit, launch grip | 1.35x | NEV grin |
 | 15 | 17.60 | 0.80 | burst | `G` rear 3/4, dual tips + lip | 1.00x | dual tips |
-| 16 | 18.40 | 0.80 | burst | `A` EVENT · AWD LAUNCH, car GONE | 1.35x | launch replay |
+| 16 | 18.40 | 0.80 | burst | `A` EVENT · LAUNCH AT THE LENS | 1.35x | lens-pass replay |
 | 17 | 19.20 | 0.80 | burst | `I` NEV + car, street | 1.35x | NEV punch-in |
 | 18 | 20.00 | 1.60 | med | `B` front 3/4, scoop + hawk eyes | 1.00x | FRONT - CTA |
 
@@ -67,10 +67,10 @@ Timeline board (real frames appear here automatically once clips exist):
 
 ## GENERATION PROMPTS — verbatim, as they will be sent
 
-### `A` · EVENT · AWD LAUNCH, car GONE  ·  act: EVENT  ·  plates: wrx
+### `A` · EVENT · LAUNCH AT THE LENS  ·  act: EVENT  ·  plates: wrx
 
 ```
-Vertical 9:16. THE EVENT SHOT - ONE action only, over inside 1.5 seconds, NO settle, motion already happening at frame zero. Static low camera at bumper height on a wet night street. The Subaru WRX S4 from the reference image is already at full throttle as the clip opens: all four tyres bite, the body squats then surges, spray kicks from all four arches, and the car EXITS THE FRAME completely by 1.5 seconds, headlights raking across the lens as it passes. The rest of the clip is the empty wet street, spray drifting through the light. Night. One hard artificial key plus the car's own light; deep shaped shadows; wet asphalt doubling every light source. WR Blue paint reads deep and saturated in the highlights, near-black in shadow. Neutral white balance, no HDR halos. REAL FOOTAGE, NOT A RENDER: true specular roll-off along the creases, clear-coat orange peel, faint panel-gap shadows, fine rain mist catching the key light, accurate glass reflections, natural depth of field. Negative: CGI, videogame look, plastic-smooth surfaces, over-bright fill, invented badges, tall rear wing.
+Vertical 9:16. THE EVENT SHOT - ONE action only, over inside 1.5 seconds, NO settle, motion already happening at frame zero. Static camera at knee height in the MIDDLE OF THE LANE on a wet night street. The Subaru WRX S4 from the reference image is already at full throttle COMING STRAIGHT AT THE CAMERA as the clip opens - hood scoop and angular headlights filling more of the frame every frame, all four wheels throwing spray. At about 1.2 seconds it SWERVES and rips past within inches, spray and wind shear whipping across the lens, headlight flare raking over it. The rest of the clip is the empty wet street it left, mist drifting through the streetlight. Night. One hard artificial key plus the car's own light; deep shaped shadows; wet asphalt doubling every light source. WR Blue paint reads deep and saturated in the highlights, near-black in shadow. Neutral white balance, no HDR halos. REAL FOOTAGE, NOT A RENDER: true specular roll-off along the creases, clear-coat orange peel, faint panel-gap shadows, fine rain mist catching the key light, accurate glass reflections, natural depth of field. Negative: CGI, videogame look, plastic-smooth surfaces, over-bright fill, invented badges, tall rear wing.
 ```
 
 ### `B` · front 3/4, scoop + hawk eyes  ·  act: EXTERIOR  ·  plates: wrx
@@ -131,7 +131,7 @@ _times below are PLANNED; blends compress them - the engine re-times cards and d
 
 | after shot | t (planned) | treatment |
 |---|---|---|
-| 0 (LAUNCH - GONE) | 1.60s | mask_slice 400ms |
+| 0 (LAUNCH AT LENS) | 1.60s | mask_slice 400ms |
 | 6 (NEV - about to launch) | 8.80s | mask_slice 400ms |
 | 11 (ROLLING PAYOFF) | 15.20s | mask_slice 400ms |
 
@@ -156,7 +156,7 @@ All other cuts HARD (33-67ms). Blends 3/18 = 16% (profile 6-33%).
 | 16.00s | shot 13 · boost gauge | whoosh |
 | 16.80s | shot 14 · NEV grin | whoosh |
 | 17.60s | shot 15 · dual tips | whoosh |
-| 18.40s | shot 16 · launch replay | whoosh |
+| 18.40s | shot 16 · lens-pass replay | whoosh |
 | 19.20s | shot 17 · NEV punch-in | whoosh |
 | 20.00s | shot 18 · FRONT - CTA | whoosh |
 
