@@ -369,13 +369,13 @@ def check_cost(P, balance):
 
 
 # ---------------------------------------------------------------- DOC
-def write_doc(P, path):
+def write_doc(P, path, name="?"):
     tl, total = P.timeline()
     c = P.cost()
     L = []
     a = L.append
     a(f"# PRODUCTION DOC — {P.PROJECT}")
-    a(f"### Generated from `supra_plan.py` by `planqc.py`. Do not edit by hand — edit the plan.")
+    a(f"### Generated from `plans/{name}.py` by `planqc.py`. Do not edit by hand — edit the plan.")
     a("")
     a(f"**{len(P.SHOTS)} shots · {total:.2f}s · {P.W}x{P.H} @ {P.FPS}fps · "
       f"{P.PILLAR} · {P.BPM:.0f} BPM · mode `{P.MODE}` {P.RES}**")
@@ -560,7 +560,7 @@ def main():
 
     doc = args.doc or os.path.join(HERE, "projects", name, "PRODUCTION.md")
     os.makedirs(os.path.dirname(doc), exist_ok=True)
-    write_doc(P, doc)
+    write_doc(P, doc, name)
     print(f"\n  doc -> {doc}")
 
     if args.json:

@@ -1,5 +1,5 @@
 # PRODUCTION DOC — Subaru WRX S4 (VA) · car cinematic · Nev
-### Generated from `supra_plan.py` by `planqc.py`. Do not edit by hand — edit the plan.
+### Generated from `plans/wrx.py` by `planqc.py`. Do not edit by hand — edit the plan.
 
 **19 shots · 21.60s · 720x1280 @ 30fps · car_cinematic · 150 BPM · mode `std` 720p**
 
