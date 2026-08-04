@@ -8,6 +8,10 @@ REM  filesystem). Safe to re-run: downloads and bed are cached.
 REM ============================================================
 cd /d "%~dp0"
 
+echo [0/5] python deps (installs only if missing)...
+python -c "import cv2, numpy" 2>nul || python -m pip install --quiet opencv-python numpy
+python -c "import cv2, numpy" 2>nul || ( echo could not install cv2/numpy - tell Claude & pause & exit /b 1 )
+
 echo [1/5] downloading the 9 gated clips (skips ones already here)...
 if not exist projects\wrx\clips mkdir projects\wrx\clips
 cd projects\wrx\clips
