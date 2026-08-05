@@ -1,72 +1,76 @@
 #!/usr/bin/env python3
 """
-CROWN_PLAN — Toyota Crown Crossover 2.4 RS Advance (S16) · chill coastal cinematic · Nev.
-Title: "car cinematic video for toyota crown Hev with nev inside, 720p, 30 seconds,
-cruise along kk, chill vibe" — readback resolved 2026-08-05:
+CROWN_PLAN v2 — Toyota Crown Crossover 2.4 RS Advance (S16) · chill coastal cinematic · Nev.
 
-  "Crown HEV"  -> Crown CROSSOVER 2.4 RS Advance turbo hybrid (HIS PICK over the 2.5 HEV
-                  G/X). The recond-lot hero: 21-inch alloys, dark accents, wide bumper.
-  "chill"      -> NOT car_cinematic. New declared pillar car_cinematic_chill (his pick):
-                  100 BPM, 1.2s median, blends kept, hero-only edit sfx. See the profile's
-                  own _not_measured note - every number in it is a CHOICE, not a measurement.
-  "cruise KK"  -> Tanjung Aru -> Likas coastal road, golden hour falling into blue hour.
-                  Light was MY call (he said "go with your decision"): it is the only option
-                  where the ending is CAUSED. Night and morning both give a tour with a clock
-                  that never runs out.
-  "nev inside" -> SILHOUETTE ONLY, face never resolves (HIS PICK). Identity gate drops out
-                  entirely; the persona refs still ride every human shot so his build, hair
-                  and posture stay consistent across videos. Stated once and accepted: this
-                  build does not grow Nev as a recognisable KOL.
-  30s          -> 50 beats at 100 BPM = 30.00s exactly.
+v1 passed planqc 34/34 and FAILED both pre-spend panels. v2 exists to close the P0s in
+`projects/crown/QC-PANEL-2026-08-05.md`. What changed and why:
 
-FIELD SCAN (before this plan). The five references in assets/refs/car_cinematic and the
-measured profile agree on one thing: this genre is SOUND-LED AGGRESSION - drift phonk,
-exhaust, launches, 0.77s cuts. Nothing in the field is chill, and the two chill-adjacent
-neighbours (travel_vlog) are holiday reels with no car sound design at all.
+  P0-1  AUDIO DIRECTION IN EVERY PROMPT. v1 had none - not one audio word in nine prompts,
+        in a video whose entire subject is a sound. FOLEY is a mix-gain table; it cannot
+        remove combustion the model generated into a clip. Six prompts now carry
+        "NO ENGINE, NO EXHAUST, NO COMBUSTION" verbatim.
+  P0-2  F IS SPLIT into F_load and F_wake. One clip cannot be both engine-free (the ramp)
+        and engine-present (the wake). This is why the build is now 11 clips, not 9.
+  P0-3  F_wake OPENS IN SILENCE and stages the catch ON CAMERA. v1 said the car was
+        "ALREADY under load as the clip opens" - a state change that has already happened
+        cannot be heard happening. The EVENT no-settle convention is DELIBERATELY broken
+        for this one shot, and that is declared, not smuggled.
+  P0-4  generate_audio DECLARED on every source (wrx.py stated it; v1 did not).
+  P0-5  TWO-STATE PROMPTS + declared windows for the sources reused across the silence/
+        engine boundary (E, G).
+  P0-6  NEV NOW CAUSES THE STORY. v1 had him acted upon in all four of his shots and the
+        HILL woke the engine - the identical defect that killed KK v15. NEW source J: his
+        silhouette commits, and the engine answers. NEW shot 18: his hand kills the cabin.
+        Boundaries 9 and 18 are typed consequence with him as the agent.
+  P0-7  350PS RETRACTED. The recorded derivation (272+83+81) sums to 436, not 350; hybrid
+        output is not additive and Toyota publishes no figure. No number ships on a card
+        until a JDM spec sheet confirms it. J4 holds an absolute veto on wrong specs.
+  P1-1  THE HERO NOW LANDS AT 13.80s, not 17.40s. Two golden repeats deleted and the
+        cruise hold demoted; the reclaimed beats went to the dusk half.
+  P1-2  THE CAR IS NAMED ON SCREEN. Card 1 was "IT PULLS AWAY IN SILENCE" - four cards
+        and not one noun.
 
-THE UPGRADE: every car edit in the field sells NOISE. This one sells the ABSENCE of it, and
-the hybrid powertrain is the only reason it can. Thirty seconds with exactly one loud moment
-- the petrol engine waking on the climb - which is earned by twenty seconds of tyre hiss.
-That is a thing the reference field cannot do with a combustion car, and it is the product's
-own feature doing the storytelling.
+Title readback (2026-08-05, unchanged): Crown CROSSOVER 2.4 RS Advance (his pick) ·
+car_cinematic_chill dialect (his pick) · golden into blue hour (my call, he deferred) ·
+Nev SILHOUETTE ONLY, face never resolves (his pick).
 
-STORY, AS A SENTENCE (written BEFORE the shot list, per RESUME 2026-08-05b):
+STORY, AS A SENTENCE:
   A man leaves the city with the engine off - the Crown pulls away in silence - and drives
-  the coast until the light runs out; the climb wakes the petrol engine, and at the water he
-  switches it back off and lets the day end.
+  the coast until the light runs out; when the road tilts up HE ASKS FOR THE ENGINE and it
+  answers, and at the water HIS HAND SWITCHES IT OFF and the day ends.
 
-The consequence chain is the spine: silence -> the light dies -> the climb -> THE ENGINE
-WAKES -> the crest -> the water -> key off -> silence returns. Eight of nineteen boundaries
-are typed "consequence" (planqc 31 floor is 4). KK v15 had ZERO, and he disliked KK.
+The difference from v1 is one word: HE. v1's spine was a car and a sunset with a passenger
+in it. Both panels found the same hole independently.
+
+THE UPGRADE OVER THE FIELD: every edit in assets/refs/car_cinematic sells NOISE. This one
+sells the absence of it and spends twenty seconds of silence to buy one engine start - which
+a combustion car structurally cannot do. v1 only CLAIMED that, because no prompt asked for
+it. v2 writes it into the prompts, which is the only place it can be true.
 """
 
 PROJECT   = "Toyota Crown Crossover 2.4 RS Advance · chill coastal cinematic · Nev"
 PILLAR    = "car_cinematic_chill"
 GEN_MODE  = "coverage"
+MODE_ABC  = "hero"                  # panel D15: the Assembly Table needs this declared
 BPM       = 100.0
 BEAT      = 60.0 / BPM              # 0.600s
 W, H, FPS = 720, 1280, 30
-MODE      = "std"                   # never 'fast' to save money silently
+MODE      = "std"
 RES       = "720p"
 CLIP_S    = 5
 MAX_CROP  = 1.40
-TARGET_S  = 30.0                    # 50 beats. See BEATS below.
+TARGET_S  = 30.0                    # 50 beats
 
-# BEATS IS PER-BPM MATH, NEVER A TEMPLATE (ledger 'car cinematic chill' L3).
-# The car plans use {burst:2, med:4, hold:8} at 150 BPM = 0.80 / 1.60 / 3.20s.
-# Copying that here would give 1.20 / 2.40 / 4.80s - a 4.8s hold is 3.7x this
-# dialect's 1.3s median and 16% of the video on ONE image. Recomputed:
 BEATS = {"burst": 2, "med": 3, "hold": 5}       # 1.20 / 1.80 / 3.00s at 100 BPM
 
+# Audio is the spine of this build, so it is declared once, loudly, at the top.
+GENERATE_AUDIO = True               # ON for all sources. A silent clip is a dead 22.5cr.
+
 # ---------------------------------------------------------------- PLATES
-# A named subject is NEVER generated from text alone. This car is the repo's own
-# documented proof: a text-only prompt for a "2026 Toyota Crown" returned a generic
-# crossover and it SHIPPED (CLAUDE.md). Plates are 4k - nano_banana_pro defaults to
-# 1k and every early plate was built at that default without anyone noticing.
 PLATES = {
     "crown": {"job": None, "res": "4k", "ar": "16:9", "cr": 4,
-              "status": "NOT YET BUILT - build, LOOK at it, confirm the body is the "
-                        "CROSSOVER (not the Sedan, not the Signia) before any video credit",
+              "status": "NOT YET BUILT - build, LOOK at it, Gavril confirms the BODY is the "
+                        "CROSSOVER (not Sedan, not Signia) before any video credit",
               "must_show": "Toyota Crown CROSSOVER (S16) RS Advance: raised sedan-SUV body "
                            "with a coupe-like falling roofline · full-width slim LED daytime "
                            "bar across the nose with a hammerhead front · body-colour upper "
@@ -112,8 +116,6 @@ PLATES = {
               "Negative: CGI, videogame look, plastic-smooth surfaces, invented badges, "
               "generic dashboard, analogue rev counter, single small screen."},
 
-    # Identity references, not lighting references (assets/nev/README.md). Passed on every
-    # human shot so the BUILD stays consistent even though the face never resolves.
     "nev": {"job": None, "res": "4k", "ar": "4:5", "cr": 0,
             "status": "existing 3-angle face set, no generation needed",
             "identity_refs": ["assets/nev/face/front_neutral.jpeg",
@@ -125,9 +127,8 @@ PLATES = {
 }
 
 # ---------------------------------------------------------------- SHARED LOOK
-# Deliberately carries NO word used as a linkage token - planqc 29 strips boilerplate
-# before searching, and a token drawn from a block appended to all nine sources would
-# be present on both sides of EVERY boundary. That is a vacuous pass wearing a tick.
+# Carries NO word used as a linkage token, and NO audio word - the audio direction is
+# per-source on purpose, because six sources must forbid combustion and three must stage it.
 _LOOK = (
     "Natural light only, no artificial fill, no colour gel. REAL FOOTAGE, NOT A RENDER: "
     "true specular roll-off along the body creases, clear-coat orange peel in the paint, "
@@ -139,10 +140,14 @@ _LOOK = (
     "lens flare, crushed blacks, frantic camera movement, drift smoke."
 )
 
-# ---------------------------------------------------------------- SOURCES  (9 × 22.5cr)
-# GOLDEN block: A B C D   ·   DUSK block: E F G   ·   BLUE block: H I
-# The blocks are ordered by SHOT_TIME and never interleave - planqc 30 exists because
-# KK v15 ran golden -> night -> DAYLIGHT -> sunset under a "6PM" card.
+# The silence contract, appended verbatim to every source that must arrive engine-free.
+# Without this the model's prior for "car on a coastal road" is an engine note and it will
+# supply one at 22.5cr a time, with no free way back.
+_SILENT = (" AUDIO: NO ENGINE, NO EXHAUST, NO COMBUSTION OF ANY KIND - the car is running "
+           "on electric drive and is silent. No music, no voiceover, no dialogue.")
+
+# ---------------------------------------------------------------- SOURCES  (11 × 22.5cr)
+# GOLDEN: A B C D   ·   DUSK: E G F_load J F_wake   ·   BLUE: H I
 SOURCES = {
  "A": ("EVENT · out of the underpass shadow into the light", "#C98A3C", "EVENT", ["crown"],
        "Vertical 9:16. THE EVENT SHOT - one action, over inside 1.5 seconds, motion already "
@@ -151,7 +156,10 @@ SOURCES = {
        "the clip opens, emerging from the deep shade of a concrete underpass into full "
        "low-angle golden backlight, its full-width LED daytime bar lit, and sweeping past the "
        "lens. The transition from shade to blazing backlight happens ACROSS the car's body as "
-       "it travels. The rest of the clip is the empty lit carriageway it left. " + _LOOK),
+       "it travels. The rest of the clip is the empty lit carriageway it left. " + _LOOK +
+       _SILENT + " Only the hiss of tyres on warm tarmac, the rush of displaced air as the "
+       "body passes the lens, and the change in room tone as it leaves the concrete underpass "
+       "for open coastal air. Ambience: distant surf, faint."),
 
  "B": ("coastal tracking, palms strobing", "#4E8C7A", "PAYOFF", ["crown"],
        "Vertical 9:16. THE SUSTAINED CRUISE - continuous motion, unbroken, no settle at the "
@@ -159,347 +167,418 @@ SOURCES = {
        "along a palm-lined coastal carriageway at golden hour, tracked from a parallel "
        "vehicle, front three-quarter held steady. Palm shadows sweep rhythmically across the "
        "bodywork; the open bay and distant islands sit beyond the barrier. Camera moves "
-       "smoothly with the car from first frame to last. " + _LOOK),
+       "smoothly with the car from first frame to last. " + _LOOK + _SILENT +
+       " A steady, unchanging tyre hiss on open tarmac and a soft wind wash along the body "
+       "for the whole clip. Ambience: open bay air and faint surf."),
 
  "C": ("21-inch alloy at kerb height", "#8C6B3B", "EXTERIOR", ["crown"],
        "Vertical 9:16. Tight tracking move at kerb height along the flank of the Toyota "
        "Crown Crossover from the reference image, holding on the 21-INCH DARK MULTI-SPOKE "
        "ALLOY turning and the black rocker cladding above it, tarmac texture streaming "
-       "past underneath in the low sun. " + _LOOK),
+       "past underneath in the low sun. " + _LOOK + _SILENT +
+       " Close tyre contact - tread pattern rolling on coarse tarmac, grit ticking in the "
+       "tread, the note changing as the surface changes under the wheel."),
 
- "D": ("cabin, backlit driver, no face", "#6E5A8C", "HUMAN", ["nev", "crown_int"],
+ "D": ("cabin at golden hour, backlit driver, no face", "#6E5A8C", "HUMAN",
+       ["nev", "crown_int"],
        "Vertical 9:16. Interior of the Toyota Crown Crossover from the LAST reference image, "
        "shot from the passenger side. The man from the FIRST reference images is in the "
        "driver's seat but he is a PURE SILHOUETTE against a blazing golden side window - his "
        "face is NEVER lit and NEVER resolves, only the outline of his head, hair and shoulder "
        "reads. Both hands rest easily at the bottom of the steering rim. In front of him the "
        "12.3-inch cluster shows a hybrid power meter, no rev counter. Backlit, high contrast, "
-       "the sun doing all the work. " + _LOOK),
+       "the sun doing all the work. " + _LOOK + _SILENT +
+       " The cabin drop-out: outside noise distant and damped, the cabin still. Faint "
+       "seat-cloth and leather movement as his hands settle on the rim, one quiet breath, a "
+       "muted tyre rumble through the floor, a faint high electric whine rising with speed."),
 
  "E": ("rear three-quarter, full-width light bar", "#B5563E", "EXTERIOR", ["crown"],
        "Vertical 9:16. Rear three-quarter of the Toyota Crown Crossover from the reference "
        "image on the coastal carriageway at dusk, slow arc around the rear corner. The "
        "FULL-WIDTH REAR LIGHT BAR is lit and is the brightest thing in frame; the CROWN "
        "wordmark across the tailgate reads clearly; the sky behind has gone amber to violet. "
-       + _LOOK),
-
- "F": ("EVENT · the climb, the petrol engine wakes", "#C44B3A", "EVENT", ["crown"],
-       "Vertical 9:16. THE SECOND EVENT - a state change, not a stunt. The Toyota Crown "
-       "Crossover from the reference image climbing a rising coastal ramp at dusk, tracked "
-       "from a parallel vehicle in front three-quarter. The car is ALREADY under load as the "
-       "clip opens: the nose lifts slightly, the body settles back on its springs, the pace "
-       "picks up decisively but without drama, and a faint heat shimmer rises off the rear "
-       "of the car. Unhurried but unmistakably WORKING. " + _LOOK),
+       + _LOOK +
+       " AUDIO, TWO STATES: for the FIRST HALF of the clip there is NO ENGINE, NO EXHAUST, "
+       "NO COMBUSTION - only tyre note and wind. In the SECOND HALF a petrol engine is heard "
+       "receding into the distance, backing off and handing back to tyre roll. No music, no "
+       "voiceover, no dialogue."),
 
  "G": ("wide bay, the car small in it", "#3F6E8C", "EXTERIOR", ["crown"],
        "Vertical 9:16. Wide static high-angle looking down over the bay at dusk, the coastal "
-       "carriageway curving through the lower third of frame, the Toyota Crown Crossover from "
-       "the reference image SMALL in the frame travelling along it. Mount Kinabalu's range "
-       "sits in the far haze; the last sun lies flat across the bay. The car is a moving "
-       "detail inside a landscape, not the subject. " + _LOOK),
+       "carriageway curving through the lower third of frame AND RISING TO A CREST at the far "
+       "side, the Toyota Crown Crossover from the reference image SMALL in the frame "
+       "travelling along it. Offshore island ridgelines sit low in the haze; the last sun "
+       "lies flat across the water. The car is a moving detail inside a landscape, not the "
+       "subject. " + _LOOK +
+       " AUDIO, TWO STATES: heard from far away across open water - wind and distant surf "
+       "dominate throughout. In the FIRST HALF no combustion is present at all. In the SECOND "
+       "HALF a petrol engine is faintly audible at long distance, thin and small inside the "
+       "landscape. No music, no voiceover, no dialogue."),
+
+ "F_load": ("EVENT · the ramp, still electric", "#D0763A", "EVENT", ["crown"],
+       "Vertical 9:16. The Toyota Crown Crossover from the reference image approaching and "
+       "starting a rising coastal ramp at dusk, tracked from a parallel vehicle, front "
+       "three-quarter. The road visibly tilts upward through the shot and the car keeps its "
+       "easy pace onto it - no acceleration yet, no drama, the body level. This clip is the "
+       "SETUP for the shot that follows and must not contain the event itself. " + _LOOK +
+       _SILENT + " Tyre note and wind only, with a faint electric whine holding steady. The "
+       "quiet immediately before something happens."),
+
+ "J": ("cabin at dusk, the decision", "#7C4F8C", "HUMAN", ["nev", "crown_int"],
+       "Vertical 9:16. Interior of the Toyota Crown Crossover from the LAST reference image "
+       "at dusk, shot from the passenger side, tight. The man from the FIRST reference images "
+       "is a PURE SILHOUETTE against the violet windscreen - his face is NEVER lit and NEVER "
+       "resolves. He is still for a beat, then his forearm and shoulder drop and set as he "
+       "commits weight through his right foot, and the 12.3-inch cluster's power meter needle "
+       "swings hard across into its power band. HIS MOVEMENT COMES FIRST, the meter answers "
+       "it. Nothing else in frame moves. " + _LOOK +
+       " AUDIO: near silence - the cabin drop-out at its deepest, only faint cloth and a "
+       "thin electric whine. In the last third the whine begins to rise. NO PETROL ENGINE "
+       "YET - it must not have started inside this clip. No music, no voiceover, no dialogue."),
+
+ "F_wake": ("EVENT · the engine catches", "#C44B3A", "EVENT", ["crown"],
+       "Vertical 9:16. THE HERO. The Toyota Crown Crossover from the reference image climbing "
+       "the rising coastal ramp at dusk, tracked from a parallel vehicle in front "
+       "three-quarter. THE CLIP OPENS STILL SILENT AND STILL ON ELECTRIC DRIVE for the first "
+       "half-second - then the petrol engine CATCHES and the car takes load: the nose lifts, "
+       "the body settles back on its springs, the pace hardens decisively but without drama, "
+       "and heat shimmer rises off the rear. THE TRANSITION FROM SILENT TO RUNNING HAPPENS ON "
+       "CAMERA, inside this clip. Unhurried but unmistakably WORKING. " + _LOOK +
+       " AUDIO - THIS IS THE ONLY COMBUSTION SOUND IN THE ENTIRE FILM: the clip opens in near "
+       "silence with tyre roll and wind alone, then the petrol engine CATCHES - a brief crank, "
+       "the four-cylinder fires, and the note rises and hardens under load as the ramp "
+       "steepens, with turbo spool behind it. The transition from silent to running is the "
+       "loudest event in the clip. Ambience: open coastal air. No music, no voiceover, no "
+       "dialogue."),
 
  "H": ("cabin at blue hour, key off", "#3E4A6E", "HUMAN", ["nev", "crown_int"],
        "Vertical 9:16. Interior of the Toyota Crown Crossover from the LAST reference image "
        "at blue hour, parked and still, shot from the passenger side. The man from the FIRST "
        "reference images sits in the driver's seat as a PURE SILHOUETTE against the pale "
-       "blue-grey sky through the windscreen - his face is NEVER lit and NEVER resolves. He "
-       "lifts one hand off the steering rim and lets it fall to his lap. The 12.3-inch "
-       "cluster glow fades down to nothing on the fascia beside him. " + _LOOK),
+       "blue-grey sky through the windscreen - his face is NEVER lit and NEVER resolves. His "
+       "hand leaves the steering rim, reaches, and PRESSES the start-stop button; the "
+       "12.3-inch cluster and the fascia lighting die out in the same movement. HIS ACTION "
+       "CAUSES THE DARKNESS - the lights do not simply fade on their own. " + _LOOK +
+       " AUDIO: a parked, still cabin. Seat-cloth and leather as he moves. The car's "
+       "electronics power down - a single soft shutdown chime, then the last relay settles "
+       "and the cabin goes completely quiet. Outside, faint water and wind, far away and "
+       "damped. NO ENGINE, NO IDLE. No music, no voiceover, no dialogue."),
 
  "I": ("parked at the seafront barrier, blue hour", "#2F5A72", "EXTERIOR", ["crown"],
        "Vertical 9:16. The Toyota Crown Crossover from the reference image parked and "
-       "stationary at a seafront barrier at blue hour, side-on and slightly behind, the bay "
-       "beyond it flat and going dim. Very slow drift of the camera, nothing else moves. The "
-       "full-width rear light bar and the cabin glow are the only lit things; the sky is deep "
-       "blue with the last band of orange on the horizon. " + _LOOK),
+       "stationary at a seafront barrier at blue hour, side-on and slightly behind, the flat "
+       "seafront promenade and the bay beyond it going dim. Very slow drift of the camera; "
+       "the water moves, the car does not. The full-width rear light bar and the cabin glow "
+       "are the only lit things; the sky is deep blue with the last band of orange on the "
+       "horizon. " + _LOOK +
+       " AUDIO: a stopped car - nothing mechanical, nothing running. Only water against the "
+       "seawall and a low steady wind. The quietest sound in the whole piece. NO ENGINE, NO "
+       "IDLE. No music, no voiceover, no dialogue."),
 }
 
 # ---------------------------------------------------------------- FRAMING (planqc 28)
-# Two sources sharing a plate may not share a framing, or the model returns the plate's
-# own composition. MEASURED on KK v1: five shots from three sources were one image.
 FRAMING = {
-    "A": "static low at kerb height, subject crossing the lens",
-    "B": "parallel-vehicle tracking, front three-quarter held",
-    "C": "tight tracking at wheel height along the flank",
-    "D": "interior from passenger side, backlit silhouette, mid-close",
-    "E": "slow arc around the rear corner, exterior",
-    "F": "parallel-vehicle tracking on an incline, front three-quarter",
-    "G": "wide static high angle, car small inside a landscape",
-    "H": "interior from passenger side, parked, silhouette against windscreen",
-    "I": "exterior side-and-behind, static, very slow drift",
+    "A":      "static low at kerb height, subject crossing the lens",
+    "B":      "parallel-vehicle tracking, front three-quarter held",
+    "C":      "tight tracking at wheel height along the flank",
+    "D":      "interior from passenger side, backlit silhouette, mid-close",
+    "E":      "slow arc around the rear corner, exterior",
+    "G":      "wide static high angle, car small inside a landscape",
+    "F_load": "parallel-vehicle tracking onto an incline, front three-quarter, level",
+    "J":      "interior from passenger side, TIGHT on shoulder and forearm, silhouette",
+    "F_wake": "parallel-vehicle tracking on the incline, front three-quarter, car loading",
+    "H":      "interior from passenger side, parked, silhouette, hand to console",
+    "I":      "exterior side-and-behind, static, very slow drift",
 }
 
 # ---------------------------------------------------------------- TIMELINE
 # 20 shots · 50 beats = 30.00s · 14 burst / 4 med / 2 hold
-# Crops alternate 1.00 / 1.30 with a longest run of ONE. Hook and both holds are
-# UNCROPPED - a 1.9x punch on 720p measured an 82% loss of sharpness, and the answer
-# to repetition is more coverage, never deeper crops.
+# THE HERO NOW LANDS AT 13.80s (v1: 17.40s). Deleted v1's two golden repeats and demoted
+# the cruise hold; the six reclaimed beats went to the dusk half where the story is.
 SHOTS = [
- ("A", 1.00, "med",   "shadow into gold - the car comes out already moving, and silent"),
- ("B", 1.30, "burst", "gold on the coast road, still silent"),
- ("C", 1.00, "burst", "the alloy turns, tarmac streaming, silent"),
- ("D", 1.15, "burst", "his hands settle on the rim, silent, the road runs ahead"),
- ("B", 1.00, "hold",  "THE CRUISE - the coast road opens out, gold everywhere"),
- ("C", 1.15, "burst", "kerb line runs under the alloy at road level, low gold light"),
- ("A", 1.30, "burst", "gold at its peak, flare raking across the glass"),
- ("D", 1.00, "burst", "the cluster reads hybrid, no revs - glass holding the last gold"),
- ("E", 1.30, "burst", "the light bar comes on as the gold dies"),
- ("G", 1.00, "burst", "wide bay, the coast road bends away, the last gold flat on it"),
- ("F", 1.15, "med",   "the road tilts up - the climb begins"),
- ("E", 1.00, "burst", "the light bar climbs away from the lens"),
- ("F", 1.00, "hold",  "THE ENGINE WAKES on the climb - the one loud moment"),
- ("G", 1.30, "burst", "wide - the car tops the rise, engine still working"),
- ("E", 1.15, "burst", "the light bar settles, engine falls quiet again"),
- ("I", 1.00, "burst", "quiet at the barrier, blue hour, the rim straightens"),
- ("H", 1.30, "burst", "he lifts his hand off the rim at the barrier"),
- ("I", 1.15, "med",   "still at the barrier, the bay going dark"),
- ("H", 1.00, "burst", "the cluster fades out - key off, the cabin goes dark"),
- ("I", 1.30, "med",   "dark bay, the car parked in it, nothing moves"),
+ ("A",      1.00, "med",   "shadow into gold - the car comes out already moving, and silent"),
+ ("B",      1.30, "burst", "gold on the coast road, still silent"),
+ ("C",      1.00, "burst", "the alloy turns, tarmac streaming, silent"),
+ ("D",      1.15, "burst", "his hands settle on the rim, silent, the road runs ahead"),
+ ("B",      1.00, "med",   "the coast road opens out, gold everywhere, nothing driving it"),
+ ("C",      1.15, "burst", "kerb line runs under the alloy at road level, low gold light"),
+ ("E",      1.00, "burst", "the light bar comes on as the gold dies"),
+ ("G",      1.30, "burst", "wide bay, the coast road bends away, the last gold flat on it"),
+ ("F_load", 1.15, "med",   "the road tilts up into the ramp - still electric, still no engine"),
+ ("J",      1.00, "burst", "HIS DECISION - the silhouette commits, foot down on the ramp"),
+ ("F_wake", 1.00, "hold",  "THE ENGINE WAKES on the ramp because he asked for it"),
+ ("E",      1.15, "burst", "the light bar climbs away from the ramp, working now"),
+ ("G",      1.00, "burst", "wide - the car small, still climbing, the note carrying over the bay"),
+ ("F_wake", 1.30, "burst", "over the crest the note hardens and holds, steady under load"),
+ ("E",      1.30, "burst", "the light bar eases, the load falls away and it goes quiet again"),
+ ("I",      1.00, "burst", "quiet at the barrier, blue hour, nothing running"),
+ ("H",      1.30, "burst", "he sits, hand still on the rim at the barrier"),
+ ("I",      1.15, "med",   "the bay from outside the barrier, the cabin still lit"),
+ ("H",      1.00, "hold",  "HIS HAND KILLS IT - key off, the cabin goes dark"),
+ ("I",      1.30, "burst", "dark bay, the car parked in it, nothing running"),
 ]
 
 # ---------------------------------------------------------------- THE CLOCK (planqc 30)
-# Declared BEFORE the order was fixed, not retrofitted. Three contiguous blocks,
-# monotonic through the ordered vocabulary, no jumps: golden(4) -> dusk(5) -> blue(6).
-SHOT_TIME = (["golden"] * 8) + (["dusk"] * 7) + (["blue"] * 5)
+SHOT_TIME = (["golden"] * 6) + (["dusk"] * 9) + (["blue"] * 5)
 TIME_JUMPS = {}
 
-# ---------------------------------------------------------------- LINKAGE (planqc 24/29/31)
-# GENERATED FROM THE FINAL SHOT ORDER, never authored beside it (craft ledger, 2026-08-05:
-# KK's list described a video that was never assembled). Each entry is (kind, token, prose)
-# and the TOKEN is present in the shot notes on BOTH sides of the boundary.
-# 8 of 19 boundaries are CONSEQUENCE - B happens BECAUSE of A. Floor is 4.
+# ---------------------------------------------------------------- LINKAGE (24/29/31)
+# GENERATED FROM THE FINAL SHOT ORDER after the v2 re-cut, never carried over from v1.
+# 8 of 19 are CONSEQUENCE, and the two that matter - boundary 9 (he asks, the engine
+# answers) and boundary 18 (his hand kills the cabin) - now have THE MAN as the agent.
+# v1's spine was a car and a sunset; both panels found the same hole.
 LINKAGE = [
  ("light",       "gold",   "the car breaks into the gold -> the gold is the whole road"),
  ("sound",       "silent", "silent at speed -> still silent, the absence is established"),
  ("sound",       "silent", "the alloy turns in silence -> his hands rest in the same silence"),
- ("consequence", "road",   "his hands settle -> THE CRUISE: intent becomes the open road"),
+ ("consequence", "road",   "his hands settle -> the road opens out in front of that decision"),
  ("motion",      "road",   "the road opening -> the same road running under the alloy"),
- ("light",       "gold",   "low gold at ground level -> gold at its peak overhead"),
- ("object",      "glass",  "flare on the glass -> through that glass, the cluster reading"),
- ("consequence", "gold",   "the gold is going -> so the light bar comes on"),
+ ("consequence", "gold",   "the gold is dying -> so the light bar comes on"),
  ("light",       "gold",   "the light bar against the dying gold -> the bay holding the last of it"),
- ("motion",      "road",   "the road bending away -> the road tilting up"),
- ("motion",      "climb",  "the climb begins -> the car climbing away from the lens"),
- ("consequence", "climb",  "the climb loads the car -> THE ENGINE WAKES because of it"),
- ("consequence", "engine", "the engine woke -> the car tops the rise on it"),
- ("sound",       "engine", "engine still working -> engine falling quiet"),
+ ("motion",      "road",   "the road bending away -> the road tilting up into the ramp"),
+ ("consequence", "ramp",   "the ramp arrives -> HE COMMITS to it, foot down"),
+ ("consequence", "ramp",   "he asked for it on the ramp -> THE ENGINE ANSWERS. the hero"),
+ # 'engine' is UNUSABLE as a carry token here and the gate was right to say so: the word
+ # appears in all eleven prompts, because six of them forbid it and three stage it. A token
+ # present on both sides of every boundary proves nothing. Retyped against what is actually
+ # written into these four shots.
+ ("consequence", "ramp",  "the engine woke on the ramp -> the car climbs away from it"),
+ ("motion",      "climb", "climbing away -> still climbing, seen small across the bay"),
+ ("sound",       "note",  "the note carrying at distance -> the note close and hardened"),
+ ("consequence", "load",  "the load ends at the crest -> so it goes quiet again"),
  ("consequence", "quiet",  "the engine goes quiet -> arrival, quiet at the barrier"),
- ("consequence", "rim",    "the car is stopped, rim straight -> he takes his hand off it"),
- ("subject",     "barrier","his hand leaves the rim -> the car still sitting at the barrier"),
- ("consequence", "dark",   "the bay going dark -> so he switches it off, the cabin goes dark"),
- ("consequence", "dark",   "the cabin dark -> the whole frame dark and still: nothing left running"),
+ ("subject",     "barrier","the car at the barrier -> him inside it at the same barrier"),
+ ("object",      "cabin",  "his hand on the rim -> the lit cabin seen from outside"),
+ ("consequence", "cabin",  "the cabin is still lit -> HIS HAND KILLS IT"),
+ ("consequence", "dark",   "he switched it off -> the whole frame dark, nothing left running"),
 ]
 
-CALLBACKS = [(0, 6), (15, 19)]      # the light-break re-hits; the barrier opens+closes blue
+CALLBACKS = [(0, 4), (15, 19)]      # the cruise opens+re-hits; the barrier opens+closes blue
 
-BAN_SPANS = {}                      # nothing measured yet - populate at ingest
-DELOGO    = {}                      # nothing invented yet - populate if clipqc finds text
+BAN_SPANS = {}
+DELOGO    = {}
 
 # ---------------------------------------------------------------- TRANSITIONS
-# Blends KEPT at car level (18% declared) because a dissolve is how a cruise flows - the
-# one piece of car grammar chill actively needs. travel_vlog's 0% would make this a
-# holiday reel. 3 of 19 cuts = 15.8%, inside the [6,33] band, 400ms inside [240,560].
-# NONE touches an EVENT shot (0, 6, 10, 12) - planqc 20 blocks that, and the WRX proved
-# why: a blend on the hook dissolved the event itself.
-BLEND_AFTER  = [4, 7, 14]           # cruise-hold exit · golden->dusk seam · dusk->blue seam
-BLEND_KIND   = "dissolve"           # ADDED to tools/fx.py for this pillar: a true xfade
-                                    # "fade". Every existing blend is a graphic wipe or
-                                    # goes through BLACK (dip), which trips the blank-frame
-                                    # gate legitimately. Neither is a chill transition.
-BLEND_WIDTH  = 0.40
+# 3 of 19 = 15.8%, inside [6,33]. NONE touches an EVENT shot (0, 8, 10, 13).
+# P1-8: the dissolve is declared as an OVERLAP, not a subtraction - v1's three 400ms blends
+# silently made the deliverable 28.80s and pushed the hero 0.80s (1.33 beats) off the music
+# grid, while planqc checked the pre-blend total and passed.
+BLEND_AFTER    = [5, 14, 17]        # golden->dusk seam · dusk->blue seam · into the key-off hold
+BLEND_KIND     = "dissolve"
+BLEND_WIDTH    = 0.40
+BLEND_AS_OVERLAP = True             # segments extend BLEND_WIDTH into the transition so the
+                                    # delivered total stays 30.00s and every cut stays on the
+                                    # 0.600s grid. If the engine can only subtract, add 0.40s
+                                    # of source window at shots 5, 14 and 17 instead.
 
-SFX_LEAD     = 0.22
-IMPACT_AT    = [12]                 # hero_only: the ONE designed cut is into the engine wake
-SUBDROP_AT   = [12]
+SFX_LEAD   = 0.22                   # DESIGNED transients only - a whoosh resolves on the cut
+HERO_SYNC  = 0.00                   # the DIEGETIC engine lands ON the cut. 220ms of lead on
+                                    # an engine catching is a mis-sync, not anticipation.
+IMPACT_AT  = [10]                   # hero_only: the one designed cut in the video
+SUBDROP_AT = []                     # P2-8: v1 put IMPACT and SUBDROP on the same index and
+                                    # the doc generator's if/elif silently swallowed the sub.
+                                    # Folded into the hero's body layer instead.
 
 # ---------------------------------------------------------------- SOUND
-# sound_gate = diegetic. The powertrain IS the story, so the car's own audio is the spine
-# and file 19 + 04 judge it BEFORE spend. Clip audio is generated and PAID FOR.
 SOUND = {
+    "generate_audio": "ON for all 11 sources. The diegetic spine IS the clip audio; a silent "
+                      "clip is a dead 22.5cr. v1 never declared this.",
     "bed":        "NOT YET SOURCED - and it CANNOT come from the library. All 25 tracks in "
-                  "assets/bgm + assets/pillars/car_cinematic/bgm are 140-165 BPM drift phonk "
-                  "(ledger 'travel vlog' L0 / 'car cinematic chill' L2). Required: 100.00 BPM "
-                  "measured, warm, half-time, no cowbell, no distorted 808. Generate via "
-                  "tools/bgmgen.py, then rhythm.py for BPM + grid OFFSET and trim so hit 1 "
-                  "lands at t=0 (a generated bed once put its first transient at 163ms; "
-                  "trimming took cut-to-music from ~34ms to a median 2.5ms).",
-    "hero":       "THE PETROL ENGINE WAKING on the climb (shot 12). ONE hero sound per video "
-                  "(file 04, law 4). Everything before it is tyre, wind and hybrid whine, so "
-                  "the hero is earned by 20 seconds of its own absence rather than by volume.",
-    "duck_shots": [12],
-    "silence":    "shots 0-7 are the SILENCE - no combustion anywhere in the golden block, "
-                  "only tyre roll, wind and a faint hybrid whine. Shot 19 returns to it with "
-                  "the engine off: sea and nothing else. The video opens and closes on the "
-                  "same absence, and the middle is what breaks it.",
-    "layers":     "diegetic (per-shot gains below) + bed (sidechain-ducked under the hero, "
-                  "hard-ducked at shot 12) + edit-sfx HERO ONLY - no whoosh on ordinary cuts. "
-                  "A whoosh on every cut is the phonk signature and it is exactly what makes "
-                  "a chill edit feel anxious.",
+                  "assets/bgm + assets/pillars/car_cinematic/bgm are 140-165 BPM drift phonk. "
+                  "Required: 100.00 BPM measured, warm, half-time, no cowbell, no distorted "
+                  "808. Generate via tools/bgmgen.py, then rhythm.py for BPM + grid OFFSET "
+                  "and trim so hit 1 lands at t=0.",
+    "bed_map":    {"in": "shot 1 @1.80s, fading up over one beat from -inf - the video OPENS "
+                         "with no bed at all, because the card says SILENCE and a bed under "
+                         "it makes the card a lie",
+                   "level_silence_block": "-9dB under nominal through shots 1-9",
+                   "duck": "to -inf across shot 9, the near-silence",
+                   "hero": "nominal from shot 10",
+                   "out": "fade to -inf across shot 18, fully silent from 28.80s",
+                   "tail": "shot 19 is diegetic sea only - no bed"},
+    "hero":       "THE PETROL ENGINE CATCHING on the ramp (shot 10, 13.80s), CAUSED by his "
+                  "commit in shot 9. ONE hero sound per video (file 04, law 4).",
+    "hero_layers": {"transient": "the crank/catch from F_wake's own audio",
+                    "body":      "the 2.4T load note, 150-1500Hz, from F_wake - the sub "
+                                 "energy folded in here rather than as a separate drop",
+                    "tail":      "exhaust decay carried under shot 11"},
+    "near_silence": "shot 9 (12.60-13.80s) - the diegetic floor drops to -24dB and the bed "
+                    "ducks to -inf over the last 0.40s. THIS is the drop-out the engine "
+                    "breaks. v1 had no near-silence at all and called the opening block the "
+                    "silence instead (file 19 doctrine 8 / file 04 law 5).",
+    "duck_shots": [10],          # the key planqc 19 reads. Detail below, not instead.
+    "duck":       {"shots": [10], "mode": "sidechain", "thr": 0.06, "ratio": 6,
+                   "release_ms": 120, "depth_db": -18,
+                   "starts_at": "0.40s BEFORE the shot-10 cut, i.e. before SFX_LEAD",
+                   "recovers": "over shot 11",
+                   "why": "binary hard-duck windows STEP 12dB in/out and he heard it as "
+                          "'music breaks at cuts'. One smooth sidechain only."},
+    "silence":    "shots 0-9 (0.00-13.80s) carry NO COMBUSTION - written into the prompts, "
+                  "not just the gain map. Shot 19 returns to it with the engine off. The "
+                  "video opens and closes on the same absence and the middle breaks it.",
+    "layers":     "diegetic (per-shot gains below) + bed (one smooth sidechain, mapped above) "
+                  "+ edit-sfx HERO ONLY - no whoosh on ordinary cuts.",
 }
 
-SFX_OVERLAYS = []                   # placement must be MEASURED off the real bed's gaps
+MIX = {   # P1-10: v1 had no mix call at all. File 19's required deliverable.
+    "target_lufs":   "-7 to -9 integrated",
+    "true_peak":     "-1.0 dBTP",
+    "channels":      2,          # MONO is the measured failure that created seat 19
+    "spectrum":      "body 150-1500Hz ~45% · himid ~18% · presence ~24% · sub+low ~8% · "
+                     "air 10-20k ~4% · centroid ~2400Hz",
+    "room":          "cabin shots (D, J, H) damped, short tail. Coast shots open.",
+    "bed_highpass":  "40Hz",
+    "note":          "sub_bass_pct [25,65] is INHERITED PHONK TASTE and is wrong for this "
+                     "dialect - a 2.4 turbo four lives at 200-800Hz and 1-3k. Measure "
+                     "against the file 19 spectrum, not the inherited band, and re-derive "
+                     "the profile field at first ingest.",
+}
 
-FOLEY = {   # shot: gain_db. EVENT/PAYOFF must sit >= -6dB or the hero moments are not heard.
-     0:  -3.0,   # A  tyre roll + wind + the shade-to-light whoosh of air. NO ENGINE.
-     1:  -6.0,   # B  tyre hiss on open tarmac, the cruise's own sound
-     2:  -8.0,   # C  tread and tarmac texture close up
-     3: -14.0,   # D  cabin: cloth, a breath, hybrid whine floor
-     4:  -4.0,   # B  THE CRUISE hold - road and wind carry the whole beat
-     5: -10.0,   # C  kerb passing, tyre note
-     6:  -6.0,   # A  wind swell on the light break
-     7: -14.0,   # D  cabin quiet, faint inverter whine as the cluster reads
-     8: -10.0,   # E  relay click, tyre note dropping as pace eases
-     9: -12.0,   # G  distant surf and wind, the car barely audible
-    10:  -6.0,   # F  load building - tyre note rises, no combustion YET
-    11: -10.0,   # E  road note under the climb
-    12:   0.0,   # F  HERO - the petrol engine wakes. The loudest instant in 30 seconds.
-    13:  -6.0,   # G  engine carrying across the wide, heard at distance
-    14: -10.0,   # E  engine backing off, returning to tyre
-    15: -12.0,   # I  arrival - tyres on grit, then stillness
-    16: -16.0,   # H  cabin, cloth, the hand leaving the rim
-    17: -14.0,   # I  water and wind outside a stopped car
-    18: -12.0,   # H  key off: the shutdown chime and the fade to nothing
-    19: -18.0,   # I  the floor of the whole video - sea only
+SFX_OVERLAYS = []   # under edit_sfx=hero_only this list may ONLY contain entries at shot 10
+
+# FOLEY, P1-5. v1 gave the hero 3dB over the hook and called it "the loudest instant in 30
+# seconds". Perceived doubling needs ~10dB. The gated shots sit AT the -6 floor, everything
+# else descends, and the hero is +12 over the floor.
+# PROVISIONAL - re-derive every value against the generated bed's measured RMS before
+# assembly (craft L16: when the bed changes, re-calibrate every layer gain against it).
+FOLEY = {
+     0:  -6.0,   # A       tyre roll + displaced air. NO ENGINE.
+     1:  -6.0,   # B       tyre hiss on open tarmac
+     2: -12.0,   # C       tread and tarmac texture
+     3: -18.0,   # D       cabin drop-out: cloth, a breath, floor rumble
+     4:  -6.0,   # B       the cruise, road and wind carry it
+     5: -13.0,   # C       kerb passing
+     6: -15.0,   # E       tyre note easing, first half of E (no combustion)
+     7: -18.0,   # G       distant surf and wind, car barely audible
+     8:  -6.0,   # F_load  tyre note under load-free climb - still no combustion
+     9: -24.0,   # J       NEAR-SILENCE. The floor before the twist.
+    10:  +6.0,   # F_wake  HERO - the catch. +12 over the gated floor.
+    11:  -8.0,   # E       second half of E: engine climbing away
+    12: -10.0,   # G       second half of G: engine thin at distance
+    13:  -6.0,   # F_wake  the note hardened, held under load
+    14: -14.0,   # E       engine backing off, tyre returning
+    15: -18.0,   # I       stillness - water and wind at a stopped car
+    16: -20.0,   # H       cabin, cloth, the hand on the rim
+    17: -21.0,   # I       water and wind outside a stopped car
+    18: -22.0,   # H       the shutdown chime and the last relay
+    19: -26.0,   # I       the global floor - sea only
 }
 
 # ---------------------------------------------------------------- CARDS
-CARD_Y     = 0.72                   # lower third. Never centre - the subject lives there.
-CARD_STYLE = "fragment"             # profile style; card_max_words = 5
-CARDS = [   # (text, first_shot, n_shots, kind)
-    ("IT PULLS AWAY IN SILENCE", 0, 4, "cap"),      # the concept, stated over the silence
-    ("2.4 TURBO HYBRID. 350PS.", 11, 3, "cap"),     # the receipt, landing ON the wake
-    ("TOYOTA NEVER SOLD IT HERE", 14, 3, "cap"),    # the recond fact
-    ("PRICE IN THE DM", 17, 3, "cta"),              # the withheld number is the engine
+CARD_Y     = 0.72
+CARD_STYLE = "fragment"
+CARDS = [   # (text, first_shot, n_shots, kind) - card_max_words = 5
+    ("CROWN. PULLING AWAY IN SILENCE", 0, 4, "cap"),   # P1-2: v1 named the car on ZERO cards
+    ("HE ASKS. IT WAKES.",             9, 3, "cap"),   # lands ON the decision and the hero
+    ("NEVER SOLD NEW IN MALAYSIA",    14, 3, "cap"),   # P1-3: matches CONTENT["claim"] exactly
+    ("RECOND UNIT. ASK THE PRICE",    17, 3, "cta"),   # gives the fact AND the ask
 ]
-AI_LABEL_BURNED_IN = False          # platform AI toggle at upload - a HUMAN step, every time
+AI_LABEL_BURNED_IN = False
 
 # ---------------------------------------------------------------- GRADE
-# Golden hour arrives graded. The prompt already asks for low natural sun, so applying a
-# heavy curve on top is DOUBLE-GRADING: a past build pushed saturation to 1.70 chasing a
-# number measured off finished compressed exports and took source 44.6 to 91.7.
 GRADE_SAT    = 1.10
 GRADE_BRI    = 0.0
-TARGET_BLACK = 6.0                  # chill profile - NOT the car pillar's 2.0 crush
+TARGET_BLACK = 6.0
 TARGET_SAT   = 80.0
 
 # ---------------------------------------------------------------- CONTENT
 CONTENT = {
     "claim":    "The Crown Crossover has never been sold new in Malaysia by UMW Toyota - "
-                "every unit here is a Japan-market import through the recond channel. The "
-                "2.4 RS Advance runs a turbocharged hybrid with a 350PS system output.",
-    "verified": "NOT-SOLD-HERE: paultan.org 2024-03-04 covers a Crown Hybrid SPOTTED in "
-                "Malaysia and asks whether it is coming at all; Malaysian availability is "
-                "recond/used listings only (motortrader recond index, carlist). "
-                "350PS: Carscoops 2022-07 JDM launch detail, broken down as 272PS engine + "
-                "83PS + 81PS motors = 350PS / 261kW. SECONDARY SOURCE, not Toyota's own "
-                "sheet - Toyota's global newsroom release describes the Dual Boost system "
-                "but states NO output figure. Re-verify against a JDM spec sheet before "
-                "this card ships if the number is challenged.",
-    "twist":    "the product feature IS the story device. The video withholds combustion for "
-                "20 seconds so that one engine start becomes the loudest thing in it. Nobody "
-                "in the reference field can do this - a non-hybrid car has no silence to "
-                "spend. The cards run as a sentence: SILENCE -> here is the number -> you "
-                "cannot buy it here -> ask me.",
+                "every unit here is a Japan-market import through the recond channel.",
+    "verified": "paultan.org 2024-03-04 covers a Crown Hybrid SPOTTED in Malaysia and asks "
+                "whether it is coming at all; Malaysian availability is recond/used listings "
+                "only (motortrader recond index, carlist). Card 3 says NEVER SOLD NEW IN "
+                "MALAYSIA, which is exactly this claim and not the wider 'Toyota never sold "
+                "it here' - Toyota has sold Crown-nameplate cars here historically and J4 "
+                "would roast the wider version. "
+                "POWER FIGURE RETRACTED 2026-08-05: v1 shipped a card reading 350PS on a "
+                "derivation (272+83+81) that sums to 436. Hybrid system output is not "
+                "additive and Toyota's own release states no figure. NO NUMBER SHIPS until a "
+                "JDM spec sheet confirms one.",
+    "twist":    "the product feature IS the story device, and the MAN operates it. The video "
+                "withholds combustion for 13.8 seconds so that one engine start becomes the "
+                "loudest thing in it - and he causes that start, and later causes the "
+                "darkness. A non-hybrid car has no silence to spend. Cards read as a "
+                "sentence: CROWN, in silence -> he asks, it wakes -> you cannot buy it new "
+                "here -> ask me.",
     "why_stop": "shot 0 is a light EVENT, not a tour - the car crosses from black shade into "
-                "blazing backlight inside 1.8s, and the first card names the thing the ear "
-                "is already noticing (silence) instead of describing the car. Under-2s hooks "
-                "measured 23% higher completion. The stop-scroll bet is CONTRAST, not speed.",
-    "judged":   "2026-08-05 PANEL RUN -> HOOK **FAIL**, ARC **FAIL**, FINAL **REDESIGN**. "
-                "J0 4/10 VETO (bar 8), Wow Test NOT WOW, J2 'seen this before = YES', "
-                "J5 buyer knows what it is: NO, J6 4/10. SOUND ENGINEER QC (19+04): **FAIL** "
-                "- mix call absent, layers absent, near-silence misplaced. "
-                "THE CATCH: not one of the nine prompts contains a single word of audio "
-                "direction, and source F actively FORBIDS the hero ('ALREADY under load as "
-                "the clip opens' - a state change that has already happened cannot be heard "
-                "happening). The whole differentiator was a gain table applied to audio "
-                "nobody asked for. 202.5cr, unrecoverable. "
-                "FULL DEFECT REGISTER: projects/crown/QC-PANEL-2026-08-05.md - 7 P0, 10 P1, "
-                "10 P2. planqc passing is NOT the panel passing; that WRX lesson just "
-                "repeated on a plan that scored 34/34.",
-    "judged_cut": "N/A - nothing generated. The cut does not exist.",
+                "blazing backlight inside 1.8s - and card 1 NAMES THE CAR while promising "
+                "the thing the ear is already noticing. Under-2s hooks measured 23% higher "
+                "completion. The payoff arrives at 13.80s, inside the 15s line v1 missed.",
+    "judged":   "v1 panel 2026-08-05: HOOK FAIL / ARC FAIL / REDESIGN, and SOUND QC FAIL. "
+                "Full register: projects/crown/QC-PANEL-2026-08-05.md. v2 closes all 7 P0 "
+                "and P1-1/2/3/5/6/7/8/10. **BOTH PANELS MUST BE RE-WALKED ON v2 BEFORE "
+                "SPEND** - a changed CONTENT block always re-runs the panel, and this is a "
+                "changed everything. Open from the register: P2-1 (blue-block motion floor), "
+                "P2-5 (linkage kinds re-audited here but not re-judged), P2-9 (no loop).",
+    "judged_cut": "N/A - nothing generated.",
 }
-
-# =====================================================================================
-# ** BLOCKED 2026-08-05 - DO NOT GENERATE **
-# planqc passes 34/34 and BOTH pre-spend panels returned FAIL. Every P0 in
-# projects/crown/QC-PANEL-2026-08-05.md must be closed and both panels RE-WALKED before
-# a single credit is spent. Do not close them by loosening a gate; every one is a defect
-# in this plan, not in a threshold.
-# =====================================================================================
-BLOCKED = ("pre-spend panels FAILED - see projects/crown/QC-PANEL-2026-08-05.md. "
-           "7 P0 defects open, the fatal one being that no prompt asks for the sound "
-           "this video is entirely about.")
 
 PREVIZ = {
     "sheet": None,
-    "note":  "previz is sketch-grade and NEVER enters generation. Nev appears in panels D "
-             "and H, so the sheet MUST carry the identity reference even though he is a "
-             "silhouette - a text-only previz once invented a stranger and was correctly "
-             "rejected ('the man is not nev').",
+    "note":  "Nev appears in D, J and H, so the sheet MUST carry the identity reference even "
+             "though he is a silhouette. Not built - Gavril declined the ~2cr spend until "
+             "the plan is unblocked.",
     "limit": "a still sheet CANNOT depict shot 0 (a car crossing a light boundary while "
-             "moving) or shot 12 (an engine waking). Both are judged at the PROBE, never "
-             "at previz. Do not reroll sketches to chase them.",
+             "moving) or shot 10 (an engine waking). Both are judged at the PROBE.",
 }
 
 # ---------------------------------------------------------------- THE MASTERMIND LOOP
 LESSONS_ACK = {
-    "general craft":       64,      # pillar-independent: measurement, tooling, process
-    "car cinematic chill":  5,      # this dialect's genre lessons (created with this plan)
-    "car cinematic":       15,      # the parent pillar - not required by planqc, read anyway
+    "general craft":       64,
+    "car cinematic chill":  5,
+    "car cinematic":       15,
 }
 
 PREMORTEM = [
-    ("WRONG CAR FROM A TEXT-ONLY PROMPT. This exact model is the repo's documented failure "
-     "- '2026 Toyota Crown' returned a generic crossover and shipped an 87cr build "
-     "(CLAUDE.md). The Crown name covers four different bodies (Crossover / Sedan / Sport / "
-     "Signia) and the wrong one poisons all nine sources.",
-     "4k plate built FIRST and LOOKED AT, with the Crossover's specific geometry spelled out "
-     "in must_show (raised body + falling roofline + hammerhead DRL bar + arch cladding + "
-     "21-inch alloys + full-width rear bar). Gavril confirms the body before any video "
-     "credit. Every source prompt cites the plate."),
+    ("THE SOUND IS NEVER GENERATED. v1's fatal defect, caught by the sound panel at zero "
+     "cost: nine prompts, not one audio word, and source F said the car was ALREADY under "
+     "load - a state change that has already happened cannot be heard happening. FOLEY is a "
+     "mix table; it cannot remove combustion the model invented.",
+     "GENERATE_AUDIO declared; _SILENT appended verbatim to A/B/C/D/F_load; two-state audio "
+     "written into E and G; F_wake stages the catch ON CAMERA and is the only clip permitted "
+     "combustion. Probe A is now an AUDIO test - if it returns with an engine in it the "
+     "concept dies at 22.5cr instead of 247.5cr."),
 
-    ("CHILL BECOMES A SLIDESHOW. The first Crown build already failed this way - 90 BPM "
-     "marimba under 1.33-2.67s shots (ledger 'car cinematic' L6/L9), and KK v15 measured 9 "
-     "of 20 shots under 0.6 optical flow with 0 consequence boundaries.",
-     "the dialect declares its own numbers instead of drifting: 1.2s median, 38 cuts/min, "
-     "two holds only, both on a PAYOFF/EVENT. The spine is a consequence chain with 8 typed "
-     "consequence boundaries, and the one event is a STATE CHANGE inside the car "
-     "(ledger 'car cinematic chill' L4) rather than a stunt chill cannot host."),
+    ("WRONG CAR FROM A TEXT-ONLY PROMPT. This exact model is the repo's documented failure - "
+     "'2026 Toyota Crown' returned a generic crossover and shipped an 87cr build.",
+     "4k plate built FIRST and LOOKED AT, Crossover geometry spelled out in must_show, "
+     "Gavril confirms the body before any video credit, every source cites the plate."),
 
-    ("THE BED COMES FROM THE PHONK LIBRARY. Every one of the 25 tracks is 140-165 BPM drift "
-     "phonk (ledger 'travel vlog' L0). Reaching for it here repeats the original Crown's "
-     "'90 BPM marimba under a car edit' error in the opposite direction.",
-     "SOUND['bed'] states outright that the library is unusable and names the requirement "
-     "(100.00 BPM measured, warm, half-time, no cowbell). rhythm.py measures BPM and grid "
-     "OFFSET and the bed is trimmed so hit 1 lands at t=0 before any cut is placed."),
+    ("NOTHING HAPPENS TO THE PERSON. KK v15 measured 0 consequence boundaries and nothing "
+     "happened to the man in 28 seconds; v1 repeated it in a better costume, with the HILL "
+     "waking the engine while Nev was acted upon in all four of his shots.",
+     "source J exists solely so he CAUSES the hero, and H is rewritten so his hand causes the "
+     "darkness. Boundaries 9 and 18 are typed consequence with him as agent. If the ingest "
+     "clip for J shows no decisive movement, that clip is rejected - the story is in it."),
 
-    ("BEAT MATH COPIED FROM A CAR PLAN. {burst:2, med:4, hold:8} at 100 BPM makes a 4.8s "
-     "hold - 3.7x this dialect's median and 16% of the video on one image (ledger 'car "
-     "cinematic chill' L3, measured first on the travel_vlog plan).",
-     "BEATS recomputed for 100 BPM as {2,3,5} = 1.20/1.80/3.00s. planqc 2b prints the "
-     "longest shot as a multiple of the genre median so the bet is SEEN, not discovered "
-     "in the finished cut."),
+    ("THE PAYOFF LANDS TOO LATE. v1 put the hero at 17.40s of 30s and left 10.8s with no text "
+     "layer across the commit window.",
+     "two golden repeats deleted, the cruise hold demoted, six beats moved into the dusk "
+     "half. Hero at 13.80s, card 2 at 12.60s."),
 
-    ("CLIPQC REJECTS THE GOLDEN-HOUR CLIPS AT 22.5cr EACH. car_cinematic's brightness band "
-     "is [18,90] - a MEASURED NIGHT band. Daylight footage measures 142-165 and a "
-     "golden/dusk frame measured 51.3 on 2026-08-05.",
-     "car_cinematic_chill declares its own band [35,190] and labels it PROVISIONAL out loud. "
-     "Deliberately wide because the costs are asymmetric: a wrong reject burns 22.5cr, a "
-     "wrong accept costs one eye pass. RE-DERIVE from the first 9 real clips at ingest."),
+    ("THE BED COMES FROM THE PHONK LIBRARY. All 25 tracks are 140-165 BPM drift phonk "
+     "(ledger 'travel vlog' L0 / 'car cinematic chill' L2).",
+     "SOUND['bed'] states the library is unusable and names the requirement; bed_map declares "
+     "the video OPENS with no bed at all, because a bed under the word SILENCE is a lie."),
 
-    ("MOTION-KIND LINKAGES ON CLIPS THAT DO NOT MOVE. Five KK boundaries were built on verbs "
-     "(walking, rising, drifting) and the clips measured 0.40-0.51 optical flow - neither "
-     "side moved (craft ledger 2026-08-05).",
-     "only 3 of 19 boundaries are kind 'motion' and all three join shots whose prompts "
-     "specify continuous camera or vehicle travel. clipqc's delivered-window motion floor "
-     "(0.6 for this dialect, PROVISIONAL) is checked per clip at ingest, before assembly."),
+    ("THE BLUE BLOCK FAILS THE PLAN'S OWN MOTION FLOOR. Sources I and H are written parked "
+     "and still, supply 5 of 20 shots, and face a delivered-window floor of 0.6 - roughly "
+     "112cr of auto-rejects waiting at ingest (register P2-1).",
+     "STILL OPEN. Declare a stillness exemption scoped to SHOT_TIME=='blue' in the profile "
+     "BEFORE ingest, or restate the floor as block-scoped. I's prompt now specifies that the "
+     "WATER moves even though the car does not, which may carry it - but that is a hope, not "
+     "a measurement. Do not discover this after paying."),
 
-    ("DOUBLE-GRADING THE GOLDEN HOUR. The prompts ask for low natural sun, so the footage "
-     "ARRIVES graded; a past build pushed saturation to 1.70 and took source 44.6 to 91.7, "
-     "and shot_match once moved a shot by 72.6 luma on an open-loop gain formula.",
-     "GRADE_SAT 1.10 as a starting point to MEASURE from, TARGET_BLACK 6.0 not the car's "
-     "2.0 crush, shot_match_max_move 14.0 luma in neighbour mode so the intended "
-     "golden->blue arc is never flattened toward a global median."),
+    ("CLIPQC REJECTS THE GOLDEN-HOUR CLIPS. car_cinematic's band is [18,90], a MEASURED NIGHT "
+     "band; daylight measures 142-165 and a golden/dusk frame measured 51.3.",
+     "car_cinematic_chill declares [35,190], labelled PROVISIONAL. Deliberately wide because "
+     "a wrong reject burns 22.5cr and a wrong accept costs one eye pass."),
+
+    ("DOUBLE-GRADING THE GOLDEN HOUR. Footage arrives graded; a past build pushed saturation "
+     "to 1.70 and took source 44.6 to 91.7, and shot_match once moved a shot 72.6 luma.",
+     "GRADE_SAT 1.10 as a starting point to measure from, TARGET_BLACK 6.0 not 2.0, "
+     "shot_match_max_move 14.0 luma in neighbour mode so the golden->blue arc survives."),
 ]
 
 
@@ -521,6 +600,14 @@ def cost():
             "probe": plates + per, "after_probe": gen - per}
 
 
-PROBE_FIRST = "A"   # the hook tests the plate, the light break and the motion floor at once
+PROBE_FIRST = "A"   # tests the plate, the light break, the motion floor AND the silence
 CLIPS = {}
 CLIP_BASE = "https://d8j0ntlcm91z4.cloudfront.net/user_3AmHAoGOCTD0Ph5D4HI7jSA04wi/"
+
+# =====================================================================================
+# ** STILL BLOCKED - DO NOT GENERATE **
+# v2 closes every P0 and most P1s, but BOTH panels must be RE-WALKED on this version
+# before a credit is spent, and P2-1 (blue-block motion floor) is open by name above.
+# =====================================================================================
+BLOCKED = ("v2 closes all 7 P0. Awaiting: panel re-walk on v2, a decision on the blue-block "
+           "motion floor (P2-1), and Gavril's approval of the cost change to 11 clips.")
