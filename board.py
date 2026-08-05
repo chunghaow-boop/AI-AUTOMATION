@@ -21,6 +21,18 @@ W = 2300
 PX_S = 86.0          # pixels per second
 
 
+def _pillar_style(pillar):
+    """The board is a picture of the PLAN, so it must read the plan's declared style.
+    Added 2026-08-05 after the sound panel found this board and PRODUCTION.md both
+    printing car_cinematic's whoosh-on-every-cut under a hero_only dialect."""
+    import json
+    for c in (os.path.join(HERE, "assets", "pillars", "PILLAR-PROFILES.json"),
+              os.path.join(HERE, "pillars", "PILLAR-PROFILES.json")):
+        if os.path.exists(c):
+            return (json.load(open(c, encoding="utf-8")).get(pillar) or {}).get("style") or {}
+    return {}
+
+
 def font(sz, bold=False):
     for p in ["/usr/share/fonts/truetype/dejavu/DejaVuSans%s.ttf" % ("-Bold" if bold else ""),
               "C:/Windows/Fonts/seguisb.ttf" if bold else "C:/Windows/Fonts/segoeui.ttf"]:
@@ -70,9 +82,14 @@ def main(mod="supra", out=None):
         raise SystemExit(f"no plan module for '{name}' (looked for plans/{name}.py)")
     tl, total = P.timeline()
     c = P.cost()
+    _edit_sfx = (_pillar_style(getattr(P, "PILLAR", "")) or {}).get("edit_sfx", "full")
 
     L, T = 70, 40
     tw = int(total * PX_S)
+    # 2026-08-05: W was a hardcoded 2300, measured off the 21.6s WRX plan. A 30s plan
+    # rendered 280px past the right edge and the last three shots - the whole ending -
+    # were simply not in the picture Gavril reviews. The canvas follows the timeline now.
+    W = max(2300, L + tw + 120)
     H = 1180
     im = Image.new("RGB", (W, H), BG)
     d = ImageDraw.Draw(im)
@@ -160,13 +177,21 @@ def main(mod="supra", out=None):
             tag, col = "IMPACT", "#E0B341"
         elif i in P.SUBDROP_AT:
             tag, col = "sub", "#5B8C5A"
-        else:
+        elif _edit_sfx == "full":
             tag, col = "whoosh", "#4A6FA5"
+        else:
+            # hero_only / none: NO transient design on ordinary cuts. Drawing a whoosh
+            # here was WRX boilerplate - it printed a whoosh on all 19 cuts of a plan
+            # whose entire subject is silence. The board must not contradict the style.
+            continue
         d.line([(lead, sy + 6), (x, sy + 22)], fill=col, width=3)
         d.text((lead - 2, sy + 26), tag, font=f11, fill=col)
-    d.text((L, sy + 44), f"whoosh LEADS the cut by {P.SFX_LEAD*1000:.0f}ms — it RESOLVES on "
-                         f"the cut, it does not start there. Bed sidechain-ducks under it.",
-           font=f13, fill=DIM)
+    _sfx_note = (f"whoosh LEADS the cut by {P.SFX_LEAD*1000:.0f}ms — it RESOLVES on the cut, "
+                 f"it does not start there. Bed sidechain-ducks under it."
+                 if _edit_sfx == "full" else
+                 f"edit_sfx = {_edit_sfx.upper()} — NO transient design on ordinary cuts. "
+                 f"The marked beat is the only designed sound in the video.")
+    d.text((L, sy + 44), _sfx_note, font=f13, fill=DIM)
 
     # ---- card lane ----
     cy = sy + 80
