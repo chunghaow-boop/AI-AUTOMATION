@@ -404,11 +404,31 @@ CONTENT = {
                 "blazing backlight inside 1.8s, and the first card names the thing the ear "
                 "is already noticing (silence) instead of describing the car. Under-2s hooks "
                 "measured 23% higher completion. The stop-scroll bet is CONTRAST, not speed.",
-    "judged":   "PENDING - hook AND story-arc panel (file 01/06) has NOT been run. This plan "
-                "may not reach spend until it has, and a changed CONTENT block ALWAYS "
-                "re-runs the panel (WRX lesson: planqc passing is NOT the panel passing).",
-    "judged_cut": "PENDING - judges run on the finished cut, after verify.",
+    "judged":   "2026-08-05 PANEL RUN -> HOOK **FAIL**, ARC **FAIL**, FINAL **REDESIGN**. "
+                "J0 4/10 VETO (bar 8), Wow Test NOT WOW, J2 'seen this before = YES', "
+                "J5 buyer knows what it is: NO, J6 4/10. SOUND ENGINEER QC (19+04): **FAIL** "
+                "- mix call absent, layers absent, near-silence misplaced. "
+                "THE CATCH: not one of the nine prompts contains a single word of audio "
+                "direction, and source F actively FORBIDS the hero ('ALREADY under load as "
+                "the clip opens' - a state change that has already happened cannot be heard "
+                "happening). The whole differentiator was a gain table applied to audio "
+                "nobody asked for. 202.5cr, unrecoverable. "
+                "FULL DEFECT REGISTER: projects/crown/QC-PANEL-2026-08-05.md - 7 P0, 10 P1, "
+                "10 P2. planqc passing is NOT the panel passing; that WRX lesson just "
+                "repeated on a plan that scored 34/34.",
+    "judged_cut": "N/A - nothing generated. The cut does not exist.",
 }
+
+# =====================================================================================
+# ** BLOCKED 2026-08-05 - DO NOT GENERATE **
+# planqc passes 34/34 and BOTH pre-spend panels returned FAIL. Every P0 in
+# projects/crown/QC-PANEL-2026-08-05.md must be closed and both panels RE-WALKED before
+# a single credit is spent. Do not close them by loosening a gate; every one is a defect
+# in this plan, not in a threshold.
+# =====================================================================================
+BLOCKED = ("pre-spend panels FAILED - see projects/crown/QC-PANEL-2026-08-05.md. "
+           "7 P0 defects open, the fatal one being that no prompt asks for the sound "
+           "this video is entirely about.")
 
 PREVIZ = {
     "sheet": None,
