@@ -609,5 +609,10 @@ CLIP_BASE = "https://d8j0ntlcm91z4.cloudfront.net/user_3AmHAoGOCTD0Ph5D4HI7jSA04
 # v2 closes every P0 and most P1s, but BOTH panels must be RE-WALKED on this version
 # before a credit is spent, and P2-1 (blue-block motion floor) is open by name above.
 # =====================================================================================
-BLOCKED = ("v2 closes all 7 P0. Awaiting: panel re-walk on v2, a decision on the blue-block "
-           "motion floor (P2-1), and Gavril's approval of the cost change to 11 clips.")
+BLOCKED = ("v2 RE-WALKED 2026-08-05: judge REDESIGN (scoped to shots 1-8 + the card map), "
+           "sound FAIL. See projects/crown/QC-PANEL-v2-2026-08-05.md. "
+           "TWO OF MY OWN P0 'FIXES' WERE INERT: BLEND_AS_OVERLAP and GENERATE_AUDIO are "
+           "read by NO tool (grep planqc.py = 0 hits each), so the deliverable is still "
+           "28.80s and nothing guarantees the clips carry audio. A declaration no tool reads "
+           "is not a fix. Highest-value open line: the word HYBRID appears on zero cards, so "
+           "on a muted feed this is a car driving at sunset.")
