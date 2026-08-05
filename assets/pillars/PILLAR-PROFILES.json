@@ -68,6 +68,74 @@
    "shot_match_clamp_note": "Second belt only. The BINDING limit is now shot_match_max_move, stated in luma. The old note claiming widening this to 0.26 'made exposure worse' is SUPERSEDED: that test ran on a gain formula miscalibrated 2.2x, so a wider clamp simply overshot further. Re-derive if needed."
   }
  },
+ "car_cinematic_chill": {
+  "_what": "DECLARED 2026-08-05 for the Toyota Crown Crossover KK build. Gavril asked for a 'car cinematic' that is CHILL and CRUISING. That contradicts car_cinematic's measured DNA (0.77s shots, 44.7 cuts/min, 140-170 BPM drift phonk), and the repo has already failed this exact brief once: ledger 'car cinematic' lessons 6 and 9 record a Crown build with a 90 BPM marimba bed and 1.33-2.67s shots, judged wrong on tempo, timbre and cut rate. The diagnosis then was 'too slow for the genre'. The honest diagnosis is DIFFERENT: it was slow with NO DECLARED GENRE, so it was measured against the aggressive profile and lost. This block gives the chill read its own numbers so it can be judged on its own terms.",
+  "_not_measured": "NO chill car footage has ever been generated or measured. Every number below is a STRUCTURAL CHOICE derived from two measured neighbours (car_cinematic n=5, travel_vlog n=6), not a measurement of chill references. Saying 'measured' about this would be the SMOOTH NUMBER trap. RE-DERIVE the whole block from the first real ingest, or from a proper reference scan of chill-cruise edits, whichever comes first.",
+  "family": "short_music_led",
+  "duration_s": [
+   20,
+   34
+  ],
+  "shot_median_s": 1.3,
+  "shot_median_range": [
+   0.9,
+   3.2
+  ],
+  "cuts_per_min": 38,
+  "blended_pct": 18,
+  "blended_range": [
+   6,
+   33
+  ],
+  "blend_width_ms": [
+   240,
+   560
+  ],
+  "bpm": [
+   88,
+   112
+  ],
+  "sub_bass_pct": [
+   25,
+   65
+  ],
+  "black_point": 6.0,
+  "saturation": 80.0,
+  "captions": "short fragments, lower third",
+  "lighting": "golden into blue hour, natural key, car reflects rather than emits",
+  "shot_mix": {
+   "exterior": 35,
+   "wheel_brake": 10,
+   "light_macro": 10,
+   "interior": 25,
+   "badge": 5,
+   "human": 15
+  },
+  "_why_between": "cut rate sits BETWEEN its neighbours (car 44.7 / vlog 40.3 / here 38) and shot median above both short bands, because a cruise must read as unhurried without becoming a slideshow. Blends are KEPT at car level - a dissolve is how a cruise flows, and it is the one piece of car grammar chill actively needs. travel_vlog's 0% blends would make this a holiday reel.",
+  "style": {
+   "brightness_band": [
+    35,
+    190
+   ],
+   "brightness_source": "PROVISIONAL — no chill/daylight car footage exists. Band copied from travel_vlog's widened range, which was itself widened on 2026-08-05 after a golden-hour/dusk frame measured 51.3 and would have been wrongly rejected. car_cinematic's night band [18,90] would REJECT every golden-hour clip in this build at 22.5cr each. Asymmetric cost drives the width: a wrong reject burns credits, a wrong accept costs one eye pass. RE-DERIVE from the first 9 real clips at ingest.",
+   "card_max_words": 5,
+   "card_style": "fragment",
+   "cut_spine": "beat_grid",
+   "edit_sfx": "hero_only",
+   "_edit_sfx_why": "a whoosh on every cut is the phonk signature and it is exactly what makes a chill edit feel anxious. But 'none' was measured wrong for travel_vlog on 2026-08-05 - it silenced the car pass, which came out 2.8dB QUIETER than a random mid-video moment. hero_only is the shape that fits: no design on ordinary cuts, full design on the one hero moment.",
+   "event_motion_floor": 2.5,
+   "max_visits_per_place": 3,
+   "motion_floor": 0.6,
+   "motion_source": "PROVISIONAL — taken from travel_vlog, which derived it from SYNTHETIC camera-move tests (slow landscape drift 1.18, serene push-in 3.38, locked-off 0.00). car_cinematic's 1.5 rejects a serene rolling shot, and a serene rolling shot IS this pillar's content. RE-DERIVE at first ingest.",
+   "sound_gate": "diegetic",
+   "_sound_gate_why": "NOT ambience. The whole story of this pillar's first build is a powertrain - silence, then the engine waking - so the car's own sound is the spine and file 19+04 must judge it before spend.",
+   "shot_match_clamp": 0.14,
+   "shot_match_mode": "neighbour",
+   "shot_match_max_move": 14.0,
+   "shot_match_tol": 12.0,
+   "shot_match_source": "MEASURED 2026-08-05 on KK v14 + his three raw Higgsfield clips (45.1 / 89.7 / 92.9 mean luma, all inside his 'close to perfect' approval APV-1). Source lighting is TRUSTED; the stage only shaves excess CUT-BOUNDARY swing. max_move set between car (18) and vlog (12): a golden-to-blue arc has real, WANTED brightness travel that must not be flattened."
+  }
+ },
  "travel_vlog": {
   "family": "short_music_led",
   "duration_s": [

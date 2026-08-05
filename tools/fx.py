@@ -193,7 +193,18 @@ def flash(a, b, out, d=0.12, W=720, H=1280, fps=30):
 def dip(a, b, out, d=0.20, W=720, H=1280, fps=30):
     return _xfade(a, b, out, "fadeblack", d, W, H, fps)
 
+
+def dissolve(a, b, out, d=0.40, W=720, H=1280, fps=30):
+    """A TRUE CROSSFADE. Added 2026-08-05 for the car_cinematic_chill pillar.
+
+    Every other blend in this file is either a graphic wipe (mask_*), a camera move
+    (dolly_*, whip, speedramp) or goes through a solid frame (dip = fadeblack, flash =
+    fadewhite). None of them is a chill transition, and dip legitimately trips the
+    blank-frame gate. A cruise flows; xfade 'fade' is the transition that does that."""
+    return _xfade(a, b, out, "fade", d, W, H, fps)
+
 FX = {
+    "dissolve": dissolve,
     "whip": whip, "speedramp": speedramp, "zoomblur": zoomblur,
     "mask_circle": mask_circle, "mask_crop": mask_crop, "mask_wipe": mask_wipe,
     "mask_slice": mask_slice, "mask_radial": mask_radial,
