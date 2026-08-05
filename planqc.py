@@ -84,9 +84,25 @@ def check_profile_band(P, pf):
     ok_dur = lo <= total <= hi
     ok_med = mlo <= med <= mhi
     ok_cpm = tgt * 0.8 <= cpm <= tgt * 1.2
-    return add("2 pillar band", ok_dur and ok_med and ok_cpm,
-               f"duration {total:.1f}s in [{lo},{hi}] · median shot {med:.2f}s in "
-               f"[{mlo},{mhi}] · {cpm:.1f} cuts/min vs {tgt} target (+-20%)")
+    r = add("2 pillar band", ok_dur and ok_med and ok_cpm,
+            f"duration {total:.1f}s in [{lo},{hi}] · median shot {med:.2f}s in "
+            f"[{mlo},{mhi}] · {cpm:.1f} cuts/min vs {tgt} target (+-20%)")
+    # 2b SHOT EXTREMES (2026-08-05). The median hides the longest shot, and the
+    # plan's BEATS dict is written per-plan — copy a car plan's {burst:2,med:4,hold:8}
+    # into a 105 BPM vlog and a "hold" silently becomes 4.57s (4x that genre's median,
+    # ~20% of the video on one image). The car's own hold was 4.2x ITS median and his
+    # eye did not object to it (NOT an approval - approvals.json UNV-2), so this is NOT a rule — it is a number that must be SEEN, not
+    # discovered in the finished cut.
+    longest = max(d for _s, d, _k in tl)
+    ratio = longest / max(1e-6, pf["shot_median_s"])
+    share = 100.0 * longest / total
+    msg = (f"longest shot {longest:.2f}s = {ratio:.1f}x the genre median "
+           f"({pf['shot_median_s']}s), {share:.0f}% of the video")
+    if ratio > 3.0 or share > 15.0:
+        warn("2b shot extremes", msg + " — deliberate? a hold this long is a bet on ONE image")
+    else:
+        add("2b shot extremes", True, msg, False)
+    return r
 
 
 # ---------------------------------------------------------------- 3 COVERAGE
@@ -223,11 +239,26 @@ def check_blends(P, pf):
     w = P.BLEND_WIDTH * 1000
     if not pf:
         return warn("11 blends", f"{pct:.0f}% blended, no profile to compare")
-    blo, bhi = pf["blended_range"]
-    wlo, whi = pf["blend_width_ms"]
+    # PILLAR PORTABILITY (2026-08-05, red-team: the first non-car plan CRASHED here
+    # with KeyError 'blended_range'). Only car_cinematic was ever measured for blend
+    # RANGES; travel_vlog carries blended_pct 0 + "HARD CUTS ONLY - 5 of 6 references
+    # use zero blended transitions", industry carries blended_range but no width.
+    # Derive an honest band from what the profile DOES hold, never assume car values.
+    if "blended_range" in pf:
+        blo, bhi = pf["blended_range"]
+    else:
+        base = float(pf.get("blended_pct", 0))
+        # a measured 0% is an editorial RULE for this pillar, not a missing number
+        blo, bhi = (0.0, 5.0) if base == 0 else (base * 0.5, base * 1.5)
+    wlo, whi = pf.get("blend_width_ms", (240, 560))
     bad_idx = [i for i in P.BLEND_AFTER if i >= len(P.SHOTS) - 1]
-    ok = blo <= pct <= bhi and wlo <= w <= whi and not bad_idx
-    d = f"{nb}/{cuts} blended = {pct:.0f}% in [{blo},{bhi}] · width {w:.0f}ms in [{wlo},{whi}]"
+    no_width = (nb == 0)   # zero blends cannot violate a width band
+    ok = blo <= pct <= bhi and (no_width or wlo <= w <= whi) and not bad_idx
+    d = (f"{nb}/{cuts} blended = {pct:.0f}% in [{blo:g},{bhi:g}]"
+         + ("  (no blends — width not judged)" if no_width
+            else f" · width {w:.0f}ms in [{wlo},{whi}]"))
+    if bhi <= 5.0 and nb:
+        d += f" — this pillar measured HARD CUTS ONLY; {nb} blend(s) is a declared deviation"
     if bad_idx:
         d += f" - blend index past the last cut: {bad_idx}"
     if getattr(P, "BLEND_KIND", "") == "dip":
@@ -237,13 +268,26 @@ def check_blends(P, pf):
 
 
 # ---------------------------------------------------------------- 12 CAPTIONS
-def check_captions(P):
+def check_captions(P, pf=None):
     """y=0.42 put text dead centre, on the car. The subject always lives in the centre."""
     y = P.CARD_Y
     n = len(P.SHOTS)
     over = [c for c in P.CARDS if c[1] + c[2] > n]
     centre = 0.34 <= y <= 0.60
-    limit = 5 if getattr(P, "CARD_STYLE", "") == "narrative" else 3
+    # WORD LIMIT FROM THE STYLE BLOCK (2026-08-05). Was hardcoded 3 / 5-if-narrative —
+    # car-label taste. travel_vlog's measured caption style is "sentence fragments", and
+    # a real fragment ("SABAH, 1500 METRES UP") is 4 words: the car limit BLOCKED the
+    # vlog genre's own caption form. Another silent-inheritance leftover, same class as
+    # the night brightness band and the 1.5 motion floor.
+    # The style block sets the PILLAR DEFAULT; a plan's declared CARD_STYLE="narrative"
+    # is a DELIVERATE deviation (the WRX cards read as a sentence — that IS the
+    # improvisation) and must be able to raise the ceiling, never be silently capped
+    # by it. Caught immediately: adding the style default alone broke the WRX, which
+    # has shipped 5-word narrative cards since 2026-08-04.
+    _st = (pf or {}).get("style") or {}
+    limit = _st.get("card_max_words", 3)
+    if getattr(P, "CARD_STYLE", "") == "narrative":
+        limit = max(limit, 5)
     long = [c[0] for c in P.CARDS if len(c[0].split()) > limit]
     ok = not centre and not over and not long
     d = f"{len(P.CARDS)} cards at y={y}"
@@ -369,9 +413,22 @@ def check_sound(P):
     PAID FOR; a car_cinematic plan without a diegetic decision NEVER reaches spend.
     File 19 (sound engineer) judges the mix; file 04 (foley) picks the sounds; this
     check only verifies the DECISION exists and is coherent — mechanical, not taste."""
-    if getattr(P, "PILLAR", "") != "car_cinematic":
-        return warn("19 sound design", f"pillar {getattr(P,'PILLAR','?')} — check scoped "
-                    "to car_cinematic (speech-led plans cut to the sentence, not the mix)")
+    # SCOPED BY DECLARED STYLE, not by a hardcoded pillar name (2026-08-05).
+    # The old `!= "car_cinematic"` meant a vlog plan got a WARN and could reach
+    # SPEND with no sound decision at all — the gate that made foley mandatory
+    # silently switched itself off for every pillar that came after the car.
+    pil = getattr(P, "PILLAR", "")
+    gate = ((profile(pil) or {}).get("style") or {}).get("sound_gate", "diegetic")
+    if gate == "underscore":
+        # speech-led: the spine is the VOICE, so that is what must be declared.
+        v = getattr(P, "VOICE", None)
+        if not v or not v.get("voice_id"):
+            return add("19 sound design", False,
+                       f"pillar '{pil}' is speech-led (sound_gate=underscore): the plan must "
+                       f"declare VOICE={{name, voice_id, voice_type}} + language mode. "
+                       f"See assets/nev/voice/VOICE.md.")
+        return add("19 sound design", True,
+                   f"speech-led: voice '{v.get('name')}' declared, bed is underscore")
     foley = getattr(P, "FOLEY", None)
     snd = getattr(P, "SOUND", None)
     n = len(P.SHOTS)
@@ -383,10 +440,14 @@ def check_sound(P):
     missing = [i for i in range(n) if i not in foley]
     mkeys = [k for k in ("hero", "duck_shots", "silence") if snd.get(k) is None]
     quiet = []
-    for i, (s, _c, _k, _t) in enumerate(P.SHOTS):
-        act = P.SOURCES[s][2].upper()
-        if act in ("EVENT", "PAYOFF") and foley.get(i, -99) < -6:
-            quiet.append(f"shot {i} ({act.lower()}) at {foley.get(i)}dB")
+    if gate == "diegetic":
+        # HERO DOCTRINE is car-genre taste (file 04 law 4: one hero sound). A travel
+        # vlog has ambience, not a hero — demanding a foreground EVENT there would be
+        # importing the car's signature. Only the diegetic gate enforces it.
+        for i, (s, _c, _k, _t) in enumerate(P.SHOTS):
+            act = P.SOURCES[s][2].upper()
+            if act in ("EVENT", "PAYOFF") and foley.get(i, -99) < -6:
+                quiet.append(f"shot {i} ({act.lower()}) at {foley.get(i)}dB")
     bad_duck = [si for si in (snd.get("duck_shots") or []) if not 0 <= si < n]
     ok = not missing and not mkeys and not quiet and not bad_duck
     d = (f"FOLEY covers {n-len(missing)}/{n} shots, "
@@ -451,11 +512,20 @@ def check_capacity(P):
 # make the loop mechanical: the plan must READ the ledger (23), PREDICT its own
 # likely failures from it (22), and PLAN every join, not discover it (24).
 
-def _ledger_lessons(pillar):
+def _ledger_topics():
     p = _first(os.path.join(HERE, "ledgers", "knowledge.json"))
     if not p:
+        return None
+    try:
+        return json.load(open(p, encoding="utf-8")).get("topics", {})
+    except Exception:
+        return None
+
+
+def _ledger_lessons(pillar):
+    topics = _ledger_topics()
+    if topics is None:
         return None, None
-    topics = json.load(open(p, encoding="utf-8")).get("topics", {})
     key = str(pillar).replace("_", " ")
     t = topics.get(key)
     if t is None:
@@ -489,26 +559,245 @@ def check_premortem(P):
     return r
 
 
+CRAFT_TOPIC = "general craft"
+
+
 def check_lessons_ack(P):
-    """A plan cannot pass planqc without having read the NEWEST ledger state."""
-    lessons, key = _ledger_lessons(getattr(P, "PILLAR", ""))
-    if lessons is None:
-        return warn("23 lessons ack", f"ledger topic '{key}' not found — nothing to ack")
-    n = len(lessons)
+    """A plan cannot pass planqc without having read the NEWEST ledger state — for its
+    own GENRE **and** for the pillar-independent CRAFT topic.
+
+    2026-08-05: this check used to read only the plan's own pillar topic, so a
+    travel_vlog plan acknowledged 11 lessons while ignoring 25 lessons of measurement
+    and tooling craft that were filed under 'car cinematic' purely because that is
+    where the work happened first. The ledger has since been refactored: craft moved
+    to '<CRAFT_TOPIC>', genre stayed put. Every plan must now ack BOTH.
+
+    LESSONS_ACK = {"general craft": N, "<pillar topic>": M}   (dict, preferred)
+    A bare int is still accepted as the GENRE count, but the craft ack is mandatory —
+    silence about craft is what this refactor exists to end."""
+    genre_lessons, key = _ledger_lessons(getattr(P, "PILLAR", ""))
+    craft_lessons, _ = _ledger_lessons(CRAFT_TOPIC.replace(" ", "_"))
+    if craft_lessons is None:
+        craft_lessons = (_ledger_topics() or {}).get(CRAFT_TOPIC, {}).get("lessons")
     ack = getattr(P, "LESSONS_ACK", None)
+
+    need = {}
+    if genre_lessons is not None:
+        need[key] = len(genre_lessons)
+    if craft_lessons is not None:
+        need[CRAFT_TOPIC] = len(craft_lessons)
+    if not need:
+        return warn("23 lessons ack", "no ledger topics found — nothing to ack")
+
     if ack is None:
         return add("23 lessons ack", False,
-                   f"NO LESSONS_ACK — ledger '{key}' holds {n} lessons; the plan must "
-                   f"declare the count it was written against (LESSONS_ACK = {n}).")
-    if ack < n:
-        return add("23 lessons ack", False,
-                   f"STALE: plan acknowledges {ack} lessons but ledger '{key}' now holds "
-                   f"{n} — read lessons {ack}..{n-1} (0-based), update the premortem, re-ack.")
-    if ack > n:
-        return add("23 lessons ack", False,
-                   f"plan acknowledges {ack} but ledger '{key}' holds {n} — an invented "
-                   f"count is worse than none. Hard rule 2 applies to lessons too.")
-    return add("23 lessons ack", True, f"plan written against all {n} '{key}' lessons")
+                   "NO LESSONS_ACK — declare the counts this plan was written against: "
+                   f"LESSONS_ACK = {{{', '.join(repr(k)+': '+str(v) for k,v in need.items())}}}")
+    if isinstance(ack, int):
+        ack = {key: ack}
+    if not isinstance(ack, dict):
+        return add("23 lessons ack", False, f"LESSONS_ACK must be a dict, got {type(ack).__name__}")
+
+    bad, okd = [], []
+    for t, n in need.items():
+        got = ack.get(t)
+        if got is None:
+            bad.append(f"'{t}' NOT ACKNOWLEDGED (holds {n})"
+                       + (" — this is the pillar-independent craft topic; every plan reads it"
+                          if t == CRAFT_TOPIC else ""))
+        elif got < n:
+            bad.append(f"'{t}' STALE: acked {got}, ledger holds {n} — read {got}..{n-1}, "
+                       f"update the premortem, re-ack")
+        elif got > n:
+            bad.append(f"'{t}' acked {got} but ledger holds {n} — an invented count is "
+                       f"worse than none. Hard rule 2 applies to lessons too.")
+        else:
+            okd.append(f"{t} {n}")
+    if bad:
+        return add("23 lessons ack", False, " · ".join(bad))
+    r = add("23 lessons ack", True, "plan written against " + " + ".join(okd))
+    # OTHER PILLARS' genre lessons are not required reading, but a neighbouring pillar
+    # often holds the closest prior art — surfaced, never blocking.
+    others = {k: len(v.get("lessons", [])) for k, v in (_ledger_topics() or {}).items()
+              if k not in need and v.get("lessons")}
+    if others:
+        big = sorted(others.items(), key=lambda x: -x[1])[:3]
+        warn("23b neighbouring genres",
+             "other pillars' GENRE lessons (not required, often the closest prior art): "
+             + " · ".join(f"'{k}' {v}" for k, v in big))
+    return r
+
+
+LIGHT_ORDER = ["dawn", "morning", "midday", "afternoon", "golden",
+               "dusk", "blue", "night"]
+
+CARRY_KINDS = {
+    "motion":      "something moving in A keeps moving into B",
+    "gaze":        "A looks off-frame, B is what A was looking at",
+    "subject":     "the same person/object is in both",
+    "object":      "a specific thing leaves A and appears in B",
+    "light":       "the same light state continues across the cut",
+    "sound":       "a sound starts in A and resolves in B",
+    "consequence": "B happens BECAUSE of A — the state of the world changed",
+}
+
+
+def _boilerplate(P):
+    """Words present in EVERY source prompt — the shared realism/look block.
+
+    CAUGHT BEFORE SHIPPING, 2026-08-05: the first version of check 29 searched the whole
+    source prompt, and every WRX boundary offered the same 14 shared words
+    ('specular', 'cartoonish', 'videogame'...) because _LOOK is appended to all nine
+    sources. A token drawn from boilerplate is present on BOTH sides of EVERY boundary,
+    so the check would have passed on any plan — a VACUOUS PASS wearing a green tick.
+    Boilerplate is subtracted so a carry must be SHOT-SPECIFIC."""
+    sets = []
+    for s in (getattr(P, "SOURCES", {}) or {}).values():
+        if isinstance(s, (list, tuple)):
+            txt = " ".join(x for x in s if isinstance(x, str)).lower()
+            sets.append(set(re.findall(r"[a-z]{3,}", txt)))
+    if len(sets) < 2:
+        return set()
+    common = set.intersection(*sets)
+    return common
+
+
+def _shot_text(P, i, boiler=frozenset()):
+    """What the plan says about shot i ALONE: its note, plus the part of its source
+    prompt that is not shared with every other source."""
+    sh = P.SHOTS[i]
+    note = " ".join(str(x) for x in sh[3:]) if len(sh) > 3 else ""
+    s = getattr(P, "SOURCES", {}).get(sh[0])
+    src = ""
+    if isinstance(s, (list, tuple)):
+        src = " ".join(x for x in s if isinstance(x, str))
+    words = [w for w in re.findall(r"[a-z]{3,}", src.lower()) if w not in boiler]
+    return (note.lower() + " " + " ".join(words)).strip()
+
+
+def check_linkage_carry(P):
+    """HIS DOCTRINE, 2026-08-05: "there must be a linkage that is important, when there
+    is linkage then it feels like a story".
+
+    Check 24 only proves a linkage STRING EXISTS. KK v15 passed it 19/19 and the eye
+    found 5 of 19 that actually land. Two failures were decidable from the plan text
+    alone, for free:
+
+      boundary 15->16 declared  "the car returns: callback in the same gold light"
+      the shot note for 16 says "boardwalk at dusk - THE PLACE, EMPTIED"
+
+    The plan contradicted itself IN WRITING and shipped. That is the P7 callback
+    failure, one build after P7 was written.
+
+    So a linkage stops being prose and becomes a CARRY: a kind, and a TOKEN that must
+    be findable in the writing of BOTH shots it joins. If the token is not on both
+    sides, the connection exists only in my head.
+
+        LINKAGE = [("object", "car", "car exits right -> boats drift the same way"),
+                   ("gaze", "horizon", "his eyeline -> the boats on it"), ...]
+
+    Legacy prose entries still parse and are reported UNVERIFIABLE, never OK - a
+    linkage nobody can check is not evidence of a story.
+    """
+    lk = getattr(P, "LINKAGE", None)
+    n_b = len(P.SHOTS) - 1
+    if not lk:
+        return add("29 linkage carry", False, "NOT MEASURED - no LINKAGE to read")
+    if isinstance(lk, dict):
+        lk = [lk.get(i, "") for i in range(n_b)]
+    boiler = _boilerplate(P)
+    prose, typed, bad_kind, missing, vac = [], [], [], [], []
+    for i in range(min(n_b, len(lk))):
+        e = lk[i]
+        if not isinstance(e, (list, tuple)) or len(e) < 2:
+            prose.append(i); continue
+        kind, token = str(e[0]).lower().strip(), str(e[1]).lower().strip()
+        typed.append(i)
+        if kind not in CARRY_KINDS:
+            bad_kind.append((i, kind)); continue
+        a, b = _shot_text(P, i, boiler), _shot_text(P, i + 1, boiler)
+        if token and token in boiler:
+            vac.append((i, token)); continue
+        if token and not (token in a and token in b):
+            side = "shot %d" % (i if token not in a else i + 1)
+            missing.append((i, token, side))
+    if prose and not typed:
+        return add("29 linkage carry", False,
+                   f"all {len(prose)} linkages are PROSE - UNVERIFIABLE. KK v15 shipped "
+                   f"19 prose linkages and 14 did not land. Convert to (kind, token, "
+                   f"prose); kinds: {', '.join(sorted(CARRY_KINDS))}")
+    detail = f"{len(typed)} typed / {len(prose)} prose"
+    if bad_kind:
+        detail += " | unknown kind: " + ", ".join(f"{i}:{k}" for i, k in bad_kind[:3])
+    if missing:
+        detail += " | TOKEN NOT ON BOTH SIDES: " + ", ".join(
+            f"boundary {i} '{t}' absent from {s}" for i, t, s in missing[:3])
+    if vac:
+        detail += " | BOILERPLATE TOKEN (present in every source, proves nothing): " \
+                  + ", ".join(f"{i}:'{t}'" for i, t in vac[:3])
+    ok = not bad_kind and not missing and not prose and not vac
+    r = add("29 linkage carry", ok, detail)
+    if prose and typed:
+        warn("29b prose linkages", f"boundaries {prose[:8]} are prose - not checkable")
+    return r
+
+
+def check_time_monotonic(P):
+    """MEASURED on KK v15: the cut runs golden -> night -> DAYLIGHT -> sunset ->
+    morning -> night -> golden, with a "6PM IN KK BAH" card on screen over the noon
+    footage. The plan's own premortem promised "no cut jumps backwards in time" and
+    nothing enforced it, because no shot ever declared what time it was.
+
+    Declare SHOT_TIME per shot. Backwards is a FAIL unless the boundary is listed in
+    TIME_JUMPS with a reason: a declared jump is a choice, an undeclared one is the
+    continuity break he reads as "no story"."""
+    n = len(P.SHOTS)
+    tl = getattr(P, "SHOT_TIME", None)
+    if not tl:
+        return add("30 time monotonic", False,
+                   "NOT DECLARED - every shot must name its light state ("
+                   + "/".join(LIGHT_ORDER) + "). KK v15 ran night->daylight->morning "
+                   "under a '6PM' card and no gate could see it.")
+    if isinstance(tl, dict):
+        tl = [tl.get(i) for i in range(n)]
+    unknown = [(i, t) for i, t in enumerate(tl) if t not in LIGHT_ORDER]
+    if unknown:
+        return add("30 time monotonic", False,
+                   "unknown light state: " + ", ".join(f"{i}:{t}" for i, t in unknown[:4]))
+    jumps = set(getattr(P, "TIME_JUMPS", {}) or {})
+    idx = [LIGHT_ORDER.index(t) for t in tl]
+    back = [i for i in range(n - 1) if idx[i + 1] < idx[i] and i not in jumps]
+    skip = [i for i in range(n - 1) if idx[i + 1] - idx[i] >= 3 and i not in jumps]
+    detail = f"{tl[0]} -> {tl[-1]} across {n} shots"
+    if back:
+        detail += f" | RUNS BACKWARDS at boundaries {back[:5]}"
+    if skip:
+        detail += f" | skips >=3 light states at {skip[:5]}"
+    return add("30 time monotonic", not back and not skip, detail)
+
+
+def check_consequence_spine(P):
+    """The thing underneath every note he has given me: "no story no linkage from 1st
+    starting visual hook then leads to another scene then connect it with a twist".
+
+    A boundary can carry motion, light or a subject and still change NOTHING. Measured
+    on KK v15: 9 of 20 shots had optical flow under 0.6 and nothing happened to the
+    person in 28 seconds. A story needs boundaries where B occurs BECAUSE of A.
+
+    Floor: one consequence per ~6 boundaries, minimum 2. NON-BLOCKING on purpose - I am
+    not qualified to score whether a story works, only to COUNT the boundaries that
+    even attempt it and put the number in front of him."""
+    lk = getattr(P, "LINKAGE", None) or []
+    n_b = len(P.SHOTS) - 1
+    if isinstance(lk, dict):
+        lk = [lk.get(i, "") for i in range(n_b)]
+    cons = [i for i, e in enumerate(lk)
+            if isinstance(e, (list, tuple)) and str(e[0]).lower().strip() == "consequence"]
+    need = max(2, -(-n_b // 6))
+    tail = (f"at {cons}" if cons else
+            "- NOTHING HAPPENS BECAUSE OF ANYTHING; this is a slideshow with captions")
+    return add("31 consequence spine", len(cons) >= need,
+               f"{len(cons)} consequence boundaries, floor {need} {tail}", False)
 
 
 def check_linkage(P, name):
@@ -552,6 +841,173 @@ def check_linkage(P, name):
                 add("24b linkage measured", True,
                     "no boundary joins clips more than 60 luma apart", False)
     return r
+
+
+def check_field_sanity(P):
+    """25 FIELD SANITY (2026-08-05, red-team wave 1). Three holes found by feeding
+    hostile plans: DELOGO fully out of frame PASSED (engine dies mid-render on a
+    cryptic ffmpeg error); SFX_OVERLAYS reading past clip EOF PASSED (ffmpeg
+    extracts SHORT silently - the dip the overlay covers ships uncovered); CJK/
+    emoji cards PASSED word count and render as identical TOFU boxes in fallback
+    fonts. Every plan literal the engine consumes must be provably consumable."""
+    bad = []
+    n = len(P.SHOTS)
+    tl, total = P.timeline()
+
+    for i, box in (getattr(P, "DELOGO", {}) or {}).items():
+        if not 0 <= i < n:
+            bad.append(f"DELOGO shot {i} out of range 0..{n-1}")
+            continue
+        try:
+            x, y, w, h = [int(v) for v in box]
+            if w <= 0 or h <= 0 or x < 0 or y < 0 or x + w > P.W or y + h > P.H:
+                bad.append(f"DELOGO {i}=({x},{y},{w},{h}) outside {P.W}x{P.H} or empty")
+        except Exception:
+            bad.append(f"DELOGO {i}={box!r} not (x,y,w,h)")
+
+    fit = total - len(set(P.BLEND_AFTER)) * P.BLEND_WIDTH   # blends COMPRESS the timeline
+    for ov in (getattr(P, "SFX_OVERLAYS", []) or []):
+        src, ct, dur_, vt = ov[0], float(ov[1]), float(ov[2]), float(ov[3])
+        if src not in P.SOURCES:
+            bad.append(f"SFX_OVERLAY src {src!r} not a source")
+        if ct < 0 or dur_ <= 0 or ct + dur_ > P.CLIP_S:
+            bad.append(f"SFX_OVERLAY {src}@{ct}+{dur_}s reads past the {P.CLIP_S}s clip "
+                       f"- ffmpeg extracts SHORT silently, the overlay ships thin")
+        if vt + dur_ > fit + 0.05:
+            bad.append(f"SFX_OVERLAY at video {vt}+{dur_}s past the post-blend end "
+                       f"({fit:.2f}s) - placed audio would be truncated")
+
+    orphans = [k for k in (getattr(P, "FOLEY", {}) or {}) if not 0 <= k < n]
+    if orphans:
+        bad.append(f"FOLEY gains for nonexistent shots: {orphans}")
+
+    if not getattr(P, "CARDS_NON_ASCII_OK", False):
+        for c in P.CARDS:
+            odd = sorted({ch for ch in c[0] if ord(ch) > 126})
+            if odd:
+                bad.append(f"card {c[0]!r} carries non-ASCII {odd} - fallback fonts "
+                           f"render TOFU boxes; transliterate or declare "
+                           f"CARDS_NON_ASCII_OK=True after a MEASURED glyph test")
+
+    return add("25 field sanity", not bad,
+               "DELOGO in-frame · overlays fit clip and post-blend timeline · "
+               "no orphan FOLEY keys · cards ASCII-safe"
+               if not bad else " · ".join(bad))
+
+
+def check_style_declared(P, pf):
+    """26 STYLE DECLARED (2026-08-05). THE ANTI-INHERITANCE GATE.
+
+    Everything this system learned was learned on ONE pillar. The car's look and
+    signature were written as CONSTANTS, so a new pillar did not start with no
+    style — it silently INHERITED the car's, and nothing said so. Measured that
+    day: clipqc's night band (18-90) would REJECT daylight vlog footage at 142-165
+    ('regenerate this clip, 22.5cr'); engine laid a phonk whoosh on every cut
+    regardless of genre; check 19 switched itself off for non-car pillars.
+
+    A pillar must now DECLARE its style, and a PROVISIONAL band must say so out
+    loud. Silence is never a style."""
+    pil = getattr(P, "PILLAR", "")
+    if not pf:
+        return warn("26 style declared", "no profile — cannot verify style")
+    st = pf.get("style")
+    if not st:
+        return add("26 style declared", False,
+                   f"pillar '{pil}' declares NO style block in PILLAR-PROFILES.json — it "
+                   f"would silently inherit car_cinematic's night band, whoosh-on-every-cut "
+                   f"and hero-foley doctrine. Add a style block before planning this pillar.")
+    need = ["brightness_band", "brightness_source", "edit_sfx", "sound_gate", "cut_spine"]
+    missing = [k for k in need if not st.get(k)]
+    if missing:
+        return add("26 style declared", False, f"pillar '{pil}' style missing {missing}")
+    prov = not str(st["brightness_source"]).startswith("MEASURED")
+    fam = pf.get("family", "?")
+    r = add("26 style declared", True,
+            f"family={fam} · spine={st['cut_spine']} · sfx={st['edit_sfx']} · "
+            f"sound={st['sound_gate']} · luma{st['brightness_band']}")
+    if prov:
+        warn("26b style provisional",
+             f"'{pil}' brightness band is PROVISIONAL, not measured — no footage exists for "
+             f"this pillar yet. It is deliberately WIDE (a wrong reject costs 22.5cr). "
+             f"RE-DERIVE from the first 9 real clips at ingest, then mark it MEASURED.")
+    if st["cut_spine"] == "sentence":
+        warn("26c editor exists?", f"'{pil}' declares a SENTENCE spine — the speech-led "
+             f"editor is NOT BUILT. engine.py cuts to a beat grid only. This plan cannot "
+             f"be rendered yet, however well it gates.")
+    return r
+
+
+def check_framing_diversity(P):
+    """28 FRAMING DIVERSITY (2026-08-05, Gavril's catch on KK v1: "a few duplicated
+    images / scenes and shots").
+
+    Root cause, MEASURED: sources A, C, E and I all cited the same waterfront plate,
+    and every one of them generated the plate's own composition — a boardwalk receding
+    to the sea. Shots 0, 1, 5, 12 and 16 were one image seen five times, from THREE
+    different sources. A reference plate anchors PLACE; left unqualified it also
+    anchors FRAMING, and the model returns the picture it was given.
+
+    Nothing downstream could prevent this: the clips were already paid for. So each
+    source must DECLARE its camera position, and two sources sharing a plate may not
+    share a framing. Free, decidable from the plan, before a credit is spent."""
+    fr = getattr(P, "FRAMING", None)
+    if not fr:
+        return add("28 framing diversity", False,
+                   "NO FRAMING — every source must declare its camera position "
+                   "(FRAMING = {src: 'wide static' | 'low tracking' | 'macro' | "
+                   "'high angle' | 'close handheld' | ...}). Sources that cite the same "
+                   "plate and do not declare DIFFERENT framings will return that plate's "
+                   "own composition — measured on KK v1: 5 shots, one image.")
+    missing = [k for k in P.SOURCES if k not in fr]
+    if missing:
+        return add("28 framing diversity", False, f"sources with no declared framing: {missing}")
+    # group by shared plate; within a group, framings must be distinct
+    clash = []
+    byplate = {}
+    for k, v in P.SOURCES.items():
+        for pl in v[3]:
+            byplate.setdefault(pl, []).append(k)
+    for pl, keys in byplate.items():
+        seen = {}
+        for k in keys:
+            f = str(fr[k]).strip().lower()
+            if f in seen:
+                clash.append(f"plate '{pl}': {seen[f]} and {k} both '{f}'")
+            seen[f] = k
+    return add("28 framing diversity", not clash,
+               f"{len(fr)} sources, all framings distinct within each shared plate"
+               if not clash else " · ".join(clash))
+
+
+def check_identity_coverage(P):
+    """27 IDENTITY COVERAGE (2026-08-05). FACE_OPTOUT lets a plan declare a human shot
+    as PRESENCE rather than a face beat — the back/profile "looking out at the view"
+    composition is real vlog language and KK's viewpoint shot deliberately turns away.
+    But identity is J4's ABSOLUTE veto, so it must never be possible to opt out of it
+    everywhere: at least two human sources must still be expected to carry a readable
+    face, and every opt-out must state a reason."""
+    humans = [k for k, v in P.SOURCES.items()
+              if v[2].upper() == "HUMAN" or "man from the" in v[4].lower()]
+    if not humans:
+        return warn("27 identity coverage", "no human sources — nothing to verify")
+    opt = getattr(P, "FACE_OPTOUT", {}) or {}
+    blank = [k for k, v in opt.items() if not str(v).strip()]
+    unknown = [k for k in opt if k not in P.SOURCES]
+    carrying = [k for k in humans if k not in opt]
+    n_shots = sum(1 for s, _c, _k, _t in P.SHOTS if s in carrying)
+    bad = []
+    if blank:
+        bad.append(f"FACE_OPTOUT entries with no stated reason: {blank}")
+    if unknown:
+        bad.append(f"FACE_OPTOUT names sources that do not exist: {unknown}")
+    if len(carrying) < 2:
+        bad.append(f"only {len(carrying)} human source(s) still carry a readable face "
+                   f"({carrying}) — identity is J4's ABSOLUTE veto and cannot be waived "
+                   f"across the board; keep at least 2")
+    return add("27 identity coverage", not bad,
+               f"{len(humans)} human sources, {len(opt)} declared presence-only, "
+               f"{len(carrying)} carrying identity ({carrying}) across {n_shots} shots"
+               if not bad else " · ".join(bad))
 
 
 # ---------------------------------------------------------------- 17 COST
@@ -747,7 +1203,7 @@ def main():
     check_event(P)
     check_hold_placement(P)
     check_blends(P, pf)
-    check_captions(P)
+    check_captions(P, pf)
     check_plates(P)
     check_prompts(P)
     check_defaults(P)
@@ -759,6 +1215,13 @@ def main():
     check_premortem(P)
     check_lessons_ack(P)
     check_linkage(P, name)
+    check_linkage_carry(P)
+    check_time_monotonic(P)
+    check_consequence_spine(P)
+    check_field_sanity(P)
+    check_style_declared(P, pf)
+    check_identity_coverage(P)
+    check_framing_diversity(P)
     check_cost(P, args.balance)
 
     print()

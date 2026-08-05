@@ -143,7 +143,9 @@ def check_beat(video, cuts):
     except Exception as e:
         return add("2 cut-to-music", False, f"rhythm import failed: {e}", False)
     if not cuts:
-        return add("2 cut-to-music", False, "no declared cuts", False)
+        return add("2 cut-to-music", False,
+                   "NOT MEASURED — no cuts manifest. A cut cannot PASS unexamined; "
+                   "run the build on this machine or point --project at the right one.")
     x = rhythm.pcm(video)
     f, t = rhythm.stft_flux(x)
     on = np.array(rhythm.pick_onsets(f, t))
@@ -213,6 +215,8 @@ def check_sfx(video, cuts):
 
 # ---------------------------------------------------------------- 4 REPETITION
 def check_repetition(video, cuts):
+    if not cuts:      # 2026-08-05: "0/0 cuts (0%)" used to print OK — a vacuous pass
+        return add("4 repetition", False, "NOT MEASURED — no cuts manifest")
     fr = frames_gray(video)
     fps = 30.0
     bad = 0
@@ -238,6 +242,8 @@ def check_far_repeats(video, cuts):
     a shot frame with a near-pixel-identical frame in another, non-adjacent shot
     (mean |diff| < 6/255) is the same FOOTAGE; if half a shot's frames match one
     other shot, that pair is a duplicate, however far apart it sits in the cut."""
+    if not cuts:      # 2026-08-05: "across 1 shots" printed OK with no manifest
+        return add("10 far repeats", False, "NOT MEASURED — no cuts manifest")
     fr = frames_gray(video)
     fps = 30.0
     bounds = [0.0] + list(cuts) + [len(fr) / fps]
@@ -273,7 +279,9 @@ def check_transitions(video, meta):
     bl = meta.get("blends", [])
     beat = meta.get("beat", 0.4)
     if not bl:
-        return add("11 transitions", True, "no blends declared by the build", False)
+        if not meta:      # no manifest at all vs a plan that honestly has no blends
+            return add("11 transitions", False, "NOT MEASURED — no build manifest")
+        return add("11 transitions", True, "build declares no blends", False)
     off = [b for b in bl
            if min(b["end"] % beat, beat - (b["end"] % beat)) > 0.040]
     cap = cv2.VideoCapture(video)
@@ -303,6 +311,136 @@ def check_transitions(video, meta):
 
 
 # ---------------------------------------------------------------- 12 STORYBOARD TALLY
+def _composition(img):
+    """COMPOSITION descriptor: 4x4 grid of gradient-orientation histograms.
+    Deliberately blind to colour and exposure — it answers only 'where are the
+    lines', which is what makes a viewer say "I've seen this shot already"."""
+    import numpy as np
+    g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY).astype(np.float32)
+    gx = cv2.Sobel(g, cv2.CV_32F, 1, 0, ksize=3)
+    gy = cv2.Sobel(g, cv2.CV_32F, 0, 1, ksize=3)
+    mag = np.sqrt(gx * gx + gy * gy)
+    ang = (np.arctan2(gy, gx) + np.pi) * (8 / (2 * np.pi))
+    v = []
+    for r in range(4):
+        for c in range(4):
+            m = mag[r * 28:(r + 1) * 28, c * 16:(c + 1) * 16]
+            a = ang[r * 28:(r + 1) * 28, c * 16:(c + 1) * 16]
+            h = np.zeros(8)
+            for b in range(8):
+                h[b] = m[(a.astype(int) % 8) == b].sum()
+            v.append(h / (h.sum() + 1e-9))
+    v = np.concatenate(v)
+    return v / (np.linalg.norm(v) + 1e-9)
+
+
+def frames_color(path, w=64, h=112):
+    c = cv2.VideoCapture(path); out = []
+    while True:
+        ok, f = c.read()
+        if not ok:
+            break
+        out.append(cv2.resize(f, (w, h)))
+    c.release()
+    return out
+
+
+def _place(img):
+    """SAME-PLACE descriptor: hue/saturation signature. Answers the question a VIEWER
+    asks — "am I somewhere new?" — which is NOT the question composition answers.
+    MEASURED 2026-08-05: between v3 and v11 framing duplicates went 3 -> 0 while
+    same-place repeats stayed at 7 and loose similarity went 12 -> 13. Optimising
+    framing did nothing for the feeling he named: "alot of reused scenes"."""
+    import numpy as np
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    h = cv2.calcHist([hsv], [0, 1], None, [16, 8], [0, 180, 0, 256]).flatten()
+    return h / (np.linalg.norm(h) + 1e-9)
+
+
+def check_place_variety(video, cuts, thresh=0.90):
+    """14 PLACE VARIETY — his catch, 2026-08-05: "alot of reused scenes"."""
+    import numpy as np
+    if not cuts:
+        return add("14 place variety", False, "NOT MEASURED — no cuts manifest")
+    fr = frames_color(video)
+    fps = 30.0
+    bounds = [0.0] + list(cuts) + [len(fr) / fps]
+    P = []
+    for i in range(len(bounds) - 1):
+        t = (bounds[i] + bounds[i + 1]) / 2.0
+        P.append(_place(fr[min(int(t * fps), len(fr) - 1)]))
+    n = len(P)
+    pairs = [(i, j) for i in range(n) for j in range(i + 1, n)
+             if float(P[i] @ P[j]) >= thresh]
+    # cluster into distinct PLACES
+    par = list(range(n))
+    def find(a):
+        while par[a] != a:
+            par[a] = par[par[a]]; a = par[a]
+        return a
+    for i, j in pairs:
+        par[find(i)] = find(j)
+    places = len({find(i) for i in range(n)})
+    ratio = n / max(1, places)
+    return add("14 place variety", ratio <= 2.0,
+               f"{n} shots read as ~{places} distinct PLACES ({ratio:.1f} visits each; "
+               f"cap 2.0). Framing variety is NOT place variety — measured on KK, "
+               f"framing dupes 3->0 while place repeats held at 7.")
+
+
+def check_composition_dupes(video, cuts, thresh=0.93):
+    """13 COMPOSITION DUPLICATES — Gavril's catch on KK v1 (2026-08-05).
+
+    He saw duplicated shots in a cut where check 4 (repetition) said 0/19 and
+    check 10 (far repeats) said CLEAN. Both were right and both were blind:
+    check 4 compares ACROSS a cut, check 10 compares PIXELS for shared footage.
+    Two non-overlapping windows of one static clip are provably distinct footage
+    and still read as the same shot — file 27 named this 'duplicate FEEL' and
+    nothing measured it.
+
+    Worse, the duplicates were not only WITHIN a source. On KK, sources A, C and I
+    all cited the same waterfront plate and all generated the SAME receding-boardwalk
+    composition: shots 0, 1, 5, 12 and 16 are one image seen five times, from three
+    different sources. Any check scoped to same-source pairs cannot see that.
+
+    So: compare EVERY shot pair, on composition alone. First attempts failed
+    honestly and are recorded so they are not retried — raw-pixel NCC (0.76 on a
+    pair the eye calls identical) and pHash (0.62) were both dominated by the
+    time-of-day colour shift while the framing stayed identical."""
+    import numpy as np
+    if not cuts:
+        return add("13 composition dupes", False, "NOT MEASURED — no cuts manifest")
+    fr = frames_color(video)
+    fps = 30.0
+    bounds = [0.0] + list(cuts) + [len(fr) / fps]
+    mids = []
+    for i in range(len(bounds) - 1):
+        t = (bounds[i] + bounds[i + 1]) / 2.0
+        idx = min(int(t * fps), len(fr) - 1)
+        mids.append(_composition(fr[idx]))
+    hits = []
+    for i in range(len(mids)):
+        for j in range(i + 1, len(mids)):
+            s = float(mids[i] @ mids[j])
+            if s >= thresh:
+                hits.append((round(s, 3), i, j))
+    hits.sort(reverse=True)
+    n = len(mids)
+    # THRESHOLD CALIBRATION (2026-08-05, validated by EYE on three flagged pairs):
+    #   0.913  boardwalk vs prawns on a grill  -> FALSE POSITIVE. The descriptor caught
+    #          the boardwalk's receding lines rhyming with the grill grate. Nothing alike.
+    #   0.947  two boardwalk shots             -> REAL
+    #   0.958  two palm sunsets                -> REAL
+    # 0.93 separates them. Fitted to THREE samples, so it is a starting point, not a
+    # measured constant - widen the sample and re-derive before trusting it further.
+    return add("13 composition dupes", not hits,
+               f"{n} shots, no pair shares a composition (>= {thresh})" if not hits
+               else f"{len(hits)} pair(s) READ AS THE SAME SHOT despite distinct footage: "
+                    + " · ".join(f"{i}&{j} @{s}" for s, i, j in hits[:6])
+                    + f" — {n} shots collapse to ~{n - len(set(j for _s, _i, j in hits))} "
+                      f"distinct images")
+
+
 def check_tally():
     """CONFORMANCE — the finished cut against the plan, shot by shot. mastermind
     inspects frames; nothing inspected whether the STORY the board promised is the
@@ -314,7 +452,7 @@ def check_tally():
     try:
         P = importlib.import_module(f"plans.{PROJECT}")
     except Exception as e:
-        return add("12 storyboard tally", True, f"no plan module for '{PROJECT}' "
+        return add("12 storyboard tally", False, f"NOT MEASURED — no plan module for '{PROJECT}' "
                    f"({str(e)[:30]})", False)
     mpath = os.path.join(PDIR, "tmp", "manifest_peaks.json")
     if not os.path.exists(mpath):
@@ -354,6 +492,8 @@ def check_tally():
 
 # ---------------------------------------------------------------- 5 EXPOSURE
 def check_exposure(video, cuts):
+    if not cuts:
+        return add("5 exposure match", False, "NOT MEASURED — no cuts manifest")
     fr = frames_gray(video)
     lv = [f.mean() for f in fr]
     fps = 30.0
@@ -366,8 +506,89 @@ def check_exposure(video, cuts):
         worst = max(worst, d)
         if d > 18:
             over += 1
+    note = ""
+    if over:
+        note = (" | a multi-light-state arc swings by design (P3). DO NOT close this "
+                "by relighting: v14 bought a smooth number by moving one of his "
+                "'close to perfect' shots +72 luma. Check 15 is the harder limit.")
     return add("5 exposure match", over == 0,
-               f"{over}/{len(cuts)} cuts swing >18 (worst {worst:.0f})")
+               f"{over}/{len(cuts)} cuts swing >18 (worst {worst:.0f}){note}")
+
+
+# ---------------------------------------------------------------- 15 RELIGHT AUDIT
+def check_relight():
+    """HIS CATCH, 2026-08-05: "the video output from higgsfield lighting is already
+    pretty good maybe the video editor edit for the second time on the lighting".
+
+    He was right, in BOTH directions. MEASURED on v14: shot 12 arrived at 44.4 mean
+    luma — one of the three raw clips he called "close to perfect" — and the edit
+    delivered it at 116.9, a +72 relight. Nine other shots were crushed by up to -46.
+    Root cause: the gain formula assumed ffmpeg eq=brightness moves 134 luma per unit;
+    the MEASURED response is 174-519. Every correction ran ~2.2x hot and 17 of 20 shots
+    crossed the target and landed on the far side.
+
+    This check compares what the model DELIVERED against what the edit SHIPPED, shot by
+    shot, and fails if the edit exceeded its declared luma budget. It cannot run from
+    the finished file alone, so a missing segment cache FAILS — never a vacuous pass.
+    """
+    import glob as _g
+    tmp = os.path.join(PDIR, "tmp")
+    srcs = sorted(_g.glob(os.path.join(tmp, "c[0-9][0-9].mp4")))
+    if not srcs:
+        return add("15 relight audit", False,
+                   "NOT MEASURED — no segment cache in tmp/; rebuild before verifying")
+    budget = 18.0
+    try:
+        prof = json.load(open(os.path.join(HERE, "assets", "pillars",
+                                           "PILLAR-PROFILES.json"), encoding="utf-8"))
+        pil = (meta_pillar() or "")
+        budget = float(((prof.get(pil) or {}).get("style") or {})
+                       .get("shot_match_max_move", 18.0))
+    except Exception:
+        pass
+
+    def lev(p):
+        c = cv2.VideoCapture(p); v = []
+        while True:
+            ok, f = c.read()
+            if not ok:
+                break
+            v.append(cv2.cvtColor(cv2.resize(f, (96, 171)), cv2.COLOR_BGR2GRAY).mean())
+        c.release()
+        return float(np.mean(v)) if v else None
+
+    over, worst, n = [], 0.0, 0
+    for s in srcs:
+        stem = s[:-4]
+        cand = sorted(_g.glob(stem + "_m*.mp4"))
+        a = lev(s)
+        b = lev(cand[-1]) if cand else a
+        if a is None or b is None:
+            return add("15 relight audit", False,
+                       f"NOT MEASURED — could not read {os.path.basename(s)}")
+        n += 1
+        d = abs(b - a)
+        worst = max(worst, d)
+        if d > budget + 0.5:
+            over.append((os.path.basename(s), b - a))
+    detail = (f"{n} shots audited, worst relight {worst:.1f} luma "
+              f"(budget {budget:.0f})")
+    if over:
+        detail += " | OVER: " + ", ".join(f"{k}{v:+.0f}" for k, v in over[:4])
+    # NON-BLOCKING BY INTENT (his instruction, 2026-08-05: "dont lock it i want you to
+    # learn from it... these are to upgrade your senses"). A number that blocks gets
+    # obeyed and stops being thought about. This one reports, and `lightsense` renders
+    # the same measurement as a picture so the judgement stays with an eye.
+    return add("15 relight audit", not over, detail, False)
+
+
+def meta_pillar():
+    for p in glob.glob(os.path.join(HERE, "plans", "*.py")):
+        if os.path.basename(p)[:-3] == PROJECT:
+            for ln in open(p, encoding="utf-8", errors="ignore"):
+                if ln.strip().startswith("PILLAR"):
+                    return ln.split("=", 1)[1].strip().strip('"\'').split("#")[0].strip()
+    return ""
 
 
 # ---------------------------------------------------------------- 6 CAPTION ZONE
@@ -402,11 +623,11 @@ def check_caption_zone(video):
         pass
     build = BUILD
     if not build or not os.path.exists(build):
-        return add("6 caption zone", True, "no build script to read", False)
+        return add("6 caption zone", False, "NOT MEASURED — plan unreadable and no build script")
     src = open(build).read()
     ys = [float(m) for m in re.findall(r'\(\s*"[^"]+",\s*[\d.]+,\s*[\d.]+,\s*\d+,\s*([\d.]+)\)', src)]
     if not ys:
-        return add("6 caption zone", True, "no CARDS found to check", False)
+        return add("6 caption zone", False, "NOT MEASURED — no CARDS found anywhere to check")
     bad = [y for y in ys if 0.34 <= y <= 0.60]
     return add("6 caption zone", not bad,
                f"{len(ys)} cards at y={sorted(set(ys))}, "
@@ -424,7 +645,7 @@ def check_action(cuts):
     plan = _first(os.path.join(PDIR, "tmp", "manifest_peaks.json"),
                   os.path.join(HERE, "_lc300c_tmp", "manifest_peaks.json")) or ""
     if not plan or not os.path.exists(plan):
-        return add("7 action peaks", True, "no peak manifest written by the build", False)
+        return add("7 action peaks", False, "NOT MEASURED — no peak manifest written by the build")
     d = json.load(open(plan))
     miss = [s["shot"] for s in d if not s.get("has_peak")]
     # AMENDED 2026-08-04 with the window allocator: windows are now EXCLUSIVE, so a
@@ -470,6 +691,17 @@ def main():
     ap.add_argument("--json")
     ap.add_argument("--project", default=None, help="projects/<name>")
     a = ap.parse_args()
+    # --project was parsed but NEVER USED (2026-08-05 red-team find: --project wrx
+    # still verified against the lc300 defaults computed at import). Recompute every
+    # project-derived path here, where the argument actually exists.
+    global PROJECT, PDIR, CUTS_JSON
+    if a.project:
+        PROJECT = a.project
+        PDIR = os.path.join(HERE, "projects", PROJECT)
+        CUTS_JSON = _newest(os.path.join(PDIR, "audio"), "*_cuts.json") or ""
+        if a.video == DEFAULT_VIDEO:
+            a.video = (_newest(os.path.join(PDIR, "output"), "*CINEMATIC*.mp4")
+                       or _newest(os.path.join(PDIR, "output"), "*.mp4") or a.video)
     video = a.video
 
     cuts, meta = [], {}
@@ -494,6 +726,9 @@ def main():
         check_blank(video)
         check_far_repeats(video, cuts)
         check_transitions(video, meta)
+        check_composition_dupes(video, cuts)
+        check_place_variety(video, cuts)
+        check_relight()
         check_tally()
 
     print()

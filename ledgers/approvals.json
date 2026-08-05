@@ -1,0 +1,64 @@
+{
+  "_what": "Every claim that Gavril APPROVED something, with the VERBATIM QUOTE and the exact SCOPE of what the quote covers. Nothing else in this repo may cite 'approved' as provenance without pointing at an id in here.",
+  "_why": "2026-08-05. He corrected me: 'no i did not approve number 3 i just approved one of the scene inside'. I had written that he approved a whole video when what he said was that he liked ONE SCENE in it, and I had then used that inflated approval as ground truth to justify a constant. His eye is the ONLY ground truth this system has - every metric I own is validated against it - so inflating the scope of an approval quietly forges the warrant for everything downstream. An audit found the word 'approved' 13 times in the repo and most could not produce the quote that earned it.",
+  "_rule": "An approval record needs three things or it is not an approval: (1) the VERBATIM words, (2) the SCOPE - what exactly the words cover, which is almost always narrower than the artefact, (3) what it does NOT cover. 'He approved X' with no quote is banned. A partial positive ('I like the sunset scene') is a SCENE-level approval and may never be promoted to an artefact-level one.",
+  "_asymmetry": "Approval scope inflation is worse than under-recording, because a constant justified by a false approval will not be re-examined - it looks settled. Under-recording only costs a question.",
+
+  "approvals": [
+    {
+      "id": "APV-1",
+      "date": "2026-08-05",
+      "verbatim": "these are raw video footages generated from higgsfield the lighting are close to perfect",
+      "scope": "THE LIGHTING of three specific raw Higgsfield clips, measured at 45.1, 89.7 and 92.9 mean luma.",
+      "does_not_cover": "the framing, the content, the motion, or the identity in those clips; any other clip; the edited cut.",
+      "used_by": [
+        "PILLAR-PROFILES shot_match_mode=neighbour and shot_match_max_move on all four pillars",
+        "verify 15 relight audit budget",
+        "tools/lightsense.py APPROVED REFERENCE BAND"
+      ],
+      "strength": "STRONG - direct, unambiguous, about the exact property being cited."
+    },
+    {
+      "id": "APV-2",
+      "date": "2026-08-05",
+      "verbatim": "i like the sped up sunset scene at KKv3 but then at the latest build it just seems to get more worst",
+      "scope": "ONE SCENE - the sped-up sunset - inside KK_CINEMATIC_v3.",
+      "does_not_cover": "KK v3 as a video. He explicitly corrected me on this: 'no i did not approve number 3 i just approved one of the scene inside'. The same sentence is NEGATIVE about the later builds.",
+      "used_by": [],
+      "strength": "STRONG at scene scope, and explicitly NOT an artefact-level approval."
+    },
+    {
+      "id": "APV-3",
+      "date": "2026-08-05",
+      "verbatim": "the sound effects part is good",
+      "scope": "the SFX layer of KK v11 only.",
+      "does_not_cover": "the foley, the bed, the mix balance, or the video. The same message called the opening weird and said the car had no SFX or foley.",
+      "used_by": [],
+      "strength": "MODERATE - narrow and clear, but about one layer of one build."
+    }
+  ],
+
+  "unverified_provenance": [
+    {
+      "id": "UNV-1",
+      "claim": "'the approved Supra probe 4.11' - cited in clipqc.py as the origin of the EVENT motion floor 4.0, and in PILLAR-PROFILES motion_source.",
+      "problem": "No quote exists for this approval anywhere in the repo. I cannot show that he ever approved the Supra probe, at any scope.",
+      "live_risk": "HIGH, and it is not theoretical. This floor REJECTS clips. A wrong reject costs 22.5 credits and a regeneration cycle. It is currently a blocking gate justified by a warrant I cannot produce.",
+      "action": "Do not spend against it and do not tighten it. Ask him what the Supra probe verdict actually was, or re-derive the floor from clips whose status is documented."
+    },
+    {
+      "id": "UNV-2",
+      "claim": "'the car's own hold was 4.2x its median and his eye approved it' - cited in planqc 2b and in the ledger as the reason 2b warns instead of blocking.",
+      "problem": "No quote. It may be true; it is not evidenced.",
+      "live_risk": "LOW - it only justifies a WARN, so a wrong warrant costs attention, not credits.",
+      "action": "Leave the warn. Downgrade the wording from 'approved' to 'shipped without objection', which is what I can actually show."
+    },
+    {
+      "id": "UNV-3",
+      "claim": "My own message on 2026-08-05: 'WRX - you approved it', used as the positive endpoint calibrating planqc 31 (consequence spine).",
+      "problem": "RETRACTED. He did not approve it. The calibration I reported - WRX passes 31, KK fails 31, therefore the check agrees with his eye at both ends - has only ONE evidenced endpoint: KK failed, and he disliked KK.",
+      "live_risk": "MEDIUM. Check 31 is non-blocking, so it costs no credits, but I presented a single-ended result as a two-ended validation. A check validated at one end is not calibrated, it is merely not yet contradicted.",
+      "action": "Keep 31 non-blocking. State it as unvalidated until a positive endpoint exists with a quote."
+    }
+  ]
+}

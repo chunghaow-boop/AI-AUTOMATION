@@ -31,6 +31,20 @@ sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(HERE, "tools"))
 
 
+def load_style(pillar):
+    """STYLE, DECLARED (2026-08-05). The brightness band used to be the constant
+    (18, 90) — a NIGHT band measured off WRX/LC300 car clips. Measured that day:
+    daylight footage reads 142-165 mean luma, so every vlog clip would have been
+    REJECTED with 'regenerate this clip (22.5cr)'. The car look was the silent
+    default for every pillar that came after it. Now each pillar declares its own."""
+    for c in (os.path.join(HERE, "assets", "pillars", "PILLAR-PROFILES.json"),
+              os.path.join(HERE, "pillars", "PILLAR-PROFILES.json")):
+        if os.path.exists(c):
+            pf = json.load(open(c, encoding="utf-8")).get(pillar) or {}
+            return pf.get("style") or {}
+    return {}
+
+
 def load_plan(name):
     for cand in (f"plans.{name}", name, f"{name}_plan"):
         try:
@@ -80,6 +94,9 @@ def gate_clip(path, P, key=None):
 
     mot = motion_profile(c["gray"])
     fps = c["fps"]
+    # this pillar's DECLARED style — every genre-taste threshold below reads from it
+    _sty = load_style(getattr(P, "PILLAR", ""))
+    _prov_motion = not str(_sty.get("motion_source", "")).startswith("MEASURED")
 
     # role, needed early: EVENT clips are consumed via action-peak centering,
     # so their head checks are warnings, not blocks (see EVENT section).
@@ -108,9 +125,16 @@ def gate_clip(path, P, key=None):
         _m = float(np.mean(mot[_i:_i + _w2]))
         if _m > _bw:
             _bw, _bi = _m, _i
-    add("delivered window", _bw >= 1.5,
-        f"best {_d2:.2f}s window mean {_bw:.2f} at {_bi / fps:.2f}s "
-        f"(>=1.5: the edit consumes this window, not the head)")
+    # PER-PILLAR MOTION FLOOR (2026-08-05). 1.5 was measured on car footage — launches,
+    # spray, tracking moves. MEASURED the same day: a slow landscape drift reads 1.18
+    # and a locked-off shot 0.00, so a legitimate SERENE travel shot would have been
+    # rejected as dead at 22.5cr a time. In a travel vlog a calm hold is content; in a
+    # car edit it is a failure. The floor is genre taste, so it lives in the style block.
+    _mf = _sty.get("motion_floor", 1.5)
+    add("delivered window", _bw >= _mf,
+        f"best {_d2:.2f}s window mean {_bw:.2f} at {_bi / fps:.2f}s (floor {_mf} for "
+        f"'{getattr(P,'PILLAR','?')}': the edit consumes this window, not the head)"
+        + ("  [PROVISIONAL floor]" if _prov_motion else ""))
 
     # ---- 3 DEAD TAIL ----
     # The failed probe spent 3.4s motionless after its event. A clip that dies early
@@ -120,10 +144,14 @@ def gate_clip(path, P, key=None):
     add("alive after 2s", tm >= 0.8, f"mean motion after 2.0s = {tm:.2f} "
         f"(<0.8 = dead air; fine ONLY if the plan never uses past 2s)", False)
 
-    # ---- 4 BRIGHTNESS vs the plan's palette ----
+    # ---- 4 BRIGHTNESS vs THIS PILLAR's declared palette ----
     bri = float(np.mean([g.mean() for g in c["gray"]]))
-    lo, hi = (18, 90)   # night palette band; source clips measured 46.8-81.2
-    add("brightness", lo <= bri <= hi, f"mean {bri:.1f} (band {lo}-{hi} for night look)")
+    lo, hi = _sty.get("brightness_band", (18, 90))
+    _src = _sty.get("brightness_source", "UNDECLARED — falling back to the CAR night band")
+    _prov = not _src.startswith("MEASURED")
+    add("brightness", lo <= bri <= hi,
+        f"mean {bri:.1f} in [{lo},{hi}] for pillar '{getattr(P,'PILLAR','?')}'"
+        + ("  [PROVISIONAL band — re-derive from real clips at ingest]" if _prov else ""))
 
     # ---- 5 SHARPNESS FLOOR ----
     sharp = float(np.mean([cv2.Laplacian(g, cv2.CV_32F).var()
@@ -137,7 +165,10 @@ def gate_clip(path, P, key=None):
         # event may sit anywhere in the raw clip — probe A carried a perfect
         # swerve-pass at 2.1-3.7s behind a 2s wind-up, and the old head-based check
         # rejected a clip whose delivered window measured ~16. Gate the BEST
-        # shot-length window instead. Floor 4.0 = the approved Supra probe's 4.11.
+        # shot-length window instead. Floor 4.0 came from a Supra probe measuring 4.11. PROVENANCE UNVERIFIED
+        # (ledgers/approvals.json UNV-1): no quote exists showing he approved that
+        # probe at any scope. This gate REJECTS clips at 22.5cr a time on a warrant
+        # I cannot produce. Do not tighten it; re-derive or ask.
         try:
             d = P.BEATS[P.SHOTS[0][2]] * P.BEAT          # the hook shot's real length
         except Exception:
@@ -150,11 +181,40 @@ def gate_clip(path, P, key=None):
                 best_m, best_i = m, i
         rest = mot[:best_i] + mot[best_i + wlen:]
         ratio = (best_m + 1e-6) / ((float(np.mean(rest)) if rest else 0.0) + 1e-6)
-        add("EVENT window (delivered)", best_m >= 4.0,
+        _ef = _sty.get("event_motion_floor", 4.0)
+        add("EVENT window (delivered)", best_m >= _ef,
             f"best {d:.2f}s window mean {best_m:.2f} at {best_i / fps:.2f}s "
-            f"(>=4.0; approved Supra probe 4.11)")
+            f"(floor {_ef} for '{getattr(P,'PILLAR','?')}'; car 4.0 came from the "
+            f"Supra probe 4.11 - PROVENANCE UNVERIFIED, see approvals.json UNV-1)" + ("  [PROVISIONAL]" if _prov_motion else ""))
         add("EVENT is the loudest thing", ratio >= 2.0,
             f"delivered-window/rest ratio {ratio:.1f}x (>=2x)", False)
+
+    # ---- foley-audibility (2026-08-05, red-team wave 3) ----
+    # A spec-correct but SILENT clip on a FOREGROUND foley shot passed every check;
+    # the engine prints "NO clip carried audio" and builds anyway - the genre's
+    # sound design thins silently. If the plan mixes this source foreground
+    # (>= -6dB), the clip's own audio must exist and carry signal.
+    fg = [i for i, (s2, _c2, _k2, _t2) in enumerate(getattr(P, "SHOTS", []))
+          if s2 == key and (getattr(P, "FOLEY", {}) or {}).get(i, -99) >= -6]
+    if fg:
+        import subprocess as _sp
+        r = _sp.run(["ffmpeg", "-i", path, "-af", "volumedetect", "-f", "null", "-"],
+                    capture_output=True, text=True)
+        mv = None
+        for ln in r.stderr.splitlines():
+            if "mean_volume" in ln:
+                try:
+                    mv = float(ln.split("mean_volume:")[1].split("dB")[0])
+                except Exception:
+                    pass
+        if mv is None:
+            add("foley source audible", False,
+                f"shots {fg} mix this clip FOREGROUND but the clip has NO audio "
+                f"stream - the paid diegetic layer would ship silent")
+        else:
+            add("foley source audible", mv > -45.0,
+                f"clip audio mean {mv:.1f}dB (foreground shots {fg}; "
+                f"<= -45dB = effectively silent)")
 
     if act in ("EXTERIOR", "PAYOFF", "EVENT"):
         # LESSON 35 (2026-08-04): an invented red 'SR' badge in a plate recess shipped
@@ -186,33 +246,64 @@ def gate_clip(path, P, key=None):
             add("on-subject text -> EYE", False, f"zoom failed: {e}", False)
 
     stages_persona = bool(key) and key in P.SOURCES and "man from the" in P.SOURCES[key][4].lower()
-    if act == "HUMAN" or (act == "EVENT" and stages_persona):
+    # FACE_OPTOUT (2026-08-05, his call on KK shot F). Some human shots are PRESENCE,
+    # not face beats - the back/profile "looking out at the view" shot is real vlog
+    # language, and KK's F prompt deliberately turns him toward the view. Opting out
+    # must be DECLARED in the plan with a reason, never fudged by mislabelling the act
+    # as EXTERIOR (which would lie about the shot containing a person). planqc 27
+    # enforces that enough human sources still carry a readable face, so identity can
+    # never be opted out of ENTIRELY.
+    _optout = (getattr(P, "FACE_OPTOUT", {}) or {}).get(key)
+    if _optout and (act == "HUMAN" or stages_persona):
+        add("face READS (delivered window)", True,
+            f"DECLARED PRESENCE SHOT, face-read waived — {_optout}", False)
+    elif act == "HUMAN" or (act == "EVENT" and stages_persona):
         # The probe's killer defect: the face never read. Haar on the first 1.5s,
         # full resolution. A HUMAN/EVENT clip where no face is ever detected fails.
+        # DELIVERED WINDOW, not the head (2026-08-05). This was the LAST head-based
+        # measurement left in clipqc — the same trap that produced two false rejects
+        # on 2026-08-04 (probe A, clip C) and was fixed everywhere EXCEPT here.
+        # MEASURED on the KK batch: clip H ("watches the horizon, THEN turns to the
+        # lens") read 1.3% in the first 1.5s and 19.4% at 4.88s. The head-based check
+        # called it a REJECT and would have burned 22.5cr regenerating a clip whose
+        # face beat was simply late — exactly where the prompt put it. The engine
+        # centres every shot on its action peak, so scan the WHOLE clip and score the
+        # best shot-length window, which is what the edit actually consumes.
         fc = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
         pc = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_profileface.xml")
         cap = cv2.VideoCapture(path)
-        found, best = 0, 0
-        for i in range(int(1.5 * fps)):
+        hits = []          # (t_seconds, area_px)
+        i = 0
+        while True:
             ok, f = cap.read()
             if not ok:
                 break
-            if i % 3:
-                continue
-            g = cv2.cvtColor(f, cv2.COLOR_BGR2GRAY)
-            r = list(fc.detectMultiScale(g, 1.1, 4, minSize=(36, 36))) or \
-                list(pc.detectMultiScale(g, 1.1, 4, minSize=(36, 36)))
-            if len(r):
-                found += 1
-                best = max(best, max(w * h for (_x, _y, w, h) in r))
+            if i % 3 == 0:
+                g = cv2.cvtColor(f, cv2.COLOR_BGR2GRAY)
+                r = list(fc.detectMultiScale(g, 1.1, 4, minSize=(36, 36))) or \
+                    list(pc.detectMultiScale(g, 1.1, 4, minSize=(36, 36)))
+                if len(r):
+                    hits.append((i / fps, max(w * h for (_x, _y, w, h) in r)))
+            i += 1
         cap.release()
+        # best window of this source's longest planned use
+        _win = _d2
+        found, best, best_t = 0, 0, 0.0
+        for t0 in [h[0] for h in hits] or [0.0]:
+            inw = [h for h in hits if t0 <= h[0] < t0 + _win]
+            if len(inw) > 0:
+                a = max(h[1] for h in inw)
+                if a > best:
+                    best, found, best_t = a, len(inw), t0
         # PRESENCE IS NOT THE STANDARD - LEGIBILITY IS. The failed probe had a face in
         # 7 sampled frames at 18,496px^2 = 2.0% of frame, and by eye it never read.
         # Require >=3.5% of frame area: a face beat, not a face pixel.
         frac = best / float(c["W"] * c["H"])
-        add("face READS (first 1.5s)", found >= 2 and frac >= 0.035,
-            f"found in {found} frames, largest {frac*100:.1f}% of frame "
-            f"(>=3.5%: the probe measured 2.0% and did not read by eye)")
+        add("face READS (delivered window)", found >= 2 and frac >= 0.035,
+            f"best {_win:.2f}s window at {best_t:.2f}s: {found} detections, largest "
+            f"{frac*100:.1f}% of frame (>=3.5%: the failed Supra probe measured 2.0% "
+            f"and never read by eye). Whole clip scanned — the edit centres on the "
+            f"action peak, not the head.")
 
     fails = sum(1 for _n, ok, _d, b in C if not ok and b)
     return C, fails

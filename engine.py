@@ -58,16 +58,66 @@ def load_plan(name):
 
 
 def find_bed(P, pdir):
-    """Bed first: music defines the grid, not the picture."""
+    """Bed first: music defines the grid, not the picture.
+
+    PILLAR-AWARE + TEMPO-VERIFIED (2026-08-05, red-team find, the worst of the day).
+    The old version searched `assets/bgm/**/*.wav` as a last resort and picked the
+    LARGEST file. MEASURED: a travel_vlog plan at 105 BPM resolved to the WRX's
+    `bed_skrrt_slide_150.wav` — a 150 BPM phonk track — and the build would have
+    reported SUCCESS. Every downstream gate would then have measured a perfectly
+    beat-locked, correctly mastered video that was a car edit's soundtrack laid
+    under someone's holiday. Nothing anywhere compared the bed's tempo to the plan's.
+
+    Now: search the PILLAR's own bank first, and REFUSE a bed whose measured tempo
+    does not match the plan (lesson 25 — always re-measure the file, never trust
+    the filename)."""
     import glob
-    for pat in (os.path.join(pdir, "audio", "*.wav"),
-                os.path.join(HERE, "assets", "bgm", f"*{int(P.BPM)}*.wav"),
-                os.path.join(TOOLS, "BGM_phonk_*.wav", "*.wav"),
-                os.path.join(HERE, "assets", "bgm", "**", "*.wav")):
-        c = [f for f in glob.glob(pat, recursive=True) if "sfx" not in os.path.basename(f).lower()]
+    pil = getattr(P, "PILLAR", "")
+    # 2026-08-05: the pillar banks hold MP3 (that is what a download gives you), and
+    # find_bed globbed *.wav ONLY — so a correctly-stocked BGM/travel_vlog/ resolved to
+    # None and the build died claiming no bed existed. Accept both; ffmpeg reads either.
+    pats = [os.path.join(pdir, "audio", "*.wav"),                    # prepared for THIS project
+            os.path.join(pdir, "audio", "*.mp3")]
+    if pil:
+        for ext in ("wav", "mp3"):                                   # the pillar's own bank
+            pats += [os.path.join(HERE, "BGM", pil, f"*.{ext}"),
+                     os.path.join(HERE, "assets", "bgm", pil, f"*.{ext}")]
+    pats += [os.path.join(HERE, "assets", "bgm", f"*{int(P.BPM)}*.wav")]
+    # NOTE: the old catch-all `assets/bgm/**/*.wav` is GONE on purpose. A bed from an
+    # unknown pillar is worse than no bed: no bed fails loudly, a wrong bed ships.
+    for pat in pats:
+        c = [f for f in glob.glob(pat, recursive=True)
+             if "sfx" not in os.path.basename(f).lower()]
         if c:
             return sorted(c, key=os.path.getsize, reverse=True)[0]
     return None
+
+
+def verify_bed_tempo(bed, want_bpm, tol_pct=2.0):
+    """Return (ok, measured_bpm, detail). A bed at the wrong tempo cannot be
+    beat-locked to, and the failure is INVISIBLE downstream — the cuts land on a
+    grid the music never plays."""
+    try:
+        sys.path.insert(0, TOOLS)
+        import rhythm
+        x = rhythm.pcm(bed)
+        flux, hop = rhythm.stft_flux(x)
+        r = rhythm.estimate_tempo(flux, hop)   # returns (bpm, phase); either may be None
+        got = r[0] if isinstance(r, (tuple, list)) else r
+        if got is None:
+            return None, None, "tempo estimator found no stable grid in this file"
+        got = float(got)
+    except Exception as e:
+        return None, None, f"could not measure bed tempo ({str(e)[:50]})"
+    # half/double-time is the same grid musically — accept it, name it
+    cands = [(got, "1x"), (got * 2, "2x"), (got / 2, "0.5x")]
+    for c, lab in cands:
+        if abs(c - want_bpm) / want_bpm * 100 <= tol_pct:
+            return True, got, f"measured {got:.1f} BPM, matches plan {want_bpm:.0f} ({lab})"
+    return False, got, (f"measured {got:.1f} BPM but the plan is {want_bpm:.0f} "
+                        f"({abs(got-want_bpm)/want_bpm*100:.0f}% off). Cuts would land on a "
+                        f"grid the music never plays. Stretch the bed to {want_bpm:.0f} "
+                        f"(see lesson: asetrate, then RE-MEASURE) or pick another.")
 
 
 def find_clip(P, pdir, key):
@@ -94,43 +144,123 @@ def _level(p):
     return float(np.mean(v)) if v else None
 
 
-def shot_match(segs, W, H, FPS, tmp, tol=10.0, max_gain=0.14):
-    # clamp 0.10 -> 0.14 (2026-08-04): WRX v1 measured 4/15 cuts swinging >18, worst 32.
-    # 32/255*1.9 = 0.24 needed; 0.14 halves the worst swing without relighting.
-    """Pull each RENDERED segment toward the running level. Never the source clip: a
-    1.90x punch crops into the dark part of frame, so source B averages 73.7 while its
-    punch renders at 50. The source average is the wrong statistic.
+LUMA_RESPONSE = 296.0
+# MEASURED 2026-08-05 on KK v14, 18 corrected shots: ffmpeg eq=brightness moves mean
+# luma by 174-519 per unit (mean 296, spread 3.0x, content dependent).
+# The old code assumed a FIXED 255/1.9 = 134. Every correction was therefore ~2.2x too
+# strong and 17 of 20 shots CROSSED the target and landed on the far side.
+# 296 is only the FIRST GUESS of a closed loop below - never trusted as a constant.
 
-    The gain is a LEVEL DIFFERENCE scaled into ffmpeg's brightness units
-    (d/255 * 1.9), clamped to +/-0.085 so it matches rather than relights.
-    A ratio-based approximation was tried instead and under-corrected badly:
-    it left one cut swinging 22 where this leaves zero.
+
+def shot_match(segs, W, H, FPS, tmp, tol=10.0, max_gain=0.14,
+               max_move=18.0, mode="neighbour", passes=2):
+    """Reduce JARRING CUT-BOUNDARY SWINGS. It does not relight, and it does not pull
+    the video to one level.
+
+    Measured on his source clips 2026-08-05: the three raw Higgsfield clips he called
+    "close to perfect" span 45.1 to 92.9 mean luma. A 47-luma spread is INSIDE his
+    approval band. Any stage that pulls that to a single median is destroying the
+    thing he likes. kk_I measured 45.1 at source (his word: perfect) and the old
+    median-pull rendered it at 116.9 - a +72 relight of an approved shot.
+
+    Two modes:
+      neighbour  (default) - a shot is touched ONLY if it differs from the shot before
+                 it by more than `tol`, and is then moved just inside that boundary,
+                 never to a global level. Preserves a time-of-day arc.
+      median     - legacy global pull, for pillars whose look is authored in the edit.
+
+    `max_move` is stated in LUMA, not in opaque ffmpeg units, and is capped by
+    `max_gain` as a second belt.
+
+    CLOSED LOOP: apply, RE-MEASURE the rendered file, correct once more using the
+    response actually observed on THAT shot. Keeps whichever candidate lands closest,
+    including the untouched original. A pass that makes the boundary worse is reverted.
     """
     import numpy as np
     lv = [_level(s) for s in segs]
     if any(x is None for x in lv):
         print("  !! could not measure a segment - SKIPPING shot match")
         return segs
-    target = float(np.median(lv))
-    out, fixed = [], 0
-    for i, (p, l) in enumerate(zip(segs, lv)):
-        d = target - l
-        if abs(d) <= tol:
-            out.append(p); continue
-        gain = max(-max_gain, min(max_gain, d / 255.0 * 1.9))
-        o = p.replace(".mp4", "_m.mp4")
-        spec, sf = f"{gain:.4f}", o + ".spec"
-        if os.path.exists(o) and os.path.exists(sf) and open(sf).read() == spec:
-            out.append(o); fixed += 1; continue
-        rc, err = sh(f'ffmpeg -y -v error -i "{p}" -vf "eq=brightness={gain:.4f},setsar=1" '
-                     f'-an -c:v libx264 -crf 18 -preset veryfast -pix_fmt yuv420p "{o}"')
-        if rc != 0 or not os.path.exists(o):
-            print(f"  !! shot {i} match FAILED - keeping unmatched: {err.strip()[:60]}")
-            out.append(p); continue
-        open(sf, "w").write(spec)
-        out.append(o); fixed += 1
-    print(f"  target level {target:.1f} - {fixed}/{len(segs)} shots matched "
-          f"(tol {tol}, clamp {max_gain:+.3f})")
+
+    def swings(levels):
+        return [abs(levels[i] - levels[i - 1]) for i in range(1, len(levels))]
+
+    before = swings(lv)
+    # ---- targets -------------------------------------------------------------
+    if mode == "median":
+        med = float(np.median(lv))
+        targets = [med] * len(lv)
+    else:
+        targets, prev = [], lv[0]
+        for i, l in enumerate(lv):
+            if i == 0:
+                targets.append(l); prev = l; continue
+            d = l - prev
+            # only the EXCESS over tol is a defect; the rest is the arc, keep it
+            t = l - (d - tol) if d > tol else (l - (d + tol) if d < -tol else l)
+            t = max(l - max_move, min(l + max_move, t))
+            targets.append(t)
+            prev = t
+        del prev
+
+    out, fixed, delivered = [], 0, []
+    for i, (p, l, t) in enumerate(zip(segs, lv, targets)):
+        need = t - l
+        if abs(need) <= 1.0:
+            out.append(p); delivered.append(l); continue
+        best, best_lv, best_err = p, l, abs(l - t)
+        resp = LUMA_RESPONSE
+        gain = 0.0
+        for k in range(passes):
+            step = (t - best_lv) / max(resp, 60.0)
+            g = max(-max_gain, min(max_gain, gain + step))
+            # never authorise more luma authority than the style allows
+            g = max(-max_move / resp, min(max_move / resp, g))
+            if abs(g - gain) < 1e-4:
+                break
+            o = p.replace(".mp4", f"_m{k}.mp4" if k else "_m.mp4")
+            spec, sf = f"{g:.4f}", o + ".spec"
+            if not (os.path.exists(o) and os.path.exists(sf)
+                    and open(sf).read() == spec):
+                rc, err = sh(f'ffmpeg -y -v error -i "{p}" '
+                             f'-vf "eq=brightness={g:.4f},setsar=1" -an -c:v libx264 '
+                             f'-crf 18 -preset veryfast -pix_fmt yuv420p "{o}"')
+                if rc != 0 or not os.path.exists(o):
+                    print(f"  !! shot {i} match FAILED - keeping unmatched: "
+                          f"{err.strip()[:60]}")
+                    break
+                open(sf, "w").write(spec)
+            m = _level(o)
+            if m is None:
+                break
+            if abs(g) > 1e-6:                      # learn THIS shot's real response
+                r = abs(m - l) / abs(g)
+                if r > 40.0:
+                    resp = r
+            gain = g
+            if abs(m - t) < best_err:
+                best, best_lv, best_err = o, m, abs(m - t)
+            if best_err <= max(1.5, tol * 0.15):
+                break
+        if best is not p:
+            fixed += 1
+        out.append(best); delivered.append(best_lv)
+
+    after = swings(delivered)
+    b_mean = float(np.mean(before)) if before else 0.0
+    a_mean = float(np.mean(after)) if after else 0.0
+    b_max = max(before) if before else 0.0
+    a_max = max(after) if after else 0.0
+    print(f"  mode {mode}  tol {tol}  max_move {max_move:.0f} luma  clamp {max_gain:+.3f}")
+    print(f"  boundary swing  mean {b_mean:.1f} -> {a_mean:.1f}   worst "
+          f"{b_max:.1f} -> {a_max:.1f}   ({fixed}/{len(segs)} shots touched)")
+    moved = max((abs(d - o) for d, o in zip(delivered, lv)), default=0.0)
+    print(f"  largest single shot relight: {moved:.1f} luma "
+          f"(budget {max_move:.0f})")
+    # A FIX THAT MAKES IT WORSE MUST NOT SHIP.
+    if a_mean > b_mean + 0.5:
+        print("  !! shot match made boundaries WORSE - REVERTING to unmatched segments")
+        return segs
     return out
 
 
@@ -156,6 +286,18 @@ def adjacent_check(segs, thresh=0.95):
 
 
 # ---------------------------------------------------------------- build
+def _profile(pillar):
+    """Read a pillar's measured profile (and its declared style). 2026-08-05."""
+    for c in (os.path.join(HERE, "assets", "pillars", "PILLAR-PROFILES.json"),
+              os.path.join(HERE, "pillars", "PILLAR-PROFILES.json")):
+        if os.path.exists(c):
+            try:
+                return json.load(open(c, encoding="utf-8")).get(pillar) or {}
+            except Exception:
+                return {}
+    return {}
+
+
 def build(name, out_path=None, use_cache=True):
     P = load_plan(name)
     if not P:
@@ -178,9 +320,23 @@ def build(name, out_path=None, use_cache=True):
         return 1
     BED = find_bed(P, pdir)
     if not BED:
-        print(f"!! no music bed. Run: python3 tools/phonk.py --bpm {P.BPM:.0f} --dur {TOTAL:.0f}")
+        print(f"!! NO MUSIC BED for pillar '{getattr(P,'PILLAR','?')}' at {P.BPM:.0f} BPM.")
+        print(f"   Looked in: projects/{name}/audio/ · BGM/{getattr(P,'PILLAR','?')}/ "
+              f"· assets/bgm/*{int(P.BPM)}*")
+        print(f"   Drop an in-band track in BGM/{getattr(P,'PILLAR','?')}/ and run "
+              f"tools/bedqc.py. Failing loudly beats bedding the wrong genre.")
         return 1
     print(f"  bed: {os.path.relpath(BED, HERE)}")
+    _ok, _got, _why = verify_bed_tempo(BED, P.BPM)
+    if _ok is None:
+        print(f"  !! bed tempo UNVERIFIED — {_why}. Proceeding, but beat-lock is unproven.")
+    elif not _ok:
+        print(f"  !! BED TEMPO MISMATCH — {_why}")
+        print(f"     REFUSING to build: a wrong-tempo bed produces a video that passes "
+              f"every downstream gate and is still wrong.")
+        return 1
+    else:
+        print(f"  bed tempo OK — {_why}")
 
     import clipsense, fx, rhythm
 
@@ -352,7 +508,12 @@ def build(name, out_path=None, use_cache=True):
         # so the fix costs zero extra compression generations and zero credits.
         dl = (getattr(P, "DELOGO", {}) or {}).get(i)
         o = os.path.join(tmp, f"c{i:02d}.mp4")
-        spec = f"{os.path.basename(clips[key])}|{tin:.3f}|{d:.3f}|{cs}|{cx}|{cy}|frames|dl={dl}"
+        # spec carries the SOURCE FILE's identity too (2026-08-05, red-team): a
+        # re-downloaded clip keeps its basename — without mtime+size a stale
+        # segment of the OLD content serves silently.
+        _cst = os.stat(clips[key])
+        spec = (f"{os.path.basename(clips[key])}|{_cst.st_size}|{int(_cst.st_mtime)}|"
+                f"{tin:.3f}|{d:.3f}|{cs}|{cx}|{cy}|frames|dl={dl}")
         sf = o + ".spec"
         if (use_cache and os.path.exists(o) and os.path.exists(sf)
                 and open(sf).read() == spec and abs(dur(o) - d) < 0.10):
@@ -369,6 +530,10 @@ def build(name, out_path=None, use_cache=True):
                   f"crop={W}:{H},fps={FPS},setsar=1")
         if dl:
             x_, y_, w_, h_ = [int(v) for v in dl]
+            if w_ <= 0 or h_ <= 0 or x_ < 0 or y_ < 0 or x_ + w_ > W or y_ + h_ > H:
+                print(f"  !! shot {i}: DELOGO ({x_},{y_},{w_},{h_}) outside {W}x{H} "
+                      f"— REFUSING to render a corrupt patch. Fix the plan.")
+                return 1
             vf += f",delogo=x={x_}:y={y_}:w={w_}:h={h_}"
             print(f"  shot {i} ({key}): DELOGO patch {w_}x{h_} at ({x_},{y_})")
         nfr = int(round(d * FPS))          # FRAME-EXACT. -t drifts +34ms/shot at 24fps.
@@ -389,7 +554,22 @@ def build(name, out_path=None, use_cache=True):
 
     # ---- 3 exposure BEFORE blends ----
     print(f"\n[3/7] shot match")
-    segs = shot_match(segs, W, H, FPS, tmp)
+    # CLAMP FROM THE STYLE BLOCK (2026-08-05). 0.14 was tuned on a NIGHT car edit,
+    # one light state end to end. KK v1 measured 9/19 cuts swinging >18 (worst 52)
+    # because a travel vlog spans golden hour -> night by design: the segments really
+    # are that far apart, and 0.14 could not close the gap (15/20 matched). The arc is
+    # the STORY (the card clock), so the fix is grading authority, not reordering.
+    # 2026-08-05, ROOT CAUSE: the gain formula assumed a fixed 134 luma per unit of
+    # eq=brightness; MEASURED response is 174-519. Every correction ran ~2.2x hot and
+    # 17/20 shots crossed the target. Widening the clamp to 0.26 "making things worse"
+    # was a SYMPTOM of that miscalibration, not a fact about the clamp.
+    _st = ((_profile(getattr(P, "PILLAR", "")) or {}).get("style") or {})
+    _clamp = float(_st.get("shot_match_clamp", 0.14))
+    _mode = str(_st.get("shot_match_mode", "neighbour"))
+    _move = float(_st.get("shot_match_max_move", 18.0))
+    _tol = float(_st.get("shot_match_tol", 10.0))
+    segs = shot_match(segs, W, H, FPS, tmp, tol=_tol, max_gain=_clamp,
+                      max_move=_move, mode=_mode)
 
     # ---- 4 blends ----
     print(f"\n[4/7] blends  {P.BLEND_KIND} {P.BLEND_WIDTH*1000:.0f}ms at declared boundaries")
@@ -399,7 +579,15 @@ def build(name, out_path=None, use_cache=True):
         if i + 1 >= len(out) or out[i] is None or out[i + 1] is None:
             continue
         o = os.path.join(tmp, f"bx{i:02d}.mp4")
-        bspec = f"{os.path.basename(out[i])}|{os.path.basename(out[i+1])}|{P.BLEND_KIND}|{P.BLEND_WIDTH}"
+        # STALE BLEND (2026-08-05, red-team find): basenames alone matched even when
+        # a segment was RE-RENDERED with new content (c06.mp4 overwritten in place) —
+        # the cached blend then ships the OLD pixels inside the seam. The delogo
+        # build dodged this only because shot 15 touches no blend. Content identity
+        # (size+mtime of both inputs) now invalidates the blend cache.
+        _sa, _sb = os.stat(out[i]), os.stat(out[i + 1])
+        bspec = (f"{os.path.basename(out[i])}|{_sa.st_size}|{int(_sa.st_mtime)}|"
+                 f"{os.path.basename(out[i+1])}|{_sb.st_size}|{int(_sb.st_mtime)}|"
+                 f"{P.BLEND_KIND}|{P.BLEND_WIDTH}")
         bsf = o + ".spec"
         if use_cache and os.path.exists(o) and os.path.exists(bsf) and open(bsf).read() == bspec:
             out[i] = o; out[i + 1] = None; n += 1; blend_ok.append(i)
@@ -553,7 +741,25 @@ def build(name, out_path=None, use_cache=True):
     vd = dur(graded)
     sfx_path = os.path.join(tmp, "sfx.wav")
     HAVE_SFX = False
+    # STYLE GATE (2026-08-05). Everything ABOVE this line is CRAFT — the window
+    # allocator, action-centering, shot-match, bed segment scan, phase fit, beat
+    # lock, sound-engineer calibration, master chain — and it transfers to any
+    # music-led pillar unchanged. THIS stage is the car's SIGNATURE: noise sweeps
+    # and sub-drops on cuts. travel_vlog measured HARD CUTS ONLY; laying phonk
+    # whooshes over vlog footage would be a car edit wearing someone else's
+    # holiday. edit_sfx is declared per pillar in PILLAR-PROFILES.json.
+    _style = (_profile(getattr(P, "PILLAR", "")) or {}).get("style", {})
+    _sfx_policy = _style.get("edit_sfx", "full")
+    if _sfx_policy == "none":
+        print(f"      edit-sfx SKIPPED — pillar '{getattr(P,'PILLAR','?')}' declares "
+              f"edit_sfx=none (hard cuts carry themselves). Bed + diegetic only.")
+    elif _sfx_policy == "hero_only":
+        print(f"      edit-sfx HERO ONLY — no transient design on cuts, but the plan's "
+              f"hero moment keeps its sound (his catch: the car pass was the QUIETEST "
+              f"instant in the video, measured -2.8dB vs a random moment).")
     try:
+        if _sfx_policy == "none":
+            raise RuntimeError("edit_sfx=none")
         import sfxgen, numpy as np
         SR = sfxgen.SR
         track = np.zeros(int(vd * SR) + SR)
@@ -570,7 +776,16 @@ def build(name, out_path=None, use_cache=True):
         sec = {cuts[i - 1] for i in P.IMPACT_AT if 0 < i <= len(cuts)}
         hold = {cuts[i - 1] for i in P.SUBDROP_AT if 0 < i <= len(cuts)}
         nw = ni = 0
-        for c in cuts:
+        if _sfx_policy == "hero_only":
+            # ONE sound, at the hero shot's own boundary. No whooshes anywhere.
+            _hero = (getattr(P, "SOUND", {}) or {}).get("hero_shot", 0)
+            _ht = 0.0 if _hero == 0 else (cuts[_hero - 1] if 0 < _hero <= len(cuts) else 0.0)
+            place(sfxgen.impact(0.9), max(0.0, _ht - 0.02), 0.62); ni += 1
+            print(f"      hero impact placed at {_ht:.2f}s (shot {_hero})")
+            cuts_iter = []
+        else:
+            cuts_iter = cuts
+        for c in cuts_iter:
             if c in sec:
                 place(sfxgen.impact(0.7), c - 0.02, 0.55); ni += 1
             elif c in hold:
@@ -689,7 +904,19 @@ def build(name, out_path=None, use_cache=True):
     else:
         print("      NO FOLEY block in plan — edit-sfx only (pre-2026-08-04 plan)")
 
-    OUT = out_path or os.path.join(pdir, "output", f"{name.upper()}_CINEMATIC_v1.mp4")
+    # VERSION MONOTONIC (2026-08-05, red-team find): the default was hardcoded _v1
+    # and OVERWROTE the approved v1 the night the delogo build ran. History is
+    # evidence; a build may never clobber it. Default = next free version number.
+    if out_path:
+        OUT = out_path
+    else:
+        odir = os.path.join(pdir, "output")
+        os.makedirs(odir, exist_ok=True)
+        import re as _re
+        vs = [int(m.group(1)) for f_ in os.listdir(odir)
+              for m in [_re.match(rf"{name.upper()}_CINEMATIC_v(\d+)\.mp4$", f_)] if m]
+        OUT = os.path.join(odir, f"{name.upper()}_CINEMATIC_v{max(vs, default=0) + 1}.mp4")
+        print(f"  output -> {os.path.basename(OUT)} (next free version, never overwrite)")
     A = "aformat=sample_fmts=fltp:sample_rates=44100:channel_layouts=stereo"
     # MIX TUNING LOG (2026-08-04, WRX, both MEASURED - do not re-try blind):
     #   original (12/13.5, thr .05, limit .76): lift -0.5dB FAIL, -8.3 LUFS OK, peak +0.2dBTP FAIL

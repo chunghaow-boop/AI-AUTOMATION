@@ -14,6 +14,15 @@ if errorlevel 1 (
     exit /b 1
 )
 
+REM --- SELF-HEAL (2026-08-05): remote Claude sessions run git through the
+REM --- desktop bridge, which cannot delete git's own lock files - they pile
+REM --- up and block the next git command. Local git CAN delete them, so this
+REM --- clears any stale locks + bridge leftovers before every push. Safe:
+REM --- if a real git process were running, you would not be double-clicking this.
+del /f /q ".git\index.lock" ".git\HEAD.lock" ".git\objects\maintenance.lock" 2>nul
+del /f /q ".git\objects\*\tmp_obj_*" 2>nul
+if exist "_to_delete" rmdir /s /q "_to_delete" 2>nul
+
 REM point at the repo (ignored if already set)
 git remote add origin https://github.com/chunghaow-boop/AI-AUTOMATION.git 2>nul
 

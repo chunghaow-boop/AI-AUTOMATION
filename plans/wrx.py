@@ -169,6 +169,21 @@ SHOTS = [
  ("B", 1.00, "med",   "FRONT - CTA"),
 ]
 
+# FRAMING (planqc 28, retrofitted 2026-08-05 after the KK duplicate catch). The WRX
+# did NOT suffer this — its 9 sources were written with genuinely distinct camera
+# positions by instinct. Declaring them makes that explicit and gate-checkable.
+FRAMING = {
+    "A": "low static, lane level, subject charging the lens",
+    "B": "slow arc across the nose, three-quarter front",
+    "C": "extreme macro on the scoop, fills frame, no background",
+    "D": "tight tracking at wheel height along the flank",
+    "E": "interior drift across the cockpit, no person",
+    "F": "passenger-side close, head and shoulders upper half",
+    "G": "slow arc around the rear corner",
+    "H": "parallel-vehicle tracking, front three-quarter held",
+    "I": "close standing portrait against the fender, eyes to lens",
+}
+
 CALLBACKS = [(1, 18), (8, 16)]  # front 3/4 opens+closes; the charge re-hits mid+late
 
 # BAN_SPANS (2026-08-04): windows may never come from these clip spans.
@@ -314,7 +329,11 @@ PREVIZ = {  # sketch-grade, NEVER enters generation. v2 carries the Nev identity
 # Added 2026-08-04 (retrofit on a built plan - the FORMAT demonstration for every
 # future plan; planqc 22/23/24 now block without these). L<n> = 0-based index into
 # ledgers/knowledge.json topics["car cinematic"].lessons.
-LESSONS_ACK = 35        # ledger lesson count this plan was (re)written against
+LESSONS_ACK = {           # ledger counts this plan was (re)written against.
+    "general craft":  56, # pillar-INDEPENDENT: measurement, tooling, process.
+    "car cinematic":  15, # this pillar's GENRE lessons only (phonk, the car itself).
+}                         # Refactored 2026-08-05: craft used to be filed under
+                          # "car cinematic", so every later pillar started blind.
 
 PREMORTEM = [
     ("source overcommit / duplicate-feel on A callbacks (L23)",
@@ -336,26 +355,40 @@ PREMORTEM = [
 ]
 
 # One intent per boundary (18 for 19 shots) - exit into entry, planned not discovered.
+# TYPED CARRIES (planqc 29/31, 2026-08-05). Each entry is (kind, token, prose).
+# The TOKEN must appear in the shot-specific writing of BOTH shots it joins -
+# boilerplate from the shared _LOOK block is stripped before the search, because a
+# word present in every source proves nothing.
+# HONESTY NOTE: where the carry is real but the plan never wrote it down, the entry
+# stays prose and FAILS check 29. Inventing a token to turn the gate green would be
+# the SMOOTH NUMBER trap - buying a metric by lying to it.
+
+# Every shot in this cut is ONE light state - a night car film. Declaring it makes
+# check 30 meaningful rather than skipped: a single-state video cannot run
+# backwards, and saying so is different from never having been asked.
+SHOT_TIME = ["night"] * 19
+
 LINKAGE = [
-    "event exit spray -> static nose: aftermath-to-subject, hard cut on impact",
-    "nose arc -> scoop macro: zoom-in along the same subject axis",
-    "scoop rain -> wheel spray: water motif carries the cut",
-    "wheel -> rear 3/4: travel rearward along the flank",
-    "exterior night -> cockpit glow: outside-in, brightness step DECLARED",
-    "empty cockpit -> Nev seated: same space, now occupied",
-    "Nev eyes flick up -> rolling tease: intent pays off as motion",
-    "rolling motion -> charge at lens: escalation callback into the hero",
-    "charge -> Nev lean: threat resolves to the owner's face",
-    "Nev static -> caliper detail: cutaway, beat rest before payoff",
-    "spray detail -> payoff roll: detail-to-context, motion rises into the hold",
-    "payoff exit -> scoop breath: speed-to-breathing contrast (blend here)",
-    "scoop intake -> boost gauge: air path, cause -> effect",
-    "gauge glow -> Nev grin: machine glow to face glow",
-    "grin -> dual tips: satisfaction -> exhaust note foreground",
-    "exhaust -> lens-pass replay: sound hands off to the hero sound",
-    "replay exit -> Nev punch-in: the pass earns the direct address",
-    "Nev -> front CTA: face-to-badge close, loop seam back to shot 0",
+    ("light",  "headlights", "launch aftermath -> the nose it left, headlights still burning"),
+    ("subject", "scoop",     "nose arc -> scoop macro, zoom along the same hood"),
+    "scoop rain -> wheel spray: water motif carries the cut (NOT IN THE WRITING)",
+    "wheel -> rear 3/4: travel rearward along the flank (NOT IN THE WRITING)",
+    ("light",  "slow",       "exterior night -> cockpit glow, brightness step DECLARED"),
+    ("consequence", "cockpit", "empty cockpit -> Nev seated: the same space, NOW OCCUPIED"),
+    ("consequence", "wheel",  "his hands take the wheel -> the car is rolling: intent becomes motion"),
+    ("motion", "motion",     "rolling motion -> charge at lens: escalation into the hero"),
+    ("subject", "lens",      "charge at lens -> Nev at that lens: the threat resolves to its owner"),
+    "Nev static -> caliper detail: cutaway, beat rest (NOT IN THE WRITING)",
+    ("motion", "spray",      "spray detail -> payoff roll: detail to context, motion rises"),
+    "payoff exit -> scoop breath: speed-to-breathing contrast (NOT IN THE WRITING)",
+    ("consequence", "across", "scoop intake -> boost gauge: the air path, CAUSE then EFFECT"),
+    ("consequence", "glow",   "the gauge lights -> he grins: the machine's state reaches his face"),
+    "grin -> dual tips: satisfaction to exhaust note (NOT IN THE WRITING)",
+    "exhaust -> lens-pass replay: sound hands off to the hero sound (NOT IN THE WRITING)",
+    ("consequence", "lens",   "the pass earns it -> Nev addresses the lens directly"),
+    ("subject", "front",      "Nev -> front CTA: face to badge, loop seam back to shot 0"),
 ]
+
 
 # DELOGO (2026-08-04, mastermind QC on v8): invented red 'SR' script in G's plate
 # recess - no such Subaru badge, J4's exact roast material. Box MEASURED on v8

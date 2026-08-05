@@ -1,17 +1,18 @@
 # [FINAL BOSS] MASTERMIND QC — the strictest gate, top to bottom
-### File 27 · Created 2026-08-04 from one day of his catches (8 builds, 34 ledger lessons).
+### File 27 · Created 2026-08-04 · REWRITTEN 2026-08-05 after the first travel_vlog build.
 ### Runs AFTER every mechanical gate passes. The mastermind is the FIRST planner and the LAST judge.
-### Companion: `ledgers/knowledge.json` (the living memory — this file is the PROCEDURE, the ledger is the EVIDENCE. When the ledger grows, extend this file.)
+### Companion: `ledgers/knowledge.json` — this file is the PROCEDURE, the ledger is the EVIDENCE.
 
 ---
 
 ## WHY THIS SEAT IS THE FINAL BOSS
 
-Eight consecutive builds today passed every mechanical gate and were still caught by
-his eye or ear: duplicated footage, a softbox in frame, the hook dissolving mid-event,
-a bed breakdown reading as silence, ducks stepping, whoosh sand, an inaudible Nev.
-**Every one became a measured cause, then a permanent gate — same day.** That cadence
-is the job: the mastermind finds what the numbers missed, then TURNS IT INTO NUMBERS.
+Builds that passed every mechanical gate and were still caught by his eye or ear:
+duplicated footage, a softbox in frame, the hook dissolving mid-event, a bed breakdown
+reading as silence, ducks stepping, whoosh sand, an inaudible Nev, an invented badge,
+and — on the first vlog — **five shots that were one image**.
+
+**Every one became a measured cause, then a permanent gate, the same day.**
 
 ```
 Mechanical gates prove CONFORMANCE.  The mastermind judges whether it is
@@ -20,102 +21,121 @@ REALISTIC, SMOOTH, and ALIVE — then converts every miss into the next gate.
 
 ---
 
-## PART 0 — PRE-FLIGHT (all must already be green; do not re-derive, READ them)
+## PART 0 — THE PREDICTION PASS (NEW, 2026-08-05. Run this BEFORE looking at anything.)
 
-| gate | what it proves | what it CANNOT see |
-|---|---|---|
-| planqc 22 checks | plan-level craft + CONTENT + SOUND/FOLEY + transitions + capacity | taste, feel, whether anything HAPPENS |
-| clipqc (delivered-window) | each clip usable in its USED window | relations between clips |
-| verify 0 freshness | measuring the right file | — |
-| verify 2 beat lock | cuts on the music grid (≤50ms, ≥70%) | whether the grid FEELS right |
-| verify 3 sfx | cut marked (music-marked path on dense beds) | sand/character of the sfx |
-| verify 10 far repeats | no duplicated footage windows | visually-similar-but-distinct shots |
-| verify 11 transitions | seam on beat, no whole-frame smear | whether the cut point serves the action |
-| verify 12 storyboard tally | cut == board (shots/windows/sources) | whether the board itself was good |
-| SOUND ENGINEER table (build log) | layer balance vs bed anchor | moment balance the averages hide |
+His standing order: *predict the bug before it appears.* Every defect below was found by
+eye AFTER a build. Each now has a question that would have caught it at PLAN time, free.
+**Answer all of these in writing before the eye pass. An unanswered one is a miss waiting.**
 
-**If any is red, STOP — you are not the final boss yet, you are debugging.**
+| # | Ask this | Because | Gate |
+|---|---|---|---|
+| P1 | Does any two sources share a PLATE without declaring different framings? | A plate anchors PLACE *and* FRAMING. 4 sources cited one waterfront plate → 5 shots, one image. | planqc 28 |
+| P2 | Is any source used more than once? Does its prompt say the camera KEEPS MOVING? | A locked-off clip gives every window the same picture. Measured: static sunset self-similarity 0.975 → tracking 0.871. | prompt rule |
+| P3 | Does the story span more than one LIGHT STATE? | A time-of-day arc legitimately spans 60 luma; shot-match cannot close that, and reordering for luma destroys the story. Expect exposure fails and DECLARE them. | verify 5 |
+| P4 | Will any shot contain SIGNAGE, BADGES or SCREENS? | Models write gibberish on every legible surface. "SDNMONES", "TOARAKNMN", an invented 'SR' badge. J4 has an ABSOLUTE veto. | clipqc text-zoom |
+| P5 | Is any threshold in play tuned on a DIFFERENT pillar? | Night luma band rejected daylight; 1.5 motion floor rejected serene shots; 3-word cards blocked the vlog's own caption style. | planqc 26 |
+| P6 | Does the bed come from THIS pillar's bank, and has its tempo been MEASURED? | A vlog at 105 BPM silently resolved to a 150 BPM phonk bed and would have built successfully. | engine verify_bed_tempo |
+| P7 | Does every declared CALLBACK have the footage to land? | A "car leaves" callback pointed at a window with no car in it — the same image as the hook. | eye, PART A3 |
+| P8 | Which constants am I about to change, and were they MEASURED? | Widening a measured clamp on a plausible argument made exposure WORSE (9→16 swings). *(That result was itself a symptom of P9 — see below.)* | ledger |
+| P9 | For every stage that ADJUSTS the source: what is its authority in the UNIT HE SEES, and does it re-measure its own output? | The edit relit a shot he called "close to perfect" from 44 to 117 luma and crushed nine others by −46, because the gain formula assumed a fixed response of 134 luma/unit when the MEASURED response is 174–519. Open-loop correction on a guessed constant. | verify 15 |
+| P11 | For each boundary: what is DIFFERENT on the far side of it, and does shot B inherit that difference? | His doctrine: *"there must be a linkage that is important, when there is linkage then it feels like a story."* KK v15 declared 19 linkages and 14 were descriptions of RESEMBLANCE — same warmth, same blue hour, two stillnesses. Resemblance is continuity; it stops a cut being jarring. Only CONSEQUENCE makes a story. | planqc 29, 31 |
+| P12 | Does every linkage name a token that appears in the WRITING of both shots it joins? | Boundary 15→16 declared "the car returns"; the shot note for 16 said "the place, EMPTIED". The plan contradicted itself in writing and shipped — free to catch, one build after P7. | planqc 29 |
+| P13 | Does every shot declare its light state, and does the sequence ever run backwards? | KK v15 ran golden → night → daylight → morning under a "6PM" card. The premortem promised "no cut jumps backwards in time" and nothing enforced it, because no shot ever said what time it was. | planqc 30 |
+| P14 | Is the linkage list DERIVED from the final shot order, or authored beside it? | KK's list was written against the storyboard order; the built cut reused 9 sources 2-3× each, so boundary 12→13 was boundary 5→6 again and half the list described a video that was never assembled. | planqc 29 |
+| P10 | Whose look is authoritative — the model's or the edit's? Has he ever said the raw output was good? | He did, verbatim, on 2026-08-05. His three approved raws span 45.1–92.9 mean luma; a 47-luma spread is INSIDE his approval band, so any stage pulling to one median is destroying the thing he likes. | style: shot_match_mode |
 
 ---
 
-## PART A — THE EYE PASS (one combined evidence sheet: frame strip + spectrogram)
+## PART A — THE EYE PASS (one combined evidence sheet: contact strip + spectrogram)
 
-Look for exactly these, in order (each has shipped or nearly shipped):
+Look for exactly these, in order. Each has shipped or nearly shipped.
 
-1. **Rig leaks** — softbox/light stand in ANY frame (shipped at 1.8s once; ingest flags
-   SUSPECT spans, but the eye confirms — the detector cannot tell a rig from a highlight).
-2. **Identity** — Nev is Nev in EVERY appearance (face, hair, EARRING); the car is THE car
-   (aero kit, scoop, wing). A text-only generation shipped a wrong car once.
-3. **Duplicate FEEL** — windows may be provably distinct yet read as the same image
-   (same source, static composition). Far-repeat check is pixel-level; the eye judges feel.
-4. **Hook** — frame zero is already an EVENT in motion. No settle, no tour. The event's
-   resolution must be ON SCREEN, never inside a blend (a blend dissolved the swerve once).
-5. **Action resolution** — no cut while motion is still rising (allocator prefers resolved
-   windows, but only ~80% enforceable; the eye owns the rest).
-6. **Cards** — legible, act-timed, lower third, never clipped (a fallback once shipped
-   "RU WON'T SELL YOU"), spelling exact, arc reads as a sentence.
-7. **Softness** — punch-ins ≤1.4x; blend middles must not smear the whole frame; watch
-   the SECOND half (drift of cropped shots was once 12%/67%).
-8. **Grade** — night look coherent, blacks not crushed (>12% pure black = double-grade
-   suspicion), no exposure flicker at cuts (worst offenders go to plan sequencing).
+1. **Rig leaks** — softbox/light stand in ANY frame (shipped at 1.8s once).
+2. **Identity** — is it HIM? Face, hair, EARRING; the car is THE car.
+   ⚠️ **CLAUDE CANNOT JUDGE THIS.** On KK the verdict FLIPPED between crop scales —
+   "not him" at thumbnail size, "plausibly him" at matched size, same frames, same
+   session. Claude's job is to present plate-crop and delivered-window-crop side by
+   side at matched scale. **The verdict is Gavril's, always.**
+3. **Duplicate FEEL** — now MEASURED (verify 13), but the eye still owns the final call.
+   The metric is blind to colour by design; it can miss and it can false-positive
+   (a boardwalk's receding lines scored 0.913 against a grill grate — nothing alike).
+4. **Hook** — frame zero is already an EVENT. Resolution ON SCREEN, never inside a blend.
+5. **Action resolution** — no cut while motion is still rising.
+6. **Cards** — legible, act-timed, lower third, never clipped, spelling exact.
+7. **Softness** — punch-ins ≤1.4x; watch the SECOND half for drift.
+8. **Grade** — coherent look, blacks not crushed, no exposure flicker at cuts.
+9. **TEXT IN FRAME** (NEW) — read EVERY legible string: signage, badges, screens,
+   number plates. Gibberish is the single fastest way to lose J4.
+10. **INTENT vs RENDER** (NEW) — read the plan's shot note against the actual frame.
+    "NEV grin" delivered no grin. "The car again" delivered no car.
 
-## PART B — THE EAR PASS (headphones, then phone speaker — the audience uses the phone)
+## PART B — THE EAR PASS (headphones, then phone speaker)
 
-1. **Layer balance** — read the build's SOUND ENGINEER table first, then LISTEN:
-   bed anchor · edit-sfx at bed−6 · foreground foley at bed−2. His three catches in one
-   day: foley 19dB under (inaudible Nev), whoosh sand at +18, bed drowning everything.
-2. **MOMENT balance, not averages** — at each cut the duck lowers the bed WHILE the sfx
-   plays: judge the cut INSTANT. Averages lied twice today.
-3. **Continuity** — no dropouts ≥6dB/≥0.25s (engine covers arrangement gaps with
-   SFX_OVERLAYS from the clips' own audio); no stepping ducks (smooth sidechain only);
-   the bed segment must not contain a breakdown mid-video (segment scan chooses, ear confirms).
-4. **Diegetic truth** — the launch SOUNDS like a launch (engine+spray foreground),
-   idle under Nev, spray on rolling. Foley exists because it was PAID FOR at generation.
-5. **Character** — no sand (noise sweeps sat too hot twice), no mud (77% sub-low shipped
-   once), no mono, true peak ≤ −1 dBTP MEASURED ON THE DELIVERED FILE (AAC overshoots
-   +1..3.4dB after the limiter — the pre-encode number is a lie).
+1. **Layer balance** — read the SOUND ENGINEER table, then LISTEN.
+2. **MOMENT balance, not averages** — judge the cut INSTANT. Averages lied twice.
+3. **Continuity** — no dropouts ≥6dB/≥0.25s; no stepping ducks; no breakdown mid-video.
+4. **Diegetic truth** — the launch sounds like a launch; the market sounds like a market.
+5. **Character** — no sand, no mud, no mono, TP ≤ −1 dBTP MEASURED ON THE DELIVERED FILE.
 
-## PART C — MEASUREMENT TRAPS (the checks themselves fail; verified today, do not relearn)
+## PART C — MEASUREMENT TRAPS (the checks themselves fail; all verified)
 
 ```
-NORMALIZE-UP        scaling a track to peak BOOSTS what you just quieted (x2 today)
-AVERAGE-vs-MOMENT   layer RMS said "6dB under"; at the cut instant it was ON TOP
-STALE CALIBRATION   a check tuned on old material (sparse synth bed) fails honest
-                    work on new material (dense real bed) - amend the CHECK
-PLANNED-vs-ACTUAL   blends compress the timeline; verify against rendered boundaries
-STRETCHED AUDIO     always re-measure the stretched file's tempo (149.5 != 150)
-DELIVERED WINDOW    gate what plays, not the clip head (2 false rejects in one day)
+NORMALIZE-UP        scaling to peak BOOSTS what you just quieted            (x2)
+AVERAGE-vs-MOMENT   layer RMS said "6dB under"; at the cut it was ON TOP
+STALE CALIBRATION   a check tuned on old material fails honest new work
+PLANNED-vs-ACTUAL   blends compress the timeline; verify rendered boundaries
+STRETCHED AUDIO     always re-measure the stretched file (149.5 != 150)
+DELIVERED WINDOW    gate what PLAYS, not the clip head            (3 false rejects)
 BLUR-AS-BLACK       the blank gate measures blur; smooth leather trips it
 AAC OVERSHOOT       true peak exists only in the delivered encode
-GENRE-vs-REFERENCE  a bare phonk bed is 70-89% sub-low BY GENRE; the 45%-body
-                    reference profile applies to the FULL MIX only
-FIX CREATES DEFECTS every fix pass re-runs every check (proven repeatedly)
+GENRE-vs-REFERENCE  a bare phonk bed is 70-89% sub-low BY GENRE
+FIX CREATES DEFECTS every fix pass re-runs every check
+VACUOUS PASS        a check that measured NOTHING must FAIL, never OK   (8 of 13 did)
+COLOUR-BLIND-METRIC NCC and pHash miss identical framing under a colour shift;
+                    strip the dimension the eye is ignoring
+SILENT NO-OP        a script reporting "patched 20" that changed nothing.
+                    READ THE EDITED LINES BACK AND ASSERT.
+OPEN-LOOP GAIN      a correction stage that APPLIES a computed gain and never
+                    re-measures its own output. The luma response of ffmpeg
+                    eq=brightness was assumed fixed at 134/unit; MEASURED 174-519
+                    (3.0x spread, content dependent). 17 of 20 shots overshot and
+                    landed on the FAR SIDE of the target. Every adjust stage must
+                    RE-MEASURE, and keep the untouched original as a candidate.
+SMOOTH NUMBER       a metric improved by DESTROYING the input. Exposure-match got
+                    its number by relighting an approved shot +72 luma. Ask what
+                    the check had to break to pass.
+UNIT HE CANNOT SEE  authority declared in opaque units (ffmpeg "brightness 0.14")
+                    hides its real size. State budgets in the unit he perceives -
+                    luma - or nobody can tell 12 from 72.
+OVER-DETERMINED     when a new constraint makes a rule-set INFEASIBLE, prove it by
+                    backtracking and drop one rule at a time to name the binding one.
+                    Then change the SHOT, never loosen a measured rule.
 ```
 
-## PART D — CLOSE THE LOOP (this is the entire point)
+## PART D — CLOSE THE LOOP
 
-For EVERY miss found, all three, same day:
+For EVERY miss, all three, same day:
 1. **FIX** it now, then re-run every gate (a fix pass creates new defects).
-2. **LEDGER** it — `ledgers/knowledge.json`, same day it is learned. Chat is disposable.
-3. **MECHANIZE** it — if the miss can become a number, it MUST become a check
-   (planqc if decidable from the plan; verify if from the file; engine if behaviour).
-   Today produced 9 new checks this way. Judgement is only for what numbers cannot hold.
+2. **LEDGER** it — craft goes in `general craft`, genre goes in its pillar topic.
+3. **MECHANIZE** it — plan-time if decidable from the plan (cheapest), clip-time if
+   decidable from a clip, cut-time only if it needs the finished file.
 
-Then: the NEXT plan's PREMORTEM must read the ledger and predict this build's likely
-misses with mitigations planned in. planqc will enforce (PREMORTEM / LINKAGE /
-LESSONS_ACK — speced in RESUME, build next session).
+**And add its question to PART 0.** A lesson that does not become a pre-flight question
+will be rediscovered by his eye on the next build. That is the whole point of this file.
 
 ## VERDICT FORMAT
 
 ```
 MASTERMIND QC — <project> <version>
+PREDICTION   P1-P8 answered? (any unanswered = not ready)
 PRE-FLIGHT   all green? (list any red -> stop)
-EYE          pass/fail per A1-A8, one line each, timestamped
+EYE          pass/fail per A1-A10, one line each, timestamped
+             (A2 identity: EVIDENCE ONLY — verdict is Gavril's)
 EAR          pass/fail per B1-B5, one line each, timestamped
 TRAPS        any check suspected of lying? which, why
-MISSES       each -> fix / ledger# / new-check(or "judgement-only, why")
+MISSES       each -> fix / ledger# / new-check / new PART 0 question
 VERDICT      SHIP to Gavril | FIX first (ranked list, pick named)
 ```
 
-> The standing gap, always: ten green checks still cannot measure whether anything
+> The standing gap, always: every green check still cannot measure whether anything
 > HAPPENS. One posted video with a real 24-hour curve outranks everything in this file.
