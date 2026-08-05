@@ -10,9 +10,16 @@ WHEN CLAUDE SAYS "run PUSH.bat and clear the chat now":
 That is everything. The new Claude reads 2 files and knows the whole project.
 
 (If you prefer attaching a file instead of the one-liner: attach exactly ONE -
-the NEWEST RESUME-*.md. Right now that is: RESUME-2026-08-05b.md.
+the NEWEST RESUME-*.md. Right now that is: RESUME-2026-08-05c.md.
 Claude updates this line at every handover so it always names the right file.)
 
 IF YOU FORGET TO PUSH before clearing: nothing is lost - the files are still on
 this computer. Just push whenever, the new chat works either way.
 IF YOU'RE ON THE OTHER MACHINE: double-click PULL.bat first, then step 2-3.
+
+NOTE FOR REMOTE/COWORK CHATS ONLY (2026-08-05): git through the Cowork folder
+bridge leaves stale .git/*.lock files it is not allowed to delete, and the next
+git command then fails with "cannot lock ref HEAD" or "index.lock exists".
+It is harmless and nothing is corrupted. Claude clears it by moving the lock
+aside before the command. If you ever see it yourself, delete .git/index.lock
+and .git/HEAD.lock by hand and carry on.
