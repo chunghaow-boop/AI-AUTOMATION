@@ -43,8 +43,15 @@
       "id": "UNV-1",
       "claim": "'the approved Supra probe 4.11' - cited in clipqc.py as the origin of the EVENT motion floor 4.0, and in PILLAR-PROFILES motion_source.",
       "problem": "No quote exists for this approval anywhere in the repo. I cannot show that he ever approved the Supra probe, at any scope.",
-      "live_risk": "HIGH, and it is not theoretical. This floor REJECTS clips. A wrong reject costs 22.5 credits and a regeneration cycle. It is currently a blocking gate justified by a warrant I cannot produce.",
-      "action": "Do not spend against it and do not tighten it. Ask him what the Supra probe verdict actually was, or re-derive the floor from clips whose status is documented."
+      "live_risk": "WAS HIGH - the floor REJECTED clips at 22.5cr each on a warrant I cannot produce. RESOLVED 2026-08-05 (session 3): downgraded to non-blocking, so a wrong threshold now costs attention, not credits.",
+      "action": "DONE. Asked him directly to settle it. He did not confirm the Supra approval; he chose 'Mark PROVISIONAL, non-blocking'. clipqc.py 'EVENT window (delivered)' is now blocking=False and says PROVISIONAL in its own output. The number 4.0 is retained ONLY as a reported reference.",
+      "resolution": {
+        "date": "2026-08-05",
+        "decided_by": "Gavril, answering a direct question at session start",
+        "verbatim": "Mark PROVISIONAL, non-blocking",
+        "scope": "the clipqc EVENT motion floor only. NOT an approval of the value 4.0, and NOT an approval of the Supra probe.",
+        "re_promote_condition": "an approvals.json entry with a VERBATIM quote at clip scope. Until then the floor may not block and may not be tightened."
+      }
     },
     {
       "id": "UNV-2",

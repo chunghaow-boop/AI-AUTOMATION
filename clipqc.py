@@ -181,11 +181,18 @@ def gate_clip(path, P, key=None):
                 best_m, best_i = m, i
         rest = mot[:best_i] + mot[best_i + wlen:]
         ratio = (best_m + 1e-6) / ((float(np.mean(rest)) if rest else 0.0) + 1e-6)
+        # DOWNGRADED TO NON-BLOCKING 2026-08-05 (session 3), by Gavril's decision when
+        # asked to settle UNV-1: "Mark PROVISIONAL, non-blocking". The floor 4.0 has no
+        # producible approval quote behind it, and as a BLOCKING gate it rejected clips
+        # at 22.5cr each on a warrant I cannot show. It now reports and does not reject;
+        # his eye calls the first probe of a new pillar. Re-promote to blocking ONLY
+        # after an approvals.json entry exists with a verbatim quote at clip scope.
         _ef = _sty.get("event_motion_floor", 4.0)
         add("EVENT window (delivered)", best_m >= _ef,
             f"best {d:.2f}s window mean {best_m:.2f} at {best_i / fps:.2f}s "
-            f"(floor {_ef} for '{getattr(P,'PILLAR','?')}'; car 4.0 came from the "
-            f"Supra probe 4.11 - PROVENANCE UNVERIFIED, see approvals.json UNV-1)" + ("  [PROVISIONAL]" if _prov_motion else ""))
+            f"(floor {_ef} for '{getattr(P,'PILLAR','?')}' - PROVISIONAL, NON-BLOCKING: "
+            f"the 4.0 origin 'Supra probe 4.11' has no approval quote, approvals.json "
+            f"UNV-1. Reported for your eye, not enforced)", False)
         add("EVENT is the loudest thing", ratio >= 2.0,
             f"delivered-window/rest ratio {ratio:.1f}x (>=2x)", False)
 
