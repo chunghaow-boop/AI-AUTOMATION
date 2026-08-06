@@ -1,5 +1,25 @@
 # TALYX AI VIDEO AUTOMATION — project instructions
-Local Claude Code loads this automatically. Read `GATE.md` and `PROMPTS.md` before any build.
+Local Claude Code loads this automatically.
+
+> ## READ THESE THREE, IN THIS ORDER, BEFORE ANYTHING ELSE
+> ```
+> 1. this file              the rules and the contract
+> 2. SYSTEM-MAP.md          the whole pipeline top to bottom - every file, every
+>                           gate, every threshold, the plan->engine contract, the
+>                           bug classes, the seats, the cost model.
+>                           WRITTEN SO A NEW SESSION NEVER STARTS FROM ZERO.
+> 3. the NEWEST RESUME-*.md where we actually are right now
+> ```
+> Then state where we are in ONE line and wait.
+>
+> **Do not re-derive the architecture by reading source.** It is already written
+> down. Re-deriving it burns a third of a session before any work happens.
+> If SYSTEM-MAP.md disagrees with the code, the CODE is right and the map is
+> stale - fix the map and say so in the RESUME.
+>
+> Corrected 2026-08-06: this line used to read "Read `GATE.md` and `PROMPTS.md`
+> before any build." **Neither file exists.** The first instruction every session
+> read was a dead pointer - a large part of why every session started cold.
 
 ## WHAT THIS IS
 Fully-AI short-form video for a Malaysian recond-car audience. Three formats — **vlog · car

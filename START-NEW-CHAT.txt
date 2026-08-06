@@ -1,33 +1,50 @@
 PASTE THIS INTO A NEW CHAT
 ==========================
 
-Read CLAUDE.md, then RESUME-2026-08-06.md (the newest). Then tell me the state
-in one line and wait.
+Read these THREE files in this order before doing anything, then tell me where we
+are in ONE line and wait:
 
-Repo:  https://github.com/chunghaow-boop/AI-AUTOMATION
+    1. CLAUDE.md            the rules and the contract
+    2. SYSTEM-MAP.md        the WHOLE pipeline top to bottom - every file, every
+                            gate and its threshold, the plan->engine contract,
+                            the bug classes that have cost money, the seats,
+                            the cost model, the pillars.
+    3. RESUME-2026-08-06.md the newest RESUME - where we actually are
+
+DO NOT re-derive the architecture by reading planqc.py / engine.py / verify.py.
+It is ALL in SYSTEM-MAP.md. Re-deriving it burns a third of a session before any
+work happens. If the map disagrees with the code, the CODE is right - fix the map
+and note it in the RESUME.
+
 Local: C:\Users\User\Desktop\AI
+Repo:  https://github.com/chunghaow-boop/AI-AUTOMATION
 
 FIRST TWO THINGS, ALWAYS:
   1. MEASURE the credit balance. Never estimate. A past estimate was off 352cr.
-  2. python tools\mastermind_loop.py --audit      (must say CLEAN)
+  2. python tools\mastermind_loop.py --audit        (must say CLEAN)
 
-NEW THIS SESSION (2026-08-06) — six tools, all additive:
-  SETUP-TOOLS.bat            one click install + self-test everything
-  tools\bugsense.py          predicts structural bugs before they run
-  tools\mastermind_loop.py   routing + seat dispatch + 5-failure stop
-  tools\storyboard.py        per-shot reference image BEFORE spend
-  tools\refsense.py          reference DNA + semantic teardown corpus
-  tools\reffetch.py          fetch references by URL, auto-study
-  tools\judge.py             the LLM loop (file 06 judges)
-  ledgers\routing.json       68 checks -> the seat that owns each
+WHERE WE ARE (2026-08-06):
+  - crown: planqc PASS 35/35 but VETOED by judge J4 - card 4 "NEVER SOLD NEW IN
+    MALAYSIA" is a present-tense absolute verified against a 2024-03-04 source.
+    Re-verify against 2026, or reword to "JAPAN-MARKET IMPORT ONLY". Free.
+  - Crown plates crown + crown_int are NOT BUILT (8cr). Storyboard shows 17 red
+    MISSING panels until they are.
+  - 23 references MEASURED, ZERO READ. refsense --strip then --fill. Zero credits,
+    highest value work available.
+  - ZERO POSTS, EVER. Still the biggest gap in the system.
 
-CROWN IS VETOED, NOT CLEARED:
-  planqc passes 35/35 but judge J4 vetoed card 4 "NEVER SOLD NEW IN MALAYSIA" —
-  present-tense absolute claim verified against a 2024-03-04 source. Re-verify
-  against a 2026 source or reword to "JAPAN-MARKET IMPORT ONLY". Free, plan-time.
-
-IF STARTING A NEW TITLE, READ THIS FIRST:
+IF I BRING A NEW TITLE:
   Music-led pillars (car_cinematic, car_cinematic_chill, travel_vlog) are ready
   end to end. Speech-led pillars (car_review, industry) can be PLANNED but NOT
-  BUILT — cut_spine="sentence" and the sentence editor does not exist. planqc
-  26c warns about exactly this. Do not promise a talking-format build.
+  BUILT - cut_spine="sentence" and that editor does not exist. planqc 26c warns.
+  Do not promise a talking-format build.
+
+TOOLS ADDED 2026-08-06 (all additive, all documented in SYSTEM-MAP.md):
+  SETUP-TOOLS.bat          one click: install deps + self-test everything
+  tools\mastermind_loop.py routing + seat dispatch + 5-failure stop
+  tools\judge.py           the LLM loop (file 06 judges)
+  tools\storyboard.py      per-shot reference image BEFORE spend
+  tools\bugsense.py        predicts structural bugs before they run
+  tools\refsense.py        reference DNA + semantic teardown corpus
+  tools\reffetch.py        fetch references by URL, auto-study
+  ledgers\routing.json     68 checks -> the seat that owns each
