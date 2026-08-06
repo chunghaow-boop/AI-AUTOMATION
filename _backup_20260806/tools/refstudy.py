@@ -124,12 +124,8 @@ def _cuts_and_grade(path):
         if not merged or i - merged[-1] > int(max(2, fps/stride*0.20)): merged.append(i)
     hard = sum(1 for i in merged
                if d[i] > 2.2*max(d[max(0,i-2)], d[min(len(d)-1,i+2)]))
-    # FIX 2026-08-06 (found by tools/bugsense.py class 3): this line read
-    #   dur = (cap_frames/fps) if False else (frames*stride/fps if fps else 0)
-    # `cap_frames` is defined nowhere. The `if False` meant the branch never
-    # evaluated, so it never raised — a landmine that becomes a live NameError the
-    # moment anyone edits that condition. Dead branch removed, behaviour identical.
-    dur = (frames * stride / fps) if fps else 0
+    eff = fps/stride
+    dur = (cap_frames/fps) if False else (frames*stride/fps if fps else 0)
     shots = []
     b = [0]+merged+[len(d)]
     for k in range(len(b)-1): shots.append(round((b[k+1]-b[k])*stride/fps, 2))

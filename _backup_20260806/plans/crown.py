@@ -436,16 +436,6 @@ SOUND = {
                    "tail": "shot 20 is diegetic sea only - no bed",
                    "duck": "OWNED BY SOUND['duck'] BELOW. Not restated here - v2 declared the "
                            "duck in two places with different values."},
-    # ---- READ BY engine.py:781 --------------------------------------------------
-    # THE ONLY MACHINE-READ KEY IN THIS DICT. Everything else here is prose for a human.
-    # engine.py line 781:  _hero = SOUND.get("hero_shot", 0)
-    #        then line 782: _ht = 0.0 if _hero == 0 else cuts[_hero - 1]
-    # Without this key the default 0 placed the hero impact at t=0.00s — 14.00s early,
-    # on frame one of a film whose whole first half is silence. Measured 2026-08-06.
-    # planqc has no check for it (it validates hero/duck_shots/silence, not hero_shot),
-    # and under edit_sfx=hero_only the engine never consults IMPACT_AT, so nothing else
-    # would have caught it. It would have shipped on a 278cr build.
-    "hero_shot":  11,
     "hero":       "THE PETROL ENGINE CATCHING (shot 11, 14.00s delivered), CAUSED by his "
                   "commit in shot 10. ONE hero sound per video (file 04, law 4).",
     "hero_layers": {"transient": "the crank/catch from F_wake's own audio",

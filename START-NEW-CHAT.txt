@@ -1,25 +1,33 @@
-HOW TO END A CHAT AND START A NEW ONE (nothing can be messed up)
+PASTE THIS INTO A NEW CHAT
+==========================
 
-WHEN CLAUDE SAYS "run PUSH.bat and clear the chat now":
-  1. Double-click PUSH.bat  (wait for it to finish)
-  2. Start a NEW chat in Cowork, same AI folder selected
-  3. Copy-paste this one line as your first message:
+Read CLAUDE.md, then RESUME-2026-08-06.md (the newest). Then tell me the state
+in one line and wait.
 
-     Read CLAUDE.md and the newest RESUME file in this folder, then continue where we left off.
+Repo:  https://github.com/chunghaow-boop/AI-AUTOMATION
+Local: C:\Users\User\Desktop\AI
 
-That is everything. The new Claude reads 2 files and knows the whole project.
+FIRST TWO THINGS, ALWAYS:
+  1. MEASURE the credit balance. Never estimate. A past estimate was off 352cr.
+  2. python tools\mastermind_loop.py --audit      (must say CLEAN)
 
-(If you prefer attaching a file instead of the one-liner: attach exactly ONE -
-the NEWEST RESUME-*.md. Right now that is: RESUME-2026-08-05d.md.
-Claude updates this line at every handover so it always names the right file.)
+NEW THIS SESSION (2026-08-06) — six tools, all additive:
+  SETUP-TOOLS.bat            one click install + self-test everything
+  tools\bugsense.py          predicts structural bugs before they run
+  tools\mastermind_loop.py   routing + seat dispatch + 5-failure stop
+  tools\storyboard.py        per-shot reference image BEFORE spend
+  tools\refsense.py          reference DNA + semantic teardown corpus
+  tools\reffetch.py          fetch references by URL, auto-study
+  tools\judge.py             the LLM loop (file 06 judges)
+  ledgers\routing.json       68 checks -> the seat that owns each
 
-IF YOU FORGET TO PUSH before clearing: nothing is lost - the files are still on
-this computer. Just push whenever, the new chat works either way.
-IF YOU'RE ON THE OTHER MACHINE: double-click PULL.bat first, then step 2-3.
+CROWN IS VETOED, NOT CLEARED:
+  planqc passes 35/35 but judge J4 vetoed card 4 "NEVER SOLD NEW IN MALAYSIA" —
+  present-tense absolute claim verified against a 2024-03-04 source. Re-verify
+  against a 2026 source or reword to "JAPAN-MARKET IMPORT ONLY". Free, plan-time.
 
-NOTE FOR REMOTE/COWORK CHATS ONLY (2026-08-05): git through the Cowork folder
-bridge leaves stale .git/*.lock files it is not allowed to delete, and the next
-git command then fails with "cannot lock ref HEAD" or "index.lock exists".
-It is harmless and nothing is corrupted. Claude clears it by moving the lock
-aside before the command. If you ever see it yourself, delete .git/index.lock
-and .git/HEAD.lock by hand and carry on.
+IF STARTING A NEW TITLE, READ THIS FIRST:
+  Music-led pillars (car_cinematic, car_cinematic_chill, travel_vlog) are ready
+  end to end. Speech-led pillars (car_review, industry) can be PLANNED but NOT
+  BUILT — cut_spine="sentence" and the sentence editor does not exist. planqc
+  26c warns about exactly this. Do not promise a talking-format build.

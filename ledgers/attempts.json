@@ -1,0 +1,23 @@
+{
+ "_what": "Attempt counts per project per check. The 5-failure stop rule, enforced mechanically. Written by tools/mastermind_loop.py.",
+ "projects": {
+  "crown": {
+   "16 shot mix": {
+    "attempts": 0,
+    "history": []
+   },
+   "22b premortem cites": {
+    "attempts": 0,
+    "history": []
+   },
+   "26b style provisional": {
+    "attempts": 0,
+    "history": []
+   },
+   "17 cost": {
+    "attempts": 0,
+    "history": []
+   }
+  }
+ }
+}

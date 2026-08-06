@@ -102,22 +102,6 @@ def gate_clip(path, P, key=None):
     # so their head checks are warnings, not blocks (see EVENT section).
     act = P.SOURCES[key][2].upper() if key and key in P.SOURCES else None
 
-    # ---- 0 ROLE RESOLVED (warn) -------------------------------------------------
-    # ADDED 2026-08-06. When a filename does not reverse-lookup to a source key, `key`
-    # is None, so `act` is None, and EVERY role gate below silently does nothing:
-    # the EVENT window, the EVENT-is-loudest ratio, the foley audibility check and the
-    # face-READS check are all guarded by `act`. The clip then prints ACCEPT having
-    # been measured by five generic checks instead of nine. That is a VACUOUS PASS in
-    # the exact sense file 27 PART C names — a clip that looks gated and is not.
-    # Deliberately NON-BLOCKING: a naming mismatch is an operator problem, and a
-    # blocking version could reject a good 22.5cr clip over a filename. It costs
-    # attention, not credits.
-    add("0 role resolved", act is not None,
-        (f"act={act} from key '{key}' — role gates active" if act is not None else
-         "NOT RESOLVED — filename did not match any source key, so the EVENT, foley "
-         "and face gates DID NOT RUN. Rename to <project>_<KEY>_*.mp4 or pass --key."),
-        False)
-
     # ---- 2 OPENING SETTLE (warn) + 2b DELIVERED WINDOW (blocking) ----
     # AMENDED AGAIN 2026-08-04, WRX batch: clip C (scoop macro) repeated probe A's
     # false-reject - static raw head, live delivered window (3.53 at 2.25s). The

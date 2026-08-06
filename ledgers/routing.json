@@ -1,0 +1,135 @@
+{
+  "_what": "THE ROUTING TABLE. Every gate in this repo can say a check FAILED. Not one of them could say WHO FIXES IT. This file closes that gap: check name -> the seat that owns it, the concrete fix, and which gate re-runs to prove the fix worked.",
+  "_why": "Gavril's doctrine, stated 2026-08-06: 'if one fails it redirects to respect parts or seats or agent to refix it again and again until it passes'. Before this file that routing was a person reading output and deciding by hand, which meant it died with every chat. The repo is the memory; the routing has to live in the repo.",
+  "_rule": "KEYS MUST MATCH THE GATE'S EMITTED STRING BYTE FOR BYTE. They were extracted from the source on 2026-08-06, not typed from memory. tools/mastermind_loop.py --audit re-extracts them and fails loudly on any drift. A routing table that silently misses is worse than none, because it reports 'no owner' for a check that has one.",
+  "_created": "2026-08-06",
+  "_readers": [
+    "tools/mastermind_loop.py  — dispatches on it",
+    "MASTERMIND.md             — renders it; the doc holds no second copy"
+  ],
+
+  "seats": {
+    "MASTERMIND": {"file": "27-mastermind-qc.md", "owns": "the plan, and the final verdict on the cut. First planner, last judge."},
+    "STRATEGIST": {"file": "08-the-strategist.md", "owns": "title decode, pillar choice, audience, the claim"},
+    "SCRIPTWRITER": {"file": "01-4-beat-spine.md", "owns": "beat spine, twist, CTA, card copy"},
+    "DIRECTOR": {"file": "02-ai-video-crew-roles.md", "owns": "shot list, coverage, what happens in each shot"},
+    "PERFORMANCE": {"file": "03-physical-performance-master.md", "owns": "what the human does on screen"},
+    "EMOTION": {"file": "07-emotion-engine.md", "owns": "the felt arc, why a viewer stays"},
+    "DOP": {"file": "05-cinematic-ai-video-spec.md", "owns": "framing, lens, motion, sharpness, composition"},
+    "GAFFER": {"file": "05-cinematic-ai-video-spec.md", "owns": "light, exposure, the time-of-day clock"},
+    "FOLEY": {"file": "04-foley-master.md", "owns": "diegetic sound, what each shot sounds like"},
+    "SOUND_ENGINEER": {"file": "19-sound-engineer.md", "owns": "bed, mix, loudness, ducking, transient design"},
+    "EDITOR": {"file": "10-the-editor.md", "owns": "cut points, rhythm, repetition, captions on the timeline"},
+    "TRANSITION_MASTER": {"file": "25-qc-debate-protocol.md", "owns": "blends, wipes, every non-hard boundary"},
+    "TECHNOLOGIST": {"file": "18-agent-contract.md", "owns": "plates, generation params, cost, tooling, file hygiene"},
+    "J0": {"file": "06-content-judges.md", "owns": "THE HOOK. Solo veto. Nothing ships past a dead first 2 seconds."},
+    "PANEL": {"file": "06-content-judges.md", "owns": "J1-J6 reception: is it worth watching at all"},
+    "OPERATOR": {"file": "22-HANDOVER.md", "owns": "Gavril. Naming, filesystem, spending, and every judgement Claude may not make."}
+  },
+
+  "_decidable_at": {
+    "plan": "free. Fix in plans/<name>.py and re-run planqc. ALWAYS prefer this.",
+    "clip": "costs 22.5cr to regenerate. Fix the PROMPT in the plan, then regenerate that one clip.",
+    "cut": "free to rebuild. Fix the plan or the engine input, then re-run build + verify.",
+    "eye": "Claude may not decide this. Present evidence, Gavril rules."
+  },
+
+  "routes": {
+    "planqc": {
+      "1 duration": {"seat": "MASTERMIND", "decidable_at": "plan", "fix": "timeline() disagrees with TARGET_S. One of them is wrong — usually BEATS was copied from a plan at a different BPM.", "regate": "planqc"},
+      "2 pillar band": {"seat": "EDITOR", "decidable_at": "plan", "fix": "Shot count or shot lengths are off this pillar's measured band. Change BEATS or the shot list, never the profile.", "regate": "planqc"},
+      "2b shot extremes": {"seat": "EDITOR", "decidable_at": "plan", "fix": "One shot dominates the runtime. Split it or shorten it.", "regate": "planqc"},
+      "3 coverage": {"seat": "DIRECTOR", "decidable_at": "plan", "fix": "Too few distinct sources for the cut rate. Add a source or cut fewer times.", "regate": "planqc"},
+      "4 source balance": {"seat": "DIRECTOR", "decidable_at": "plan", "fix": "One clip is carrying too many shots, or a paid source is never used.", "regate": "planqc"},
+      "5 adjacency": {"seat": "EDITOR", "decidable_at": "plan", "fix": "Two neighbouring shots come from one clip. Reorder, or take one from another source.", "regate": "planqc"},
+      "6 crop cap": {"seat": "DOP", "decidable_at": "plan", "fix": "A punch-in exceeds MAX_CROP. 1.9x measured an 82% loss of sharpness. Lower the crop, do not raise the cap.", "regate": "planqc"},
+      "7 crop distribution": {"seat": "DOP", "decidable_at": "plan", "fix": "Crops cluster, or shot 0 opens cropped, or a hold is cropped. Redistribute.", "regate": "planqc"},
+      "8 repeat framing": {"seat": "DOP", "decidable_at": "plan", "fix": "The same (source, crop) appears twice — the same picture twice. Change one, or declare it in CALLBACKS if it is a deliberate rhyme.", "regate": "planqc"},
+      "9 hook is an EVENT": {"seat": "J0", "decidable_at": "plan", "fix": "Shot 0 must be an EVENT act and be over inside 2.00s. A tour is not a hook. J0 has solo veto.", "regate": "planqc"},
+      "10 hold placement": {"seat": "EDITOR", "decidable_at": "plan", "fix": "A hold sits on a shot with nothing to hold on. Move it to a PAYOFF, HUMAN or EVENT.", "regate": "planqc"},
+      "11 blends": {"seat": "TRANSITION_MASTER", "decidable_at": "plan", "fix": "Blend count, width or kind is outside the profile. BLEND_KIND 'dip' fades through black and auto-fails.", "regate": "planqc"},
+      "12 caption zone": {"seat": "SCRIPTWRITER", "decidable_at": "plan", "fix": "A card sits in the centre band, overruns the shot count, or exceeds the pillar's word limit.", "regate": "planqc"},
+      "12b card style": {"seat": "SCRIPTWRITER", "decidable_at": "plan", "fix": "CARD_STYLE=narrative raises the word limit. Confirm that is intended for this pillar.", "regate": "planqc"},
+      "13 reference plates": {"seat": "TECHNOLOGIST", "decidable_at": "plan", "fix": "A plate is not 4k, a cited plate does not exist, or a human source does not carry the identity reference. A text-only prompt for a named subject returns a stranger.", "regate": "planqc"},
+      "14 prompt quality": {"seat": "DOP", "decidable_at": "plan", "fix": "Every prompt needs the realism clause, a negative block, and a reference-image citation.", "regate": "planqc"},
+      "15 quality defaults": {"seat": "TECHNOLOGIST", "decidable_at": "plan", "fix": "MODE must be std, never fast chosen silently to save money. AI label is a human step at upload, never burned in.", "regate": "planqc"},
+      "16 shot mix": {"seat": "DIRECTOR", "decidable_at": "plan", "fix": "Act distribution is far off the pillar's mix. Warn only — deliberate deviation is allowed if stated.", "regate": "planqc"},
+      "17 cost": {"seat": "OPERATOR", "decidable_at": "plan", "fix": "Total exceeds the MEASURED balance. Measure the balance, never estimate — a past estimate was off by 352cr.", "regate": "planqc"},
+      "18 content": {"seat": "STRATEGIST", "decidable_at": "plan", "fix": "CONTENT needs claim, verification source, twist and why_stop. A build with no claim has nothing to be right about.", "regate": "planqc"},
+      "19 sound design": {"seat": "SOUND_ENGINEER", "decidable_at": "plan", "fix": "FOLEY/SOUND missing or incomplete. Clip audio is generated and PAID FOR; the plan must decide how it is used before spend.", "regate": "planqc"},
+      "20 transitions": {"seat": "TRANSITION_MASTER", "decidable_at": "plan", "fix": "A blend touches an EVENT shot. A state change dissolved is a state change nobody saw.", "regate": "planqc"},
+      "21 source capacity": {"seat": "DIRECTOR", "decidable_at": "plan", "fix": "A source is asked for more seconds than the clip has. Split the source or shorten its shots.", "regate": "planqc"},
+      "22 premortem": {"seat": "MASTERMIND", "decidable_at": "plan", "fix": "Need >=3 (risk, mitigation) pairs predicting THIS build's mistakes, read from the ledger.", "regate": "planqc"},
+      "22b premortem cites": {"seat": "MASTERMIND", "decidable_at": "plan", "fix": "No premortem entry cites an L<n> lesson. A premortem must READ the ledger, not free-associate.", "regate": "planqc"},
+      "23 lessons ack": {"seat": "MASTERMIND", "decidable_at": "plan", "fix": "LESSONS_ACK must equal the ledger's CURRENT count for this pillar topic and for general craft. Under-count = stale; over-count = invented.", "regate": "planqc"},
+      "23b neighbouring genres": {"seat": "MASTERMIND", "decidable_at": "plan", "fix": "Informational: other pillars' lesson counts, often the closest prior art. Read them before planning a new pillar — filing every lesson under car_cinematic made every later pillar start blind.", "regate": "planqc"},
+      "24 linkage": {"seat": "DIRECTOR", "decidable_at": "plan", "fix": "Every boundary needs a declared connection intent.", "regate": "planqc"},
+      "24b linkage measured": {"seat": "GAFFER", "decidable_at": "clip", "fix": "Measured brightness discontinuity at a boundary, from the ingest manifest.", "regate": "planqc"},
+      "25 field sanity": {"seat": "TECHNOLOGIST", "decidable_at": "plan", "fix": "A DELOGO rect, SFX_OVERLAY window, FOLEY key or card character is out of bounds. These reach the engine as literals.", "regate": "planqc"},
+      "26 style declared": {"seat": "MASTERMIND", "decidable_at": "plan", "fix": "This pillar has no style block, so it would silently inherit the car-night defaults. Declare the pillar in PILLAR-PROFILES.json.", "regate": "planqc"},
+      "26b style provisional": {"seat": "MASTERMIND", "decidable_at": "plan", "fix": "The band is a structural CHOICE, not a measurement. Re-derive from real clips at first ingest and only then mark it MEASURED.", "regate": "planqc"},
+      "26c editor exists?": {"seat": "EDITOR", "decidable_at": "plan", "fix": "cut_spine=sentence — the speech-led editor is not built. Do not plan a long-form cut against it yet.", "regate": "planqc"},
+      "27 identity coverage": {"seat": "TECHNOLOGIST", "decidable_at": "plan", "fix": "Too many human sources opted out of the face read. Identity may be waived per shot with a reason, never entirely.", "regate": "planqc"},
+      "28 framing diversity": {"seat": "DOP", "decidable_at": "plan", "fix": "Two sources share a plate and declare the same framing. A plate anchors PLACE and, unqualified, FRAMING too — measured on KK v1 as 5 shots of one image.", "regate": "planqc"},
+      "29 linkage carry": {"seat": "DIRECTOR", "decidable_at": "plan", "fix": "A linkage token does not appear in the writing of BOTH shots it joins. The plan contradicts itself in prose.", "regate": "planqc"},
+      "29b prose linkages": {"seat": "DIRECTOR", "decidable_at": "plan", "fix": "Some boundaries are prose, not typed (kind, token, why). Type them so they can be checked.", "regate": "planqc"},
+      "30 time monotonic": {"seat": "GAFFER", "decidable_at": "plan", "fix": "The clock runs backwards or jumps. KK v15 ran golden->night->daylight->morning under a '6PM' card.", "regate": "planqc"},
+      "31 consequence spine": {"seat": "SCRIPTWRITER", "decidable_at": "plan", "fix": "Too few CONSEQUENCE boundaries. Resemblance is continuity; only consequence makes a story. Non-blocking by design.", "regate": "planqc"}
+    },
+
+    "clipqc": {
+      "readable": {"seat": "TECHNOLOGIST", "decidable_at": "clip", "fix": "File is corrupt or truncated. Re-download before assuming the generation failed.", "regate": "clipqc"},
+      "0 role resolved": {"seat": "OPERATOR", "decidable_at": "clip", "fix": "Filename did not match a source key, so the EVENT, foley and face gates DID NOT RUN. Rename to <project>_<KEY>_*.mp4 or pass --key, then re-gate.", "regate": "clipqc"},
+      "specs": {"seat": "TECHNOLOGIST", "decidable_at": "clip", "fix": "Wrong resolution or duration. Check the generation parameters before regenerating.", "regate": "clipqc"},
+      "no-settle open": {"seat": "DOP", "decidable_at": "clip", "fix": "Static head. Warn only — the engine centres on the action peak, so the head is the wrong measurement.", "regate": "clipqc"},
+      "delivered window": {"seat": "DOP", "decidable_at": "clip", "fix": "The window that will actually PLAY is below this pillar's motion floor. Regenerate with explicit camera movement in the prompt.", "regate": "clipqc"},
+      "alive after 2s": {"seat": "DOP", "decidable_at": "clip", "fix": "Dead air past 2s. Warn only if the plan never cuts past it.", "regate": "clipqc"},
+      "brightness": {"seat": "GAFFER", "decidable_at": "clip", "fix": "Outside this pillar's brightness band. If the band is PROVISIONAL, check the band before rejecting a 22.5cr clip.", "regate": "clipqc"},
+      "sharpness": {"seat": "DOP", "decidable_at": "clip", "fix": "Soft clip. Regenerate; the edit cannot add sharpness.", "regate": "clipqc"},
+      "EVENT window (delivered)": {"seat": "J0", "decidable_at": "clip", "fix": "The event is weak in the window that plays. PROVISIONAL and non-blocking — the floor's provenance is unverified (approvals.json UNV-1). Do not tighten it; re-derive or ask.", "regate": "clipqc"},
+      "EVENT is the loudest thing": {"seat": "J0", "decidable_at": "clip", "fix": "The event does not dominate its own clip. It exists but does not read.", "regate": "clipqc"},
+      "foley source audible": {"seat": "FOLEY", "decidable_at": "clip", "fix": "A shot mixed foreground has no usable audio. The paid diegetic layer would ship silent.", "regate": "clipqc"},
+      "on-subject text -> EYE": {"seat": "OPERATOR", "decidable_at": "eye", "fix": "Read the text-zoom PNG. Models write gibberish on every legible surface — an invented 'SR' badge shipped through 8 builds. Reject (22.5cr) or plan a DELOGO patch (free).", "regate": "clipqc"},
+      "face READS (delivered window)": {"seat": "OPERATOR", "decidable_at": "eye", "fix": "Presence is not the standard, legibility is. Claude may present matched-scale crops; the identity verdict is Gavril's, always.", "regate": "clipqc"}
+    },
+
+    "verify": {
+      "0 freshness": {"seat": "TECHNOLOGIST", "decidable_at": "cut", "fix": "The output is older than an input. REBUILD. Every number below it is measuring the wrong file — nothing else runs until this passes.", "regate": "build"},
+      "1 qc.py profile": {"seat": "EDITOR", "decidable_at": "cut", "fix": "The cut is off the pillar profile. Change the plan's shot lengths, not the profile.", "regate": "build"},
+      "2 cut-to-music": {"seat": "EDITOR", "decidable_at": "cut", "fix": "Cuts are not landing on the bed's grid. Check BED_OFFSET phase fitting, and that BPM matches the bed.", "regate": "build"},
+      "3 sfx audible": {"seat": "SOUND_ENGINEER", "decidable_at": "cut", "fix": "Transient does not lift at the cut. Over a dense bed no mix gain can score +2 — check which regime applies before chasing gain.", "regate": "build"},
+      "4 repetition": {"seat": "EDITOR", "decidable_at": "cut", "fix": "Adjacent shots barely change the image. Change the source or the framing in the plan.", "regate": "build"},
+      "5 exposure match": {"seat": "GAFFER", "decidable_at": "cut", "fix": "Big luma swing at a cut. DO NOT close this by relighting — v14 bought a smooth number by moving an approved shot +72 luma. See check 15.", "regate": "build"},
+      "6 caption zone": {"seat": "SCRIPTWRITER", "decidable_at": "cut", "fix": "A card is in the centre band where the subject lives.", "regate": "build"},
+      "7 action peaks": {"seat": "DIRECTOR", "decidable_at": "cut", "fix": "Shots with no action peak. With exclusive window allocation a source with 3 shots and 2 peaks is scarcity, not a broken pick — but the HOOK must always have one.", "regate": "build"},
+      "8 audio": {"seat": "SOUND_ENGINEER", "decidable_at": "cut", "fix": "LUFS, true peak or silence ratio outside band. True peak exists only in the delivered encode.", "regate": "build"},
+      "9 true black frames": {"seat": "EDITOR", "decidable_at": "cut", "fix": "A truly black frame is in the cut. Check blend kind — 'dip' fades through black.", "regate": "build"},
+      "10 far repeats": {"seat": "EDITOR", "decidable_at": "cut", "fix": "Two NON-ADJACENT shots share footage. Gavril found the payoff replaying the tease's exact frames by eye.", "regate": "build"},
+      "11 transitions": {"seat": "TRANSITION_MASTER", "decidable_at": "cut", "fix": "A blend lands off the beat grid, or smears the frame.", "regate": "build"},
+      "12 storyboard tally": {"seat": "MASTERMIND", "decidable_at": "cut", "fix": "The built cut disagrees with the plan: shot count, overlapping windows, or an unused paid source.", "regate": "build"},
+      "13 composition dupes": {"seat": "DOP", "decidable_at": "cut", "fix": "Two shots share a composition, deliberately blind to colour. Threshold 0.93 is fitted to THREE eyeballed samples — widen the sample before trusting it further.", "regate": "build"},
+      "14 place variety": {"seat": "DIRECTOR", "decidable_at": "cut", "fix": "Too many shots in the same visual place. Framing variety is not place variety — optimising framing moved dupes 3->0 while place repeats held at 7.", "regate": "build"},
+      "15 relight audit": {"seat": "GAFFER", "decidable_at": "cut", "fix": "The edit relit a shot past its declared luma budget. NON-BLOCKING BY INSTRUCTION: 'dont lock it i want you to learn from it'. A number that blocks gets obeyed and stops being thought about.", "regate": "build"}
+    },
+
+    "cutsense": {
+      "LRA": {"seat": "SOUND_ENGINEER", "decidable_at": "cut", "fix": "Loudness range too flat — the whole file sits at one level. Integrated LUFS and true peak can both be perfect while LRA is 1.0. Threshold 4.0 is a declared CHOICE, not a measurement.", "regate": "build"},
+      "repeat pairs": {"seat": "EDITOR", "decidable_at": "cut", "fix": "Non-adjacent shot pairs over the correlation threshold. 0.90 is a declared CHOICE.", "regate": "build"},
+      "event curve": {"seat": "J0", "decidable_at": "cut", "fix": "The biggest visual event is outside the first 3 seconds. Open on an EVENT, not a tour.", "regate": "build"}
+    },
+
+    "bugsense": {
+      "1": {"seat": "TECHNOLOGIST", "decidable_at": "plan", "fix": "A pipeline file reads a plan key with a SILENT DEFAULT the plan does not define. Add the key or the build is quietly wrong.", "regate": "bugsense"},
+      "2": {"seat": "MASTERMIND", "decidable_at": "plan", "fix": "A plan declares a name no pipeline file reads. Either label it a note IN THE FILE, or it is a claimed capability.", "regate": "bugsense"},
+      "3": {"seat": "TECHNOLOGIST", "decidable_at": "plan", "fix": "Undefined name — NameError when that line runs, usually swallowed by a bare except.", "regate": "bugsense"},
+      "4": {"seat": "TECHNOLOGIST", "decidable_at": "plan", "fix": "Shared pipeline code hardcodes one project's name, so it silently does nothing for every other project.", "regate": "bugsense"}
+    }
+  },
+
+  "_not_routed": {
+    "_what": "Failures no table can own, recorded so their absence is deliberate rather than forgotten.",
+    "identity": "Is it HIM? The verdict FLIPPED between crop scales on KK — 'not him' at thumbnail, 'plausibly him' at matched size, same frames, same session. Claude presents evidence at matched scale. Gavril rules. Always.",
+    "is it good": "No gate in this repo measures whether anything HAPPENS. 13 gates measure conformance to a profile built from 23 scraped strangers. That is the standing gap and routing cannot close it.",
+    "does it perform": "Zero posts, ever. Until one real 24-hour curve exists, every retention target is a hypothesis and no seat can be held accountable for it."
+  }
+}

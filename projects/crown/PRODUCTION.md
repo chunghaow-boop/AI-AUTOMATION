@@ -151,7 +151,7 @@ Vertical 9:16. The Toyota Crown Crossover from the reference image parked and st
 
 _times below are PLANNED; blends compress them - the engine re-times cards and declares ACTUAL cut boundaries after building._
 
-**Cut grid** — every boundary on the 150 BPM beat (0.400s), frame-exact (`-frames:v`), each shot centred on a measured action peak, exposure matched on rendered segments BEFORE blending.
+**Cut grid** — every boundary on the 100 BPM beat (0.600s), frame-exact (`-frames:v`), each shot centred on a measured action peak, exposure matched on rendered segments BEFORE blending.
 
 | after shot | t (planned) | treatment |
 |---|---|---|
@@ -161,32 +161,32 @@ _times below are PLANNED; blends compress them - the engine re-times cards and d
 
 All other cuts HARD (33-67ms). Blends 3/20 = 15% (profile 6-33%).
 
-**Sound** — synthesized drift-phonk bed at 150 BPM, first transient trimmed to t=0 (phase, not just tempo). SFX layer at +13.5dB with the bed SIDECHAIN-DUCKING under it; every whoosh LEADS its cut by 220ms and resolves ON it.
+**Sound** — bed at 100 BPM (profile band 88-112), first transient trimmed to t=0 (phase, not just tempo). `edit_sfx = HERO_ONLY`: ONE impact, at the hero shot's own entry cut (shot 11). No whooshes anywhere. The bed SIDECHAIN-DUCKS under the sfx+foley key.
 
 **Diegetic** — every shot lays its OWN clip audio (generated and paid for) on the actual timeline, plan-gained. Foreground (>=-6dB): shots [0, 1, 4, 9, 11, 12, 13, 14]. Bed HARD-ducks during shots [11]. Hero: THE PETROL ENGINE CATCHING (shot 11, 14.00s delivered), CAUSED by his commit in shot 10. ONE hero sound per video (file 04, law 4).
 
 | t (planned) | cut entering | sound |
 |---|---|---|
-| 1.80s | shot 1 · gold on the coast road, still silent | whoosh |
-| 3.00s | shot 2 · the alloy turns, tarmac streaming, silent | whoosh |
-| 4.20s | shot 3 · his hands settle on the rim, silent, the road runs ahead | whoosh |
-| 5.40s | shot 4 · the coast road opens out, gold everywhere, nothing driving it | whoosh |
-| 7.20s | shot 5 · the Sabah shoreline past the barrier, gold flat on the water | whoosh |
-| 8.40s | shot 6 · kerb line under the alloy at road level, the last of the gold | whoosh |
-| 9.60s | shot 7 · the light bar comes on as the gold dies | whoosh |
-| 10.80s | shot 8 · wide bay, the coast road bends away, the last gold flat on it | whoosh |
-| 12.00s | shot 9 · the road tilts up into the ramp - still electric, nothing running | whoosh |
-| 13.20s | shot 10 · HIS DECISION - the silhouette commits, foot down on the ramp | whoosh |
-| 14.40s | shot 11 · IT WAKES on the ramp because he asked for it | IMPACT (section) |
-| 17.40s | shot 12 · the light bar pulls away from the ramp, climbing now | whoosh |
-| 18.60s | shot 13 · wide - the car small, climbing toward the crest | whoosh |
-| 19.80s | shot 14 · at the crest it hardens and holds, steady under load | whoosh |
-| 21.00s | shot 15 · the load falls away past the crest, it goes quiet again | whoosh |
-| 22.20s | shot 16 · quiet at the barrier, blue hour, nothing running | whoosh |
-| 23.40s | shot 17 · he sits, hand still on the rim at the barrier | whoosh |
-| 24.60s | shot 18 · the bay from outside the barrier, the cabin still lit | whoosh |
-| 26.40s | shot 19 · HIS HAND KILLS IT - key off, the cabin goes dark | whoosh |
-| 29.40s | shot 20 · dark bay, the car parked in it, nothing running | whoosh |
+| 1.80s | shot 1 · gold on the coast road, still silent | — (hero_only) |
+| 3.00s | shot 2 · the alloy turns, tarmac streaming, silent | — (hero_only) |
+| 4.20s | shot 3 · his hands settle on the rim, silent, the road runs ahead | — (hero_only) |
+| 5.40s | shot 4 · the coast road opens out, gold everywhere, nothing driving it | — (hero_only) |
+| 7.20s | shot 5 · the Sabah shoreline past the barrier, gold flat on the water | — (hero_only) |
+| 8.40s | shot 6 · kerb line under the alloy at road level, the last of the gold | — (hero_only) |
+| 9.60s | shot 7 · the light bar comes on as the gold dies | — (hero_only) |
+| 10.80s | shot 8 · wide bay, the coast road bends away, the last gold flat on it | — (hero_only) |
+| 12.00s | shot 9 · the road tilts up into the ramp - still electric, nothing running | — (hero_only) |
+| 13.20s | shot 10 · HIS DECISION - the silhouette commits, foot down on the ramp | — (hero_only) |
+| 14.40s | shot 11 · IT WAKES on the ramp because he asked for it | **IMPACT (hero)** |
+| 17.40s | shot 12 · the light bar pulls away from the ramp, climbing now | — (hero_only) |
+| 18.60s | shot 13 · wide - the car small, climbing toward the crest | — (hero_only) |
+| 19.80s | shot 14 · at the crest it hardens and holds, steady under load | — (hero_only) |
+| 21.00s | shot 15 · the load falls away past the crest, it goes quiet again | — (hero_only) |
+| 22.20s | shot 16 · quiet at the barrier, blue hour, nothing running | — (hero_only) |
+| 23.40s | shot 17 · he sits, hand still on the rim at the barrier | — (hero_only) |
+| 24.60s | shot 18 · the bay from outside the barrier, the cabin still lit | — (hero_only) |
+| 26.40s | shot 19 · HIS HAND KILLS IT - key off, the cabin goes dark | — (hero_only) |
+| 29.40s | shot 20 · dark bay, the car parked in it, nothing running | — (hero_only) |
 
 **Captions** — cards.py PNGs on desktop (drawtext fallback flagged loudly), lower third y=0.72, re-timed to actual duration:
 
@@ -198,9 +198,9 @@ All other cuts HARD (33-67ms). Blends 3/20 = 15% (profile 6-33%).
 | **NEVER SOLD NEW IN MALAYSIA** (cap) | 15-17 | 21.00-24.60s |
 | **RECOND. DM FOR THE PRICE** (cta) | 18-20 | 24.60-31.20s |
 
-**Grade** — saturation 1.1 ONLY (never double-grade; prompts already carry the night look), measured toward black_point 6.0 / saturation 80.0. Mix: bed +12dB, limiter 0.76 level=disabled, target -7..-9 LUFS. Output written atomically.
+**Grade** — saturation 1.1 ONLY (never double-grade; prompts already carry the night look), measured toward black_point 6.0 / saturation 80.0. Mix: engine auto-calibrates the sfx and foley layers against the bed (sfx -> bed-6dB, foley foreground -> bed-2dB, each clamped +/-8dB), then limiter 0.72 level=disabled -> highpass 30Hz -> limiter 0.70. verify.py gates -9.6..-6.5 LUFS and <=-1.0 dBTP. Output written atomically.
 
-**Then the gates:** clipqc per clip -> engine build -> verify (10 checks, freshness first) -> JUDGES (kill-boring) -> Gavril.
+**Then the gates:** clipqc per clip -> engine build -> verify (15 checks, freshness FIRST — if it fails nothing else runs) -> JUDGES (kill-boring) -> Gavril.
 
 ---
 

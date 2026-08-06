@@ -23,11 +23,6 @@ USAGE
   python3 verify.py --json report.json
 """
 import os, sys, json, argparse, subprocess, time, re
-import glob          # FIX 2026-08-06: meta_pillar() used bare glob.glob but glob was
-                     # only ever imported locally as _g inside two other functions, so
-                     # meta_pillar raised NameError on EVERY call. The bare `except` in
-                     # check 15 swallowed it, and the relight budget silently fell back
-                     # to 18.0 for every pillar. car_cinematic_chill declares 14.0.
 import statistics as st
 
 import numpy as np
@@ -117,22 +112,8 @@ def check_fresh(video):
         return add("0 freshness", False, "output does not exist", True)
     vt = os.path.getmtime(video)
     newer = []
-    # FIX 2026-08-06: this globbed ONLY "LC300_*.mp4", so on every project except
-    # lc300 the freshness check compared the output against NOTHING and always passed.
-    # The check that gates all other checks was blind on crown/kk/wrx/supra.
-    # Now: inside projects/<name>/clips every .mp4 IS a source; the flat legacy dirs
-    # keep a prefix filter so an OUTPUT file is never mistaken for an input.
-    _clipdir = os.path.join(PDIR, "clips")
-    _prefixes = ("LC300_", PROJECT.upper() + "_", PROJECT.lower() + "_")
-    srcs = []
-    for d in SRCDIRS:
-        for x in os.listdir(d):
-            if not x.endswith(".mp4"):
-                continue
-            if os.path.abspath(d) == os.path.abspath(_clipdir):
-                srcs.append(os.path.join(d, x))          # a clips/ dir holds only sources
-            elif x.startswith(_prefixes):
-                srcs.append(os.path.join(d, x))
+    srcs = [os.path.join(d, x) for d in SRCDIRS for x in os.listdir(d)
+            if x.startswith("LC300_") and x.endswith(".mp4")]
     for f in [BUILD] + srcs:
         if os.path.exists(f) and os.path.getmtime(f) > vt:
             newer.append(os.path.basename(f))
