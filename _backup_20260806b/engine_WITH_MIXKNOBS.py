@@ -684,35 +684,9 @@ def build(name, out_path=None, use_cache=True):
     if not cards_png:
         print("      cards.py unusable here (Playwright blocked) -> drawtext FALLBACK. "
               "On the DESKTOP this build upgrades itself automatically.")
-    # FONT RESOLUTION (2026-08-06). Both original candidates were LINUX paths. On
-    # WINDOWS - the machine this pipeline actually runs on - neither exists, so FONT was
-    # set to a file that is not there and drawtext rendered NOTHING. Silently: ffmpeg
-    # does not reliably fail on a missing fontfile, so a card could vanish from a
-    # DELIVERED video and no gate would ever see it. Surfaced by smoketest on Windows.
-    # The REPO font goes first on purpose: it ships with the project, so the cards look
-    # identical on every machine instead of depending on what the OS happens to have.
-    _FONT_CANDIDATES = [
-        os.path.join(HERE, "assets", "fonts", "loose", "CapCutSansText-Bold.otf"),
-        "C:/Windows/Fonts/arialbd.ttf",
-        "C:/Windows/Fonts/segoeuib.ttf",
-        "/usr/share/fonts/truetype/google-fonts/Poppins-Bold.ttf",
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
-    ]
-    FONT = next((f for f in _FONT_CANDIDATES if os.path.exists(f)), None)
-    if FONT is None:
-        # LOUD, not silent - but not fatal here, because a build whose cards came from
-        # cards.py (Playwright) never touches drawtext and must not be stopped by this.
-        print("      !! NO USABLE FONT FOUND for the drawtext fallback. Tried:")
-        for _c in _FONT_CANDIDATES:
-            print(f"           {_c}")
-        print("      !! If this build needs the drawtext fallback it will STOP rather "
-              "than deliver empty cards.")
-    else:
-        # ffmpeg's drawtext parses ':' as its option separator, so a Windows drive
-        # letter must be escaped or the filter silently reads the path as just 'C'.
-        # Backslashes are normalised for the same reason.
-        FONT = FONT.replace("\\", "/").replace(":", r"\:")
-        print(f"      card font: {FONT}")
+    FONT = "/usr/share/fonts/truetype/google-fonts/Poppins-Bold.ttf"
+    if not os.path.exists(FONT):
+        FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
     # PLANNED vs ACTUAL, again: blends compress the timeline (16.00s planned -> 14.40s
     # actual on the LC300), so spans from the plan put the CTA PAST THE END OF THE FILE
     # and it never rendered. Caught by LOOKING at the strip, not by any gate. Scale all
@@ -749,12 +723,6 @@ def build(name, out_path=None, use_cache=True):
             # AUTO-FIT (WRX v1 lesson): the old max(56,...) FLOOR guaranteed overflow on
             # long text. Bound ~0.58*size px/char to <=0.92 of frame width, no floor.
             size = min(56 if kind == "cta" else 78, max(30, int(1100 / max(8, len(txt)))))
-            if FONT is None:
-                raise RuntimeError(
-                    "drawtext card fallback needed but NO USABLE FONT was found - "
-                    "see the candidate list printed above. Refusing to render cards "
-                    "that would come out EMPTY: a silently missing card on a delivered "
-                    "video is worse than a stopped build.")
             dt.append(f"drawtext=fontfile='{FONT}':text='{txt}':fontcolor=white:fontsize={size}:"
                       f"borderw=6:bordercolor=black@0.85:x=(w-text_w)/2:y=(h*{P.CARD_Y}):"
                       f"enable='between(t,{st_:.2f},{st_+ln:.2f})'")

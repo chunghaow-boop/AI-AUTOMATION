@@ -203,32 +203,6 @@ def build(name, out=None):
 
     shift = lambda i: bw * len([b for b in blends if b < i])
 
-    framing = getattr(P, "FRAMING", {}) or {}
-    plates_all = getattr(P, "PLATES", {}) or {}
-
-    def identity_strip(plate_keys):
-        """HIS ASK 2026-08-06: 'take at least 3-5 reference image for nev if the scene
-        requires nevs face'. The refs were always IN the plan - PLATES['nev'] carries
-        identity_refs + wardrobe_refs - but this page only ever drew ONE picture, the
-        place plate. A reviewer could not see what the generator will actually be
-        handed. Now every shot citing a plate that declares refs shows all of them.
-        Returns [(b64, caption)], capped at 6 so a page stays readable."""
-        out_ = []
-        for k in plate_keys:
-            spec = plates_all.get(k) or {}
-            if not isinstance(spec, dict):
-                continue
-            for group, tag in (("identity_refs", "identity"),
-                               ("wardrobe_refs", "wardrobe")):
-                for rel in (spec.get(group) or []):
-                    p_ = rel if os.path.isabs(rel) else os.path.join(HERE, rel)
-                    b = b64_of(p_, max_w=150) if os.path.exists(p_) else None
-                    out_.append((b, f"{k} {tag} · {os.path.basename(rel)}",
-                                 os.path.relpath(p_, HERE)))
-                    if len(out_) >= 6:
-                        return out_
-        return out_
-
     rows, missing, n_real, n_plate = [], [], 0, 0
     for i, (src, crop, kind, note) in enumerate(P.SHOTS):
         meta = (getattr(P, "SOURCES", {}) or {}).get(src, ())
@@ -286,11 +260,6 @@ def build(name, out=None):
                      (shot_time.get(i) if isinstance(shot_time, dict) else "")),
             "foley": foley.get(i), "sfx": sfx, "cards": card_for(i),
             "blend_after": i in blends, "link": link_at(i),
-            # HIS ASK 2026-08-06, all four in one pass:
-            "framing": framing.get(src, ""),                 # camera movement / position
-            "prompt": (meta[4] if len(meta) > 4 else ""),    # the VERBATIM prompt
-            "plates": plates,
-            "refs": identity_strip(plates),                  # 3-5 identity references
         })
 
     # ------------------------------------------------------------------ render
@@ -335,21 +304,6 @@ def build(name, out=None):
     td,th{padding:6px 9px;border-bottom:1px solid #1C2029;text-align:left}
     th{color:#8A93A3;font-weight:600}
     .foot{color:#6E7787;font-size:11.5px;margin-top:26px;line-height:1.7}
-    .cut{margin:0 0 10px 216px;padding:6px 12px;border-left:3px solid #33404F;
-      background:#0F1319;border-radius:0 7px 7px 0;font-size:11.5px;color:#7F8B9C}
-    .cut b{color:#B9C6D6;text-transform:uppercase;font-size:10px;letter-spacing:.6px}
-    details.pr{margin-top:9px;background:#0C1016;border:1px solid #222733;border-radius:7px}
-    details.pr summary{cursor:pointer;padding:7px 11px;font-size:11px;color:#7FC4F0;
-      letter-spacing:.4px;text-transform:uppercase;font-weight:700}
-    details.pr pre{margin:0;padding:0 13px 13px;white-space:pre-wrap;font-size:12px;
-      line-height:1.6;color:#CBD5E2;font-family:ui-monospace,Menlo,Consolas,monospace}
-    .refs{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
-    .ref{width:78px;text-align:center;font-size:9px;color:#6E7787;line-height:1.3}
-    .ref img{width:78px;border-radius:5px;display:block;margin-bottom:3px}
-    .ref .miss{height:100px;border:1px dashed #6B2B22;border-radius:5px;background:#2A1614;
-      color:#F0B4A8;display:flex;align-items:center;justify-content:center;font-size:9px;
-      margin-bottom:3px;padding:4px}
-    .cam{background:#12212B;border:1px solid #2E5A7A;color:#9FD3F0}
     """
 
     o = ['<!doctype html><meta charset="utf-8">',
@@ -369,10 +323,6 @@ def build(name, out=None):
                  ("delivered", f"{total - bw*len(blends):.2f}s"),
                  ("pillar", getattr(P, "PILLAR", "?")), ("bpm", f"{getattr(P,'BPM','?')}"),
                  ("beat", f"{getattr(P,'BEAT',0):.3f}s"), ("edit_sfx", policy),
-                 ("cuts", "HARD ONLY" if not blends else
-                          f"{len(blends)} × {getattr(P,'BLEND_KIND','?')}"),
-                 ("bgm", (str((getattr(P, "SOUND", {}) or {}).get("bed", "NOT DECLARED"))
-                          .split(" - ")[0].split("/")[-1] or "NOT DECLARED")),
                  ("cost", cost_s)]:
         o.append(f"<div class='chip'>{esc(k)} <b>{esc(v)}</b></div>")
     o.append("</div>")
@@ -415,44 +365,15 @@ def build(name, out=None):
         if r["sfx"] != "—":
             cls = "k hero" if "hero" in r["sfx"].lower() else "k"
             o.append(f"<span class='{cls}'>sfx <b>{esc(r['sfx'])}</b></span>")
-        if r["framing"]:
-            o.append(f"<span class='k cam'>camera <b>{esc(r['framing'])}</b></span>")
         for t_, kind in r["cards"]:
             o.append(f"<span class='k card'>card <b>{esc(t_)}</b> ({esc(kind)})</span>")
         if r["imnote"] and r["img"]:
             o.append(f"<span class='k'>{esc(r['imnote'])}</span>")
-        o.append("</div>")
-
-        # ---- identity / wardrobe references actually handed to the generator ----
-        if r["refs"]:
-            o.append("<div class='refs'>")
-            for b, cap, rel in r["refs"]:
-                if b:
-                    o.append(f"<div class='ref'><img src='data:image/jpeg;base64,{b}'>"
-                             f"{esc(cap)}</div>")
-                else:
-                    o.append(f"<div class='ref'><div class='miss'>NOT ON DISK</div>"
-                             f"{esc(rel)}</div>")
-            o.append("</div>")
-
-        # ---- the VERBATIM prompt, on the shot it produces ----
-        if r["prompt"]:
-            o.append("<details class='pr'><summary>generation prompt — verbatim, as sent "
-                     f"to Higgsfield (source {esc(r['src'])}, one clip serves every shot "
-                     f"marked src {esc(r['src'])})</summary>"
-                     f"<pre>{esc(r['prompt'])}</pre></details>")
-        o.append("</div></div>")
+        o.append("</div></div></div>")
 
         if r["blend_after"]:
             o.append(f"<div class='blend'>BLEND · {esc(getattr(P,'BLEND_KIND','?'))} "
                      f"{bw*1000:.0f}ms — the timeline shortens by {bw:.2f}s here</div>")
-        elif r["i"] < len(P.SHOTS) - 1:
-            # EVERY boundary now states its transition. Silence read as "not decided";
-            # a hard cut IS the decision here, and it is a measurement, not a default.
-            o.append("<div class='cut'><b>hard cut</b> &mdash; frame-exact on the "
-                     f"{getattr(P,'BPM','?')} BPM grid. No blend: this pillar measured "
-                     f"{pf.get('blended_pct', '?')}% blended across its references, so a "
-                     "dissolve here would be off-genre.</div>")
         lk = r["link"]
         if lk and r["i"] < len(P.SHOTS) - 1:
             kd = (lk['kind'] or 'link').upper()
@@ -482,20 +403,6 @@ def build(name, out=None):
     fg = sorted(i for i, g in foley.items() if isinstance(g, (int, float)) and g >= -6)
     o.append(f"<tr><td>foley</td><td>{len(foley)} shots gained; foreground (&ge;-6dB): "
              f"{fg}</td></tr>")
-    # HIS QUESTION 2026-08-06: "are u sure theres only 1 sfx for each scene, could it be
-    # multiple? for example nevs expressions?" This row is the honest contract, read from
-    # engine.py, not an opinion.
-    o.append("<tr><td>sound layers</td><td><b>THREE, and only three: bed + one hero "
-             "transient + one diegetic track per shot.</b> engine.py:819-855 reads "
-             "<code>FOLEY = {shot: gain_db}</code> — ONE gain per shot, applied to that "
-             "CLIP'S OWN generated audio. There is no field for a second sound on a "
-             "shot; a per-shot sfx stack would be an engine change, not a plan change. "
-             "So anything you want to HEAR in a shot — a breath, a laugh, gravel, a door "
-             "— has to be in the clip because the PROMPT asked for it. That is the "
-             "plan-level lever, and it is free.</td></tr>")
-    o.append("<tr><td>camera</td><td>declared per SOURCE in FRAMING and repeated in every "
-             "prompt (planqc 28 blocks two sources sharing a plate with the same camera "
-             "position). Shown on every shot above as a blue <b>camera</b> chip.</td></tr>")
     o.append(f"<tr><td>hero</td><td>{esc(str(sn.get('hero','(not declared)'))[:400])}</td></tr>")
     o.append(f"<tr><td>cards</td><td>{len(cards)} at y={getattr(P,'CARD_Y','?')} "
              f"(lower third)</td></tr>")

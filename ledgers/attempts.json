@@ -18,6 +18,18 @@
     "attempts": 0,
     "history": []
    }
+  },
+  "kundasang": {
+   "JUDGE J4": {
+    "attempts": 1,
+    "history": [
+     {
+      "at": "2026-08-06 09:04",
+      "gate": "judge",
+      "detail": "ABSOLUTE VETO on card 3, 'MINI NEW ZEALAND, THEY SAY' at shots 11-14. The CONTENT block verifies exactly two facts - the two-hour drive and the 06:00-08:00 clearest window - against explorekundasang.c"
+     }
+    ]
+   }
   }
  }
 }

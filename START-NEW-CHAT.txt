@@ -9,7 +9,7 @@ are in ONE line and wait:
                             gate and its threshold, the plan->engine contract,
                             the bug classes that have cost money, the seats,
                             the cost model, the pillars.
-    3. RESUME-2026-08-06.md the newest RESUME - where we actually are
+    3. RESUME-2026-08-06c.md the newest RESUME - where we actually are
 
 DO NOT re-derive the architecture by reading planqc.py / engine.py / verify.py.
 It is ALL in SYSTEM-MAP.md. Re-deriving it burns a third of a session before any
@@ -23,14 +23,29 @@ FIRST TWO THINGS, ALWAYS:
   1. MEASURE the credit balance. Never estimate. A past estimate was off 352cr.
   2. python tools\mastermind_loop.py --audit        (must say CLEAN)
 
-WHERE WE ARE (2026-08-06):
-  - crown: planqc PASS 35/35 but VETOED by judge J4 - card 4 "NEVER SOLD NEW IN
-    MALAYSIA" is a present-tense absolute verified against a 2024-03-04 source.
-    Re-verify against 2026, or reword to "JAPAN-MARKET IMPORT ONLY". Free.
-  - Crown plates crown + crown_int are NOT BUILT (8cr). Storyboard shows 17 red
-    MISSING panels until they are.
-  - 23 references MEASURED, ZERO READ. refsense --strip then --fill. Zero credits,
-    highest value work available.
+WHERE WE ARE (2026-08-06c):
+  - BALANCE MEASURED 4,927.82cr (team). Measure again before spending.
+  - smoketest is 79 passed / 0 failed. The old 74/5 baseline is RETIRED.
+    It needs ffmpeg on PATH and takes ~90s, so HE runs it, not the bridge:
+      set PATH=%PATH%;C:\Users\User\Desktop\AI\ffmpeg-extracted\ffmpeg-9.0-essentials_build\bin
+  - kundasang: planqc PASS 34/34, judges SHIP YES (J0 8 / J2 7 / J4 8), 20
+    premortem risks, acked craft 76. 233.0cr total, 30.5cr probe.
+    NEXT: build plates glc300 + kundasang (8cr) -> LOOK -> probe source A.
+  - READ SYSTEM-MAP SECTION 11 - THE LEARNING LOOP. tools/lessonize.py files
+    every failing gate check / judge seat as a lesson, planqc 23 then BLOCKS
+    the next plan until it re-acks, and --brief PRINTS the unread lessons.
+    It never fixes anything. Craft lessons went 64 -> 76 today.
+      python tools\lessonize.py <plan> --brief
+  - THE MASTERMIND IS NOT A PROGRAM. It is a seat run by a human + an LLM, so
+    its whole memory is these files. If it is not written down it does not exist.
+  - engine.py mix is now PER PILLAR. travel_vlog = foley foreground bed-8, duck
+    3:1. car_cinematic UNCHANGED and OPEN - measured -31.1dB bass duck under
+    every whoosh on WRX v9. HIS CALL, it changes the approved WRX look.
+  - travel_vlog is NOT hard-cuts-only: blendsense measured 9.5% designed (all
+    WHIPS) across the same 6 refs. planqc 11 now takes a COUNT band.
+  - board.py caps at 9 SOURCES (line 216, 3x3 grid). kundasang has 10 ->
+    IndexError. storyboard.py renders fine. HIS CALL.
+  - ONE CHAT OWNS A PIPELINE FILE AT A TIME. Two chats had write access today.
   - ZERO POSTS, EVER. Still the biggest gap in the system.
 
 IF I BRING A NEW TITLE:

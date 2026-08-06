@@ -253,35 +253,11 @@ def check_blends(P, pf):
     wlo, whi = pf.get("blend_width_ms", (240, 560))
     bad_idx = [i for i in P.BLEND_AFTER if i >= len(P.SHOTS) - 1]
     no_width = (nb == 0)   # zero blends cannot violate a width band
-
-    # COUNT BAND (2026-08-06). A percentage quantises to zero on a short cut: with 19
-    # boundaries ONE blend is 5.3%, so a [0,5] band made a single deliberate whip
-    # impossible — an artifact of the unit, not a decision anyone made. A pillar whose
-    # designed transitions are RARE can now say so as a COUNT. travel_vlog measures 9.5%
-    # designed pooled across 6 references (tools/blendsense.py, whip-sensitive) = 0-2 at
-    # this length, so it declares blend_max_count 2.
-    _maxn = pf.get("blend_max_count")
-    if _maxn is not None:
-        ok_band = nb <= int(_maxn)
-        band_txt = f"{nb}/{cuts} blended, cap {int(_maxn)} by COUNT (pillar measures " \
-                   f"{pf.get('designed_pct', pct):g}% designed, rare by nature)"
-    else:
-        ok_band = blo <= pct <= bhi
-        band_txt = f"{nb}/{cuts} blended = {pct:.0f}% in [{blo:g},{bhi:g}]"
-
-    # KIND WHITELIST. A pillar that measures only whips should not silently accept a
-    # dissolve: the count can be right and the vocabulary still wrong.
-    _kinds = pf.get("designed_kinds")
-    bad_kind = (nb and _kinds and getattr(P, "BLEND_KIND", "") not in _kinds)
-
-    ok = ok_band and (no_width or wlo <= w <= whi) and not bad_idx and not bad_kind
-    d = (band_txt
+    ok = blo <= pct <= bhi and (no_width or wlo <= w <= whi) and not bad_idx
+    d = (f"{nb}/{cuts} blended = {pct:.0f}% in [{blo:g},{bhi:g}]"
          + ("  (no blends — width not judged)" if no_width
             else f" · width {w:.0f}ms in [{wlo},{whi}]"))
-    if bad_kind:
-        d += (f" — BLEND_KIND '{getattr(P, 'BLEND_KIND', '')}' is not in this pillar's "
-              f"measured vocabulary {_kinds}")
-    if _maxn is None and bhi <= 5.0 and nb:
+    if bhi <= 5.0 and nb:
         d += f" — this pillar measured HARD CUTS ONLY; {nb} blend(s) is a declared deviation"
     if bad_idx:
         d += f" - blend index past the last cut: {bad_idx}"

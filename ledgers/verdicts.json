@@ -1,0 +1,79 @@
+{
+ "_what": "Every judge verdict, kept because a verdict that lives only in a chat is not a gate.",
+ "runs": [
+  {
+   "project": "kundasang",
+   "stage": "ingested",
+   "at": "2026-08-06 09:04",
+   "verdict": {
+    "verdicts": [
+     {
+      "seat": "J0",
+      "pass": true,
+      "score": 6,
+      "finding": "There IS a state change at frame zero, so this is not a tour and not a veto - but the reveal does not RESOLVE inside the 2.00s window. The tear begins at 0.00s (shot 0), the window then cuts away to a lateral tracking shot of the car (shot 1, 1.21s), and the uncovered summit only lands at 2.41s in shot 2, outside the gate. Worse for a phone: at frame zero the plan puts the peak in the upper third and the car 'small in the lower third', so nothing is LARGE at 0.00s. KK's hook worked because the car FILLED the frame.",
+      "fix": "Reprompt A so the tear COMPLETES inside its own 1.21s window with the summit filling the upper half of frame, and change B's framing at shot 1 from a lateral track to a PUSH toward the peak so the second beat continues the reveal instead of changing subject. Both are free, plan-time, pre-probe.",
+      "where": "shots 0-2, 0.00-2.41s"
+     },
+     {
+      "seat": "J2",
+      "pass": true,
+      "score": 6,
+      "finding": "A real consequence chain exists and it is human-caused twice, but it is bunched at the two ends: consequence boundaries sit at 2, 6, 15 and 16, which leaves EIGHT consecutive boundaries (7 through 14, 8.45s to 19.32s - a third of the video) where nothing happens because of anything. That stretch is cows, valley, cows, he stands, car parked, he stands at a railing, car detail. It is the exact KK v15 failure restated: nothing happens TO the person. There is also no friction anywhere in the day - nothing goes even slightly wrong, so nothing needs resolving.",
+      "fix": "Convert one middle boundary into a real cause. Cheapest version with no new source: reprompt D's second window (shot 8) so the cloud is rolling BACK IN over the valley, making boundary 9->10 a consequence - the weather is closing, SO he pulls over and gets out at 13.28s. That gives the middle a cause and gives the golden-hour run something to have earned.",
+      "where": "boundaries 7-14, 8.45s-19.32s"
+     },
+     {
+      "seat": "J4",
+      "pass": false,
+      "score": 3,
+      "finding": "ABSOLUTE VETO on card 3, 'MINI NEW ZEALAND, THEY SAY' at shots 11-14. The CONTENT block verifies exactly two facts - the two-hour drive and the 06:00-08:00 clearest window - against explorekundasang.com fetched 2026-08-06. The New Zealand epithet is verified by NOTHING. 'THEY SAY' hedges the attribution but does not source it, and an unsourced attribution is precisely the crown J4 class one day later. Secondary and independent: the card is also placed wrong. Shots 11-14 are the parked car, the railing and a wheel detail; the only pasture-and-rolling-green footage in the whole plan is shots 7-9, which is where that line would have to sit to be about anything on screen.",
+      "fix": "Either cite a datable 2026 source for the nickname in CONTENT.verified, or replace the card with a fact the plan already owns and move it onto the pasture beats - e.g. 'DAIRY COUNTRY, 2 HOURS UP' across shots 7-10, which reuses the already-verified drive time and describes what is actually in frame.",
+      "where": "card 3, shots 11-14, 14.49s-20.52s"
+     }
+    ],
+    "overall": {
+     "ship": false,
+     "one_line": "J4 vetoes: card 3 asserts an unsourced nickname - verify it against a 2026 source or replace it with the drive time and move it onto the pasture shots."
+    }
+   }
+  },
+  {
+   "project": "kundasang",
+   "stage": "ingested",
+   "at": "2026-08-06 09:06",
+   "verdict": {
+    "verdicts": [
+     {
+      "seat": "J0",
+      "pass": true,
+      "score": 8,
+      "finding": "The reveal now RESOLVES inside its own 1.21s window - A's prompt makes the tear fast and finished within the first second, the summit fills the upper half of frame instead of the upper third, and the car is sized to read at phone scale. Shot 1 no longer interrupts: B now shoots UP the road into depth with the uncovered peak held above, so 0.00-2.41s is one continuous reveal instead of a reveal and then a different picture. Remaining risk is generation, not plan: 'fast tear finishing in one second' is a timing instruction to a model that does not take timing instructions well, and only the probe will show whether it obeyed.",
+      "fix": "None at plan level. Judge A at the probe against this exact criterion: is the peak uncovered by 1.00s, and is the car readable at 720x1280 without zooming. If not, that is a reroll of A alone at 22.5cr, not a replan.",
+      "where": "shots 0-2, 0.00-2.41s"
+     },
+     {
+      "seat": "J2",
+      "pass": true,
+      "score": 7,
+      "finding": "The dead middle now has a cause. D's second window carries the weather turning - cloud rolling back over the terraces - and boundary 9->10 is a real consequence at 13.28s: the cloud closes, SO he pulls over and gets out. That also retro-justifies the whole back half, because the golden-hour run at 19-24s is now light that was nearly lost rather than light that was always going to be there. Five consequences at 2, 6, 9, 15, 16. Still honest to say the strongest stretch is the ends: boundaries 10 through 14 are arrival, parked car, railing, detail, face - five boundaries of arranging rather than happening.",
+      "fix": "Optional and free if you want an 8: give shot 13 (the car detail, golden starting) a small human trace - a hand on the wing, a door left open - so the object beats still belong to the person. Not required to ship.",
+      "where": "boundaries 9-14, 13.28s-19.32s"
+     },
+     {
+      "seat": "J4",
+      "pass": true,
+      "score": 8,
+      "finding": "Veto lifted, on both counts. Card 3 no longer asserts a nickname in our voice - it quotes Daily Express Malaysia's published phrasing, 'Sabah's own little New Zealand', and CONTENT.verified now names that source plus independent attestation in Tripadvisor reviews of Desa Dairy Farm. The card also moved from shots 11-14 to 8-11, so it sits on the pasture and valley footage it actually describes. The other three cards are a verified drive time, a verified viewing window and a question. Nothing on screen asserts a price, a spec or a market status - the GLC300 lineup fact stays in CONTENT with its fetch date, which is the correct place for something that goes stale.",
+      "fix": "One standing risk, not a plan defect: the epithet is a REPORTED nickname, so if a card ever drops the attribution it becomes the crown class again. Keep the quoted framing.",
+      "where": "cards 1-4"
+     }
+    ],
+    "overall": {
+     "ship": true,
+     "one_line": "Plan clears all three seats - the remaining risk moved to generation, so probe A alone and judge the tear timing before the other nine clips."
+    }
+   }
+  }
+ ]
+}

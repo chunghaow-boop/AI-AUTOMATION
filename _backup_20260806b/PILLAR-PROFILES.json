@@ -156,7 +156,7 @@
   "black_point": 10.0,
   "saturation": 74.5,
   "captions": "sentence fragments",
-  "note": "MOSTLY HARD CUTS. 9.5% of cuts pooled across 6 references are DESIGNED, and every one of those is a WHIP - no wipes, no masks, no dips. At 19 boundaries that is 0-2 whips, which is why blend_max_count exists: a percentage band quantises to zero on a short cut.",
+  "note": "HARD CUTS ONLY - 5 of 6 references use zero blended transitions",
   "style": {
    "brightness_band": [
     35,
@@ -177,20 +177,8 @@
    "shot_match_max_move": 12.0,
    "shot_match_tol": 12.0,
    "shot_match_source": "MEASURED 2026-08-05 on KK v14 + his three raw Higgsfield clips. He called clips measuring 45.1, 89.7 and 92.9 mean luma 'close to perfect' - a 47-luma spread INSIDE his approval band. A global median pull therefore destroys the look he approves: kk_I arrived at 45.1 and the old stage rendered it at 116.9. Source lighting is TRUSTED; the stage now only shaves excess CUT-BOUNDARY swing.",
-   "shot_match_clamp_note": "Second belt only. The BINDING limit is now shot_match_max_move, stated in luma. The old note claiming widening this to 0.26 'made exposure worse' is SUPERSEDED: that test ran on a gain formula miscalibrated 2.2x, so a wider clamp simply overshot further. Re-derive if needed.",
-   "mix_foley_fg_target_db": -8.0,
-   "mix_sfx_target_db": -6.0,
-   "mix_duck_threshold": 0.1,
-   "mix_duck_ratio": 3.0,
-   "mix_duck_release": 180.0,
-   "mix_source": "SET 2026-08-06 after his catch 'the sfx and foley are too loud it covers the whole bgm'. MEASURED first: on the delivered files, during the loudest 10% of broadband moments the bed's 40-160Hz band drops -4.9dB on KK v15 (travel_vlog) but -31.1dB on WRX v9 (car_cinematic, edit_sfx=full). The vlog was NOT the offender - but bed-2 for foreground foley is still too hot for a pillar whose bed IS the emotion, so this pillar declares -8 and a gentler 3:1 duck. car_cinematic keeps the old defaults until he decides - changing it would change the approved WRX look."
-  },
-  "blended_pct_source": "MEASURED 0% by a frame-difference heuristic that its own analysis (travel_vlog_ANALYSIS.md line 86) admits 'a very fast whip can read as a hard cut'. RE-MEASURED 2026-08-06 with tools/blendsense.py, which separates a WHIP (a sharpness trench of 2-6 frames WITH a scene change across it) from a hard cut (no trench) and a dissolve (sustained mid correlation). Result across the same 6 references: 3 WHIPS and 1 dissolve in 42 total cuts = 9.5% POOLED designed transitions, and 3 of 6 references use at least one. The old 0% was an UNDERCOUNT. Note the per-file medians are unusable here - two references have only 1 and 2 cuts - so the pooled figure is the honest one.",
-  "designed_pct": 9.5,
-  "designed_kinds": [
-   "whip"
-  ],
-  "blend_max_count": 2
+   "shot_match_clamp_note": "Second belt only. The BINDING limit is now shot_match_max_move, stated in luma. The old note claiming widening this to 0.26 'made exposure worse' is SUPERSEDED: that test ran on a gain formula miscalibrated 2.2x, so a wider clamp simply overshot further. Re-derive if needed."
+  }
  },
  "car_review": {
   "family": "long_speech_led",

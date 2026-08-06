@@ -1,5 +1,5 @@
 # PRODUCTION DOC — Toyota Land Cruiser 300 ZX · car cinematic
-### Generated from `supra_plan.py` by `planqc.py`. Do not edit by hand — edit the plan.
+### Generated from `plans/lc300.py` by `planqc.py`. Do not edit by hand — edit the plan.
 
 **14 shots · 16.00s · 720x1280 @ 30fps · car_cinematic · 150 BPM · mode `std` 720p**
 
@@ -85,6 +85,55 @@ Vertical 9:16. Rear three-quarter of the Land Cruiser 300 ZX from the reference 
 ```
 Vertical 9:16. The Land Cruiser 300 ZX from the reference image driving at speed on a wet road at night, tracked from a parallel vehicle. Night / showroom dusk. Crushed blacks, high contrast. Real footage, not a render.
 ```
+
+---
+
+## THE EDIT — what the engine will do, with computed times
+
+_times below are PLANNED; blends compress them - the engine re-times cards and declares ACTUAL cut boundaries after building._
+
+**Cut grid** — every boundary on the 150 BPM beat (0.400s), frame-exact (`-frames:v`), each shot centred on a measured action peak, exposure matched on rendered segments BEFORE blending.
+
+| after shot | t (planned) | treatment |
+|---|---|---|
+| 3 (lamp cluster) | 3.20s | mask_slice 400ms |
+| 5 (CABIN REVEAL) | 7.20s | mask_slice 400ms |
+| 7 (12.3in screen) | 8.80s | mask_slice 400ms |
+| 11 (ROLLING payoff) | 14.40s | mask_slice 400ms |
+
+All other cuts HARD (33-67ms). Blends 4/13 = 30% (profile 6-33%).
+
+**Sound** — bed at 150 BPM (profile band 140-165), first transient trimmed to t=0 (phase, not just tempo). `edit_sfx = FULL`: SFX layer auto-calibrated to bed-6dB with the bed SIDECHAIN-DUCKING under it; every whoosh LEADS its cut by 220ms and resolves ON it.
+
+| t (planned) | cut entering | sound |
+|---|---|---|
+| 0.80s | shot 1 · front wide | whoosh |
+| 1.60s | shot 2 · alloy spokes | whoosh |
+| 2.40s | shot 3 · lamp cluster | whoosh |
+| 3.20s | shot 4 · step inside | IMPACT (section) |
+| 4.00s | shot 5 · CABIN REVEAL | SUB-DROP (into hold) |
+| 7.20s | shot 6 · screen detail | whoosh |
+| 8.00s | shot 7 · 12.3in screen | whoosh |
+| 8.80s | shot 8 · after dark | IMPACT (section) |
+| 9.60s | shot 9 · lamps at speed | whoosh |
+| 10.40s | shot 10 · taillight macro | whoosh |
+| 11.20s | shot 11 · ROLLING payoff | SUB-DROP (into hold) |
+| 14.40s | shot 12 · tail at speed | whoosh |
+| 15.20s | shot 13 · LOOP to frame 0 | whoosh |
+
+**Captions** — cards.py PNGs on desktop (drawtext fallback flagged loudly), lower third y=0.72, re-timed to actual duration:
+
+| card | shots | planned window |
+|---|---|---|
+| **KING** (cap) | 0-1 | 0.00-1.60s |
+| **LC300 ZX** (cap) | 5-5 | 4.00-7.20s |
+| **GRADE 5A** (cap) | 8-9 | 8.80-10.40s |
+| **RM400K** (cap) | 11-11 | 11.20-14.40s |
+| **DM FOR PRICE** (cta) | 13-13 | 15.20-16.00s |
+
+**Grade** — saturation 1.7 ONLY (never double-grade; prompts already carry the night look), measured toward black_point 2.0 / saturation 91.5. Mix: engine auto-calibrates the sfx and foley layers against the bed (sfx -> bed-6dB, foley foreground -> bed-2dB, each clamped +/-8dB), then limiter 0.72 level=disabled -> highpass 30Hz -> limiter 0.70. verify.py gates -9.6..-6.5 LUFS and <=-1.0 dBTP. Output written atomically.
+
+**Then the gates:** clipqc per clip -> engine build -> verify (15 checks, freshness FIRST — if it fails nothing else runs) -> JUDGES (kill-boring) -> Gavril.
 
 ---
 

@@ -21,24 +21,24 @@
 |---|---|---|---|---|---|---|
 | 0 | 0.00 | 1.23 | burst | `A` EVENT · ARRIVAL WIPE | 1.00x | ARRIVAL WIPE - car sweeps, Nev revealed |
 | 1 | 1.23 | 1.23 | burst | `C` waterfront boats, gold | 1.00x | waterfront gold, boats |
-| 2 | 2.46 | 1.23 | burst | `B` NEV walks Gaya Street | 1.00x | Gaya Street walk-in |
-| 3 | 3.69 | 1.23 | burst | `E` market food, smoke + sizzle | 1.35x | grill smoke macro |
+| 2 | 2.46 | 1.23 | burst | `B` NEV walks Gaya Street | 1.15x | Gaya Street walk-in |
+| 3 | 3.69 | 1.23 | burst | `E` market food, smoke + sizzle | 1.00x | grill smoke macro |
 | 4 | 4.92 | 2.46 | med | `F` NEV at the viewpoint | 1.00x | viewpoint - the city breathes |
-| 5 | 7.38 | 2.46 | med | `I` city lights come on | 1.35x | first lights flicker - the turn |
+| 5 | 7.38 | 2.46 | med | `I` city lights come on | 1.15x | first lights flicker - the turn |
 | 6 | 9.85 | 1.23 | burst | `D` floating mosque reflection | 1.00x | mosque on glass water |
-| 7 | 11.08 | 1.23 | burst | `B` NEV walks Gaya Street | 1.35x | market detail, hands + stalls |
-| 8 | 12.31 | 1.23 | burst | `G` SUNSET, Tanjung Aru | 1.00x | sunset ignites - tease |
+| 7 | 11.08 | 1.23 | burst | `B` NEV walks Gaya Street | 1.20x | market detail, hands + stalls |
+| 8 | 12.31 | 1.23 | burst | `G` SUNSET, Tanjung Aru | 1.15x | sunset ignites - tease |
 | 9 | 13.54 | 2.46 | med | `H` NEV golden close | 1.00x | NEV golden face |
-| 10 | 16.00 | 1.23 | burst | `C` waterfront boats, gold | 1.35x | boats in last gold |
-| 11 | 17.23 | 1.23 | burst | `E` market food, smoke + sizzle | 1.00x | sizzle close 2 |
+| 10 | 16.00 | 1.23 | burst | `C` waterfront boats, gold | 1.15x | boats in last gold |
+| 11 | 17.23 | 1.23 | burst | `E` market food, smoke + sizzle | 1.15x | sizzle close 2 |
 | 12 | 18.46 | 1.23 | burst | `I` city lights come on | 1.00x | streetlight streaks |
-| 13 | 19.69 | 1.23 | burst | `D` floating mosque reflection | 1.35x | mosque, lamps on |
-| 14 | 20.92 | 1.23 | burst | `F` NEV at the viewpoint | 1.35x | viewpoint wind, shirt moving |
-| 15 | 22.15 | 1.23 | burst | `G` SUNSET, Tanjung Aru | 1.00x | sky at full burn |
-| 16 | 23.38 | 1.23 | burst | `A` EVENT · ARRIVAL WIPE | 1.00x | the car rolls out - callback |
+| 13 | 19.69 | 1.23 | burst | `D` floating mosque reflection | 1.15x | mosque, lamps on |
+| 14 | 20.92 | 1.23 | burst | `F` NEV at the viewpoint | 1.15x | viewpoint wind, shirt moving |
+| 15 | 22.15 | 1.23 | burst | `G` SUNSET, Tanjung Aru | 1.00x | sunset holds - the card lands here |
+| 16 | 23.38 | 1.23 | burst | `A` EVENT · ARRIVAL WIPE | 1.35x | boardwalk at dusk - the place, emptied |
 | 17 | 24.62 | 1.23 | burst | `B` NEV walks Gaya Street | 1.00x | walking off into the market glow |
-| 18 | 25.85 | 1.23 | burst | `G` SUNSET, Tanjung Aru | 1.35x | last light on the water |
-| 19 | 27.08 | 1.23 | burst | `H` NEV golden close | 1.35x | NEV to lens - CTA |
+| 18 | 25.85 | 1.23 | burst | `G` SUNSET, Tanjung Aru | 1.20x | last light on the water |
+| 19 | 27.08 | 1.23 | burst | `H` NEV golden close | 1.15x | NEV to lens - CTA |
 
 ◆ = blend after this shot (`mask_slice`, 400ms)
 
@@ -129,38 +129,38 @@ Vertical 9:16. The city of the reference image tipping from dusk into NIGHT: str
 
 _times below are PLANNED; blends compress them - the engine re-times cards and declares ACTUAL cut boundaries after building._
 
-**Cut grid** — every boundary on the 150 BPM beat (0.400s), frame-exact (`-frames:v`), each shot centred on a measured action peak, exposure matched on rendered segments BEFORE blending.
+**Cut grid** — every boundary on the 97.5 BPM beat (0.615s), frame-exact (`-frames:v`), each shot centred on a measured action peak, exposure matched on rendered segments BEFORE blending.
 
 | after shot | t (planned) | treatment |
 |---|---|---|
 
 All other cuts HARD (33-67ms). Blends 0/19 = 0% (profile 6-33%).
 
-**Sound** — synthesized drift-phonk bed at 150 BPM, first transient trimmed to t=0 (phase, not just tempo). SFX layer at +13.5dB with the bed SIDECHAIN-DUCKING under it; every whoosh LEADS its cut by 220ms and resolves ON it.
+**Sound** — bed at 97.5 BPM (profile band 95-115), first transient trimmed to t=0 (phase, not just tempo). `edit_sfx = HERO_ONLY`: ONE impact, at the hero shot's own entry cut (shot 0). No whooshes anywhere. The bed SIDECHAIN-DUCKS under the sfx+foley key.
 
 **Diegetic** — every shot lays its OWN clip audio (generated and paid for) on the actual timeline, plan-gained. Foreground (>=-6dB): shots [0, 3, 11]. Bed HARD-ducks during shots [0]. Hero: the arrival pass (shot 0) - one hero sound, then the city takes over
 
 | t (planned) | cut entering | sound |
 |---|---|---|
-| 1.23s | shot 1 · waterfront gold, boats | whoosh |
-| 2.46s | shot 2 · Gaya Street walk-in | whoosh |
-| 3.69s | shot 3 · grill smoke macro | whoosh |
-| 4.92s | shot 4 · viewpoint - the city breathes | whoosh |
-| 7.38s | shot 5 · first lights flicker - the turn | whoosh |
-| 9.85s | shot 6 · mosque on glass water | whoosh |
-| 11.08s | shot 7 · market detail, hands + stalls | whoosh |
-| 12.31s | shot 8 · sunset ignites - tease | whoosh |
-| 13.54s | shot 9 · NEV golden face | whoosh |
-| 16.00s | shot 10 · boats in last gold | whoosh |
-| 17.23s | shot 11 · sizzle close 2 | whoosh |
-| 18.46s | shot 12 · streetlight streaks | whoosh |
-| 19.69s | shot 13 · mosque, lamps on | whoosh |
-| 20.92s | shot 14 · viewpoint wind, shirt moving | whoosh |
-| 22.15s | shot 15 · sky at full burn | whoosh |
-| 23.38s | shot 16 · the car rolls out - callback | whoosh |
-| 24.62s | shot 17 · walking off into the market glow | whoosh |
-| 25.85s | shot 18 · last light on the water | whoosh |
-| 27.08s | shot 19 · NEV to lens - CTA | whoosh |
+| 1.23s | shot 1 · waterfront gold, boats | — (hero_only) |
+| 2.46s | shot 2 · Gaya Street walk-in | — (hero_only) |
+| 3.69s | shot 3 · grill smoke macro | — (hero_only) |
+| 4.92s | shot 4 · viewpoint - the city breathes | — (hero_only) |
+| 7.38s | shot 5 · first lights flicker - the turn | — (hero_only) |
+| 9.85s | shot 6 · mosque on glass water | — (hero_only) |
+| 11.08s | shot 7 · market detail, hands + stalls | — (hero_only) |
+| 12.31s | shot 8 · sunset ignites - tease | — (hero_only) |
+| 13.54s | shot 9 · NEV golden face | — (hero_only) |
+| 16.00s | shot 10 · boats in last gold | — (hero_only) |
+| 17.23s | shot 11 · sizzle close 2 | — (hero_only) |
+| 18.46s | shot 12 · streetlight streaks | — (hero_only) |
+| 19.69s | shot 13 · mosque, lamps on | — (hero_only) |
+| 20.92s | shot 14 · viewpoint wind, shirt moving | — (hero_only) |
+| 22.15s | shot 15 · sunset holds - the card lands here | — (hero_only) |
+| 23.38s | shot 16 · boardwalk at dusk - the place, emptied | — (hero_only) |
+| 24.62s | shot 17 · walking off into the market glow | — (hero_only) |
+| 25.85s | shot 18 · last light on the water | — (hero_only) |
+| 27.08s | shot 19 · NEV to lens - CTA | — (hero_only) |
 
 **Captions** — cards.py PNGs on desktop (drawtext fallback flagged loudly), lower third y=0.72, re-timed to actual duration:
 
@@ -171,9 +171,9 @@ All other cuts HARD (33-67ms). Blends 0/19 = 0% (profile 6-33%).
 | **WORLD-CLASS SUNSET. FREE.** (cap) | 9-12 | 13.54-19.69s |
 | **COMING HOME FOR SABAH DAY?** (cta) | 16-19 | 23.38-28.31s |
 
-**Grade** — saturation 1.0 ONLY (never double-grade; prompts already carry the night look), measured toward black_point 10.0 / saturation 74.5. Mix: bed +12dB, limiter 0.76 level=disabled, target -7..-9 LUFS. Output written atomically.
+**Grade** — saturation 1.0 ONLY (never double-grade; prompts already carry the night look), measured toward black_point 10.0 / saturation 74.5. Mix: engine auto-calibrates the sfx and foley layers against the bed (sfx -> bed-6dB, foley foreground -> bed-2dB, each clamped +/-8dB), then limiter 0.72 level=disabled -> highpass 30Hz -> limiter 0.70. verify.py gates -9.6..-6.5 LUFS and <=-1.0 dBTP. Output written atomically.
 
-**Then the gates:** clipqc per clip -> engine build -> verify (10 checks, freshness first) -> JUDGES (kill-boring) -> Gavril.
+**Then the gates:** clipqc per clip -> engine build -> verify (15 checks, freshness FIRST — if it fails nothing else runs) -> JUDGES (kill-boring) -> Gavril.
 
 ---
 

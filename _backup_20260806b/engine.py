@@ -684,35 +684,9 @@ def build(name, out_path=None, use_cache=True):
     if not cards_png:
         print("      cards.py unusable here (Playwright blocked) -> drawtext FALLBACK. "
               "On the DESKTOP this build upgrades itself automatically.")
-    # FONT RESOLUTION (2026-08-06). Both original candidates were LINUX paths. On
-    # WINDOWS - the machine this pipeline actually runs on - neither exists, so FONT was
-    # set to a file that is not there and drawtext rendered NOTHING. Silently: ffmpeg
-    # does not reliably fail on a missing fontfile, so a card could vanish from a
-    # DELIVERED video and no gate would ever see it. Surfaced by smoketest on Windows.
-    # The REPO font goes first on purpose: it ships with the project, so the cards look
-    # identical on every machine instead of depending on what the OS happens to have.
-    _FONT_CANDIDATES = [
-        os.path.join(HERE, "assets", "fonts", "loose", "CapCutSansText-Bold.otf"),
-        "C:/Windows/Fonts/arialbd.ttf",
-        "C:/Windows/Fonts/segoeuib.ttf",
-        "/usr/share/fonts/truetype/google-fonts/Poppins-Bold.ttf",
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
-    ]
-    FONT = next((f for f in _FONT_CANDIDATES if os.path.exists(f)), None)
-    if FONT is None:
-        # LOUD, not silent - but not fatal here, because a build whose cards came from
-        # cards.py (Playwright) never touches drawtext and must not be stopped by this.
-        print("      !! NO USABLE FONT FOUND for the drawtext fallback. Tried:")
-        for _c in _FONT_CANDIDATES:
-            print(f"           {_c}")
-        print("      !! If this build needs the drawtext fallback it will STOP rather "
-              "than deliver empty cards.")
-    else:
-        # ffmpeg's drawtext parses ':' as its option separator, so a Windows drive
-        # letter must be escaped or the filter silently reads the path as just 'C'.
-        # Backslashes are normalised for the same reason.
-        FONT = FONT.replace("\\", "/").replace(":", r"\:")
-        print(f"      card font: {FONT}")
+    FONT = "/usr/share/fonts/truetype/google-fonts/Poppins-Bold.ttf"
+    if not os.path.exists(FONT):
+        FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
     # PLANNED vs ACTUAL, again: blends compress the timeline (16.00s planned -> 14.40s
     # actual on the LC300), so spans from the plan put the CTA PAST THE END OF THE FILE
     # and it never rendered. Caught by LOOKING at the strip, not by any gate. Scale all
@@ -749,12 +723,6 @@ def build(name, out_path=None, use_cache=True):
             # AUTO-FIT (WRX v1 lesson): the old max(56,...) FLOOR guaranteed overflow on
             # long text. Bound ~0.58*size px/char to <=0.92 of frame width, no floor.
             size = min(56 if kind == "cta" else 78, max(30, int(1100 / max(8, len(txt)))))
-            if FONT is None:
-                raise RuntimeError(
-                    "drawtext card fallback needed but NO USABLE FONT was found - "
-                    "see the candidate list printed above. Refusing to render cards "
-                    "that would come out EMPTY: a silently missing card on a delivered "
-                    "video is worse than a stopped build.")
             dt.append(f"drawtext=fontfile='{FONT}':text='{txt}':fontcolor=white:fontsize={size}:"
                       f"borderw=6:bordercolor=black@0.85:x=(w-text_w)/2:y=(h*{P.CARD_Y}):"
                       f"enable='between(t,{st_:.2f},{st_+ln:.2f})'")
@@ -976,22 +944,6 @@ def build(name, out_path=None, use_cache=True):
     #     foley FOREGROUND moments -> bed - 2 dB  (hero/Nev moments read over
     #                                              the music; per-shot design
     #                                              inside the layer is preserved)
-    # ---- MIX RELATIONSHIPS, NOW PER PILLAR (2026-08-06, his catch: "the sfx and
-    # foley are too loud it covers the whole bgm").
-    # MEASURED before changing anything, on the delivered files:
-    #   KK v15 (travel_vlog, hero_only): during the loudest 10% of broadband moments
-    #     the bed's 40-160Hz band drops  -4.9 dB  -> ordinary musical ducking.
-    #   WRX v9 (car_cinematic, edit_sfx=full): the same measurement reads -31.1 dB.
-    #     That is not ducking, that is the music being removed under every whoosh.
-    # The old constants (-6 for sfx, -2 for foley foreground, duck 0.06/6:1) are kept
-    # as the DEFAULTS, so every existing pillar builds byte-identically unless its
-    # profile says otherwise. A pillar can now state its own balance.
-    _mx = _style if isinstance(_style, dict) else {}
-    SFX_TGT = float(_mx.get("mix_sfx_target_db", -6.0))    # edit-sfx active RMS vs bed
-    FOL_TGT = float(_mx.get("mix_foley_fg_target_db", -2.0))  # foley FOREGROUND vs bed
-    DUCK_THR = float(_mx.get("mix_duck_threshold", 0.06))
-    DUCK_RAT = float(_mx.get("mix_duck_ratio", 6.0))
-    DUCK_REL = float(_mx.get("mix_duck_release", 120.0))
     SFX_DB, FOL_DB = 13.5, 0.0
     bed_gain_num = (17.0 if HAVE_SFX else 11.0) + BED_TRIM
 
@@ -1021,14 +973,14 @@ def build(name, out_path=None, use_cache=True):
         if bl is not None and HAVE_SFX:
             sl = _active_rms(sfx_path, SFX_DB)
             if sl is not None:
-                trim = max(-8.0, min(8.0, (bl + SFX_TGT) - sl))
+                trim = max(-8.0, min(8.0, (bl - 6.0) - sl))
                 SFX_DB += trim
-                rows.append(("edit-sfx", sl, bl + SFX_TGT, trim))
+                rows.append(("edit-sfx", sl, bl - 6.0, trim))
         if bl is not None and HAVE_FOLEY and fg_spans:
             flv = _active_rms(foley_path, 0.0, spans=fg_spans)
             if flv is not None:
-                FOL_DB = max(-8.0, min(8.0, (bl + FOL_TGT) - flv))
-                rows.append(("foley (foreground)", flv, bl + FOL_TGT, FOL_DB))
+                FOL_DB = max(-8.0, min(8.0, (bl - 2.0) - flv))
+                rows.append(("foley (foreground)", flv, bl - 2.0, FOL_DB))
         print("      SOUND ENGINEER calibration (active RMS at mix gain):")
         for nm, meas, tgt, tr in rows:
             print(f"        {nm:20s} measured {meas:6.1f}dB  target {tgt:6.1f}dB  "
@@ -1062,8 +1014,8 @@ def build(name, out_path=None, use_cache=True):
     elif HAVE_FOLEY:
         fp.append("[fk]anull[key]")
     if HAVE_SFX or HAVE_FOLEY:
-        fp.append(f"[bedraw][key]sidechaincompress=threshold={DUCK_THR}:"
-                  f"ratio={DUCK_RAT:g}:attack=4:release={DUCK_REL:g}:makeup=1[bed]")
+        fp.append("[bedraw][key]sidechaincompress=threshold=0.06:ratio=6:attack=4:"
+                  "release=120:makeup=1[bed]")
     else:
         fp.append("[bedraw]anull[bed]")
     mix_in = ["[bed]"]

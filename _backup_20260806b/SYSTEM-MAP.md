@@ -91,12 +91,10 @@ TITLE
 | `refstudy.py` | Reference → target profile. How PILLAR-PROFILES was built. |
 | `reverse.py` | Diff our cut against the reference DNA. |
 | `cutsense.py` | Standalone: LRA floor, far-repeat matrix, event curve. |
-| `smoketest.py` | 9 routes on synthetic inputs. Baseline **79 pass / 0 fail** (2026-08-06; was 74/5 — 4 were one bad bed glob, 1 was an unescaped Windows path). |
+| `smoketest.py` | 9 routes on synthetic inputs. Baseline **74 pass / 5 fail**. |
 | `fx.py` | Transition bank: dissolve, whip, speedramp, zoomblur, masks, dolly, glitch, flash, dip. |
 | `cards.py` | HTML/CSS → PNG cards via Playwright. Replaces ffmpeg drawtext. |
 | `retention.py` | Post → +24h curve → attribution. **Zero rows. MIN_N=8.** |
-| `lessonize.py` | **The learning loop, mechanised.** Failing gate check / judge seat → a dated lesson → planqc 23 BLOCKS the next plan. `--brief` PRINTS the unread ones. Never fixes anything. |
-| `blendsense.py` | Whip-sensitive transition detector. Separates WHIP (sharpness trench + scene change) from HARD CUT and DISSOLVE. |
 | `mastermind.py` | Frame/audio METRICS module. `audio_metrics` feeds verify 8. Not the seat. |
 
 **Two different things share the name "mastermind":** `tools/mastermind.py` is a metrics
@@ -321,114 +319,3 @@ of them worked. `tools/refsense.py --strip` then `--fill` costs zero credits and
 highest-value work available.
 
 **One posted video with a real 24-hour curve outranks everything in this repo.**
-
----
-
-## 11. THE LEARNING LOOP — how a finding becomes permanent (2026-08-06)
-
-**THE MASTERMIND IS NOT A PROGRAM.** It is a seat (`27-mastermind-qc.md`) executed by a
-human plus an LLM, so **its entire memory is these files**. Anything not written down
-here does not exist for the next session. That is the whole reason this section exists.
-
-```
-a gate FAILS / a judge seat FAILS
-   └─ tools/lessonize.py <project> --from-gate | --from-judge
-        └─ dated lesson appended to ledgers/knowledge.json  (deduped on a signature)
-             └─ that topic's COUNT rises
-                  └─ planqc 23 BLOCKS every plan whose LESSONS_ACK is lower
-                       └─ tools/lessonize.py <plan> --brief   PRINTS the unread ones
-                            └─ read → put them in the plan's PREMORTEM → re-ack
-```
-
-**It captures and blocks automatically. It never fixes.** A loop that edited a plan to
-clear its own gate would be optimising the CHECK instead of the FILM — the SMOOTH NUMBER
-trap from file 27 PART C, automated and unattended.
-
-**The honest limit:** planqc 23 checks a NUMBER, not comprehension. A session can ack 76
-without reading one line. `--brief` exists so the ack can be earned; nothing can force it.
-
-`--status` lists every topic count and every plan the ledger currently blocks.
-Backs up `knowledge.json` to `_backup_lessonize/` before each write.
-
-### Per-pillar mix, added the same day
-`engine.py` reads five relationships from the PILLAR's style block, defaulting to the old
-hardcoded constants so untouched pillars build byte-identically:
-`mix_sfx_target_db` (−6) · `mix_foley_fg_target_db` (−2) · `mix_duck_threshold` (0.06) ·
-`mix_duck_ratio` (6) · `mix_duck_release` (120).
-**MEASURED:** during the loudest 10% of broadband moments the bed's 40–160 Hz band drops
-**−4.9 dB on KK v15** (travel_vlog) but **−31.1 dB on WRX v9** (car_cinematic,
-edit_sfx=full). travel_vlog now declares foley foreground at **bed−8** and a **3:1** duck.
-**car_cinematic is UNCHANGED and OPEN** — retuning it changes the approved WRX look.
-
-### Blend bands can be COUNTS
-planqc 11 accepts `blend_max_count` and a `designed_kinds` whitelist. A percentage
-quantises to zero on a short cut: at 19 boundaries ONE blend is 5.3%, over a [0,5] cap.
-travel_vlog measures **9.5% designed pooled across 6 references, all whips**
-(`blendsense.py`), so it declares `blend_max_count 2` and `designed_kinds ["whip"]`.
-
-### CORRECTION to RESUME-2026-08-06
-That file states `GATE.md` and `PROMPTS.md` "do not exist". **They do** — at
-`docs/GATE.md` and `docs/PROMPTS.md`. The old CLAUDE.md pointer had the wrong PATH, not
-a missing file. Every other referenced doc (27, 06, 19, 01, 08, 14, 17, RECONCILE) is
-present and was verified 2026-08-06.
-
----
-
-## 12. THE DOCTRINE DOCS — 28 files the entry path never named
-
-**MEASURED 2026-08-06, in answer to "does the mastermind know this in detail?":** the
-three entry files name **6/6 root pipeline files**, **32/53 tools**, and **1 of these 28**.
-CLAUDE.md cites 27, 06, 19, 01, 08, 14 and 17 by number in prose, but nothing ever told a
-new session the other twenty-one existed. This index is that missing line.
-
-**These are the SEATS.** The pipeline is code; these are the judgement it is meant to
-encode. A gate can only measure what one of these decided.
-
-| file | what it is |
-|---|---|
-| `00-START-HERE.md` | entry orientation |
-| `01-4-beat-spine.md` | the 4-beat spine — the CONTENT block's four gates |
-| `02-ai-video-crew-roles.md` | the crew — every role agent |
-| `03-physical-performance-master.md` | physical performance |
-| `04-foley-master.md` | the Foley Master |
-| `05-cinematic-ai-video-spec.md` | master spec + prompt template |
-| `06-content-judges.md` | **the reception gate — J0/J2/J4. `tools/judge.py` runs this.** |
-| `07-emotion-engine.md` | micro-expression as conflict |
-| `08-the-strategist.md` | Seat [0] — the title readback |
-| `09-learning-log.md` | learning log (predates `ledgers/knowledge.json`) |
-| `10-the-editor.md` | Seat [7] — the assembly layer |
-| `11-editing-bank.md` | edit recipes for auto-assembly |
-| `12-sfx-foley-bank.md` | the SFX / foley bank |
-| `13-role-asset-banks.md` | 20+ assets per seat |
-| `14-audience-voice-series.md` | audience + voice — who we talk to |
-| `15-launch-protocol.md` | what happens after "ship" — **the unused half, 0 posts** |
-| `16-master-skeleton.md` | full pipeline, all seats |
-| `17-car-cinematic-master-prompt.md` | the car cinematic master prompt |
-| `18-agent-contract.md` | title in, finished video out |
-| `19-sound-engineer.md` | **[3D] the mix, not the sound list.** The seat behind the per-pillar mix knobs. |
-| `20-sfx-download-list.md` | 50-SFX starter library |
-| `21-bgm-library.md` | BGM library — 80 tracks |
-| `22-HANDOVER.md` | session state (superseded by `RESUME-*.md`) |
-| `23-asset-preproduction.md` | build assets BEFORE the video — the PLATE rule |
-| `24-system-audit.md` | every file scored against the four formats |
-| `25-qc-debate-protocol.md` | every seat gets challenged before it advances |
-| `26-master-scorecard.md` | one number per video, comparable across all |
-| `27-mastermind-qc.md` | **[FINAL BOSS] the strictest gate. THE MASTERMIND'S PROCEDURE.** |
-
-### The three that a mastermind must read before it acts
-`27-mastermind-qc.md` (its own procedure + the 16 measurement traps) ·
-`06-content-judges.md` (the seats `judge.py` executes) ·
-`08-the-strategist.md` (the title readback that starts everything).
-
-### KNOWN STALE — the skills predate the gates
-`skills/talyx-cinematic/SKILL.md` (1,687 words) and `skills/talyx-shotlist/SKILL.md`
-(645 words) mention **planqc 0 times, clipqc 0, judge 0, lessonize 0**. CLAUDE.md still
-says "Use the `/talyx-shotlist` skill for Phase 1", so a session that obeys that gets
-Phase-1 guidance written before the 68-check architecture existed. **HIS CALL:** rewrite
-them against the current gates, or delete the pointer. Do not leave both.
-
-### Tools not named anywhere in the entry path (21 of 53)
-Mostly per-car legacy builders and one-off measurers. Two matter:
-`tools/build_kk.py` — **`smoketest.py` imports it** for the loudness route, so it is live
-infrastructure, not legacy. `tools/facecheck.py` — CLAUDE.md tells you to run it on every
-identity seam. Get the current list with `ls tools/*.py`; do not trust a typed copy.

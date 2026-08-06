@@ -18,7 +18,7 @@
 
 | # | in | dur | kind | source | crop | note |
 |---|---|---|---|---|---|---|
-| 0 | 0.00 | 1.60 | med ◆ | `A` EVENT · LAUNCH AT THE LENS | 1.00x | LAUNCH AT LENS |
+| 0 | 0.00 | 1.60 | med | `A` EVENT · LAUNCH AT THE LENS | 1.00x | LAUNCH AT LENS |
 | 1 | 1.60 | 0.80 | burst | `B` front 3/4, scoop + hawk eyes | 1.00x | front 3/4 |
 | 2 | 2.40 | 0.80 | burst | `C` SCOOP macro, rain + heat | 1.35x | scoop macro |
 | 3 | 3.20 | 0.80 | burst | `D` wheel + brake, spray | 1.00x | wheel spray |
@@ -26,7 +26,7 @@
 | 5 | 4.80 | 0.80 | burst | `E` cockpit, no person | 1.00x | cockpit empty |
 | 6 | 5.60 | 3.20 | hold ◆ | `F` NEV cockpit, launch grip | 1.00x | NEV - about to launch |
 | 7 | 8.80 | 0.80 | burst | `H` ROLLING, wet road, night | 1.35x | rolling tease |
-| 8 | 9.60 | 0.80 | burst | `B` front 3/4, scoop + hawk eyes | 1.35x | hawk eyes |
+| 8 | 9.60 | 0.80 | burst | `A` EVENT · LAUNCH AT THE LENS | 1.35x | hawk eyes - the charge, mid-story |
 | 9 | 10.40 | 0.80 | burst | `I` NEV + car, street | 1.00x | NEV + car |
 | 10 | 11.20 | 0.80 | burst | `D` wheel + brake, spray | 1.35x | caliper |
 | 11 | 12.00 | 3.20 | hold ◆ | `H` ROLLING, wet road, night | 1.00x | ROLLING PAYOFF |
@@ -133,13 +133,14 @@ _times below are PLANNED; blends compress them - the engine re-times cards and d
 
 | after shot | t (planned) | treatment |
 |---|---|---|
-| 0 (LAUNCH AT LENS) | 1.60s | mask_slice 400ms |
 | 6 (NEV - about to launch) | 8.80s | mask_slice 400ms |
 | 11 (ROLLING PAYOFF) | 15.20s | mask_slice 400ms |
 
-All other cuts HARD (33-67ms). Blends 3/18 = 16% (profile 6-33%).
+All other cuts HARD (33-67ms). Blends 2/18 = 11% (profile 6-33%).
 
-**Sound** — synthesized drift-phonk bed at 150 BPM, first transient trimmed to t=0 (phase, not just tempo). SFX layer at +13.5dB with the bed SIDECHAIN-DUCKING under it; every whoosh LEADS its cut by 220ms and resolves ON it.
+**Sound** — bed at 150 BPM (profile band 140-165), first transient trimmed to t=0 (phase, not just tempo). `edit_sfx = FULL`: SFX layer auto-calibrated to bed-6dB with the bed SIDECHAIN-DUCKING under it; every whoosh LEADS its cut by 220ms and resolves ON it.
+
+**Diegetic** — every shot lays its OWN clip audio (generated and paid for) on the actual timeline, plan-gained. Foreground (>=-6dB): shots [0, 7, 8, 11, 15, 16]. Bed HARD-ducks during shots [0, 16]. Hero: the AWD launch - spray + boxer ramp charging the lens (shot 0, replayed at 16). ONE hero sound per video (file 04, law 4).
 
 | t (planned) | cut entering | sound |
 |---|---|---|
@@ -150,7 +151,7 @@ All other cuts HARD (33-67ms). Blends 3/18 = 16% (profile 6-33%).
 | 4.80s | shot 5 · cockpit empty | whoosh |
 | 5.60s | shot 6 · NEV - about to launch | SUB-DROP (into hold) |
 | 8.80s | shot 7 · rolling tease | IMPACT (section) |
-| 9.60s | shot 8 · hawk eyes | whoosh |
+| 9.60s | shot 8 · hawk eyes - the charge, mid-story | whoosh |
 | 10.40s | shot 9 · NEV + car | whoosh |
 | 11.20s | shot 10 · caliper | whoosh |
 | 12.00s | shot 11 · ROLLING PAYOFF | SUB-DROP (into hold) |
@@ -171,9 +172,9 @@ All other cuts HARD (33-67ms). Blends 3/18 = 16% (profile 6-33%).
 | **FROM JAPAN. LANDED.** (cap) | 11-12 | 12.00-16.00s |
 | **PRICE IN THE DM** (cta) | 16-18 | 18.40-21.60s |
 
-**Grade** — saturation 1.15 ONLY (never double-grade; prompts already carry the night look), measured toward black_point 2.0 / saturation 91.5. Mix: bed +12dB, limiter 0.76 level=disabled, target -7..-9 LUFS. Output written atomically.
+**Grade** — saturation 1.15 ONLY (never double-grade; prompts already carry the night look), measured toward black_point 2.0 / saturation 91.5. Mix: engine auto-calibrates the sfx and foley layers against the bed (sfx -> bed-6dB, foley foreground -> bed-2dB, each clamped +/-8dB), then limiter 0.72 level=disabled -> highpass 30Hz -> limiter 0.70. verify.py gates -9.6..-6.5 LUFS and <=-1.0 dBTP. Output written atomically.
 
-**Then the gates:** clipqc per clip -> engine build -> verify (10 checks, freshness first) -> JUDGES (kill-boring) -> Gavril.
+**Then the gates:** clipqc per clip -> engine build -> verify (15 checks, freshness FIRST — if it fails nothing else runs) -> JUDGES (kill-boring) -> Gavril.
 
 ---
 

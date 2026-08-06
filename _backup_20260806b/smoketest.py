@@ -235,22 +235,7 @@ def route_audio(d, A, vo):
        f'-c:v libx264 -crf 24 -preset ultrafast -pix_fmt yuv420p "{vid}"')
     vd = dur(vid); reveal = 20.0
     bed = None
-    # BED SEARCH (2026-08-06). This globbed ONLY assets/bgm/utility-beds/*.wav. That
-    # path is a symlink to the top-level BGM/ folder, which holds .mp3 per pillar and
-    # no .wav at that level - so it matched nothing, no bed was found, and FOUR checks
-    # failed from one wrong path (sustaining bed, tail is not dead air, hook has audio,
-    # and loudness converges). The beds were there the whole time. Search widens
-    # cheapest-first and accepts mp3, which is what the bank actually stores.
-    _bed_globs = [
-        os.path.join(ROOT, "assets", "bgm", "utility-beds", "*.wav"),
-        os.path.join(ROOT, "assets", "bgm", "**", "*.wav"),
-        os.path.join(ROOT, "BGM", "**", "*.mp3"),
-        os.path.join(ROOT, "assets", "bgm", "**", "*.mp3"),
-    ]
-    _cands = []
-    for _g in _bed_globs:
-        _cands += sorted(glob.glob(_g, recursive=True))
-    for c in _cands:
+    for c in sorted(glob.glob(os.path.join(ROOT, "assets", "bgm", "utility-beds", "*.wav"))):
         e, _ = envelope(c)
         if e is not None and float((e > -30).mean()) > 0.8: bed = c; break
     r.ok("a sustaining bed exists", bed is not None,
@@ -346,22 +331,11 @@ def route_captions(d, vo):
               "C:/Windows/Fonts/arialbd.ttf"):
         if os.path.exists(f): font = f; break
     if not r.ok("a bold font is available", font is not None): return r.finish()
-    # ffmpeg drawtext treats ':' as its option separator, so "C:/Windows/..." is read
-    # as the path "C". Escape the drive colon or every Windows caption renders nothing.
-    # ffmpeg's FILTERGRAPH parser, not just drawtext: ':' separates options and '\'
-    # starts an escape, so a raw Windows path breaks the graph. MEASURED 2026-08-06 on
-    # his machine: escaping only the FONT left the TEXTFILE path raw and ffmpeg said
-    # "No option name near '\\Users\\User\\AppData\\Loca..." - the backslashes, not the
-    # colon. Every path handed to a filter goes through this.
-    def _ffpath(p):
-        return p.replace("\\", "/").replace(":", r"\:")
-    font = _ffpath(font)
     src = os.path.join(d, "cseg0.mp4")
     if not os.path.exists(src): src = os.path.join(d, "A.mp4")
     o = os.path.join(d, "capped.mp4"); vf = []
     for i, c in enumerate(cards):
         tf = os.path.join(d, f"cap{i}.txt"); open(tf, "w", encoding="utf-8").write(c["text"])
-        tf = _ffpath(tf)
         vf.append(f"drawtext=fontfile='{font}':textfile='{tf}':fontsize=42:fontcolor=white:"
                   f"box=1:boxcolor=black@0.55:boxborderw=14:x=(w-tw)/2:y=h*0.78")
     rc, err = sh(f'ffmpeg -y -v error -i "{src}" -vf "{",".join(vf)}" -t 1 '
