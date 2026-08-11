@@ -1321,6 +1321,67 @@ def check_identity_coverage(P):
                if not bad else " · ".join(bad))
 
 
+def check_scene_refs(P):
+    """27b SCENE-MATCHED REFERENCES (2026-08-11, HIS CATCH on the desafarm board:
+    'it uses the same three reference picture... analyze the scene and choose which
+    reference picture is the best to use... you got a front face, side face, back
+    face, zoom in, zoom out, and close-up').
+
+    Every human shot was handed the SAME blanket identity set (front_neutral,
+    profile_right, front_calm) regardless of where the camera stands. An
+    over-the-shoulder shot got three faces and no back of head; a shot from behind
+    got no back reference at all. The library has 97 measured images - face 6-frame
+    turnaround, closeups, 11 wardrobe sets front/profile/back (assets/nev/index.json)
+    - and the plan never chose from it.
+
+    The plan must now declare SOURCE_REFS = {source: [1-3 ref paths]} for every
+    identity-carrying human source, chosen for THAT scene's facing and framing.
+    Mechanical rules, all decidable from the plan's own prompt text:
+      - every identity-carrying source has an entry, 1-3 refs each (more than 3
+        dilutes - the point is the BEST match, not the whole library)
+      - the sets must not all be identical - identical sets everywhere is exactly
+        the scene-blind blanket this check exists to end
+      - a prompt shot from behind ('over-the-shoulder', 'from behind', 'close
+        behind') must include a back reference (back_head or a wardrobe *_back)
+    """
+    humans = [k for k, v in P.SOURCES.items()
+              if v[2].upper() == "HUMAN" or "man from the" in v[4].lower()]
+    opt = getattr(P, "FACE_OPTOUT", {}) or {}
+    carrying = [k for k in humans if k not in opt]
+    if not carrying:
+        return warn("27b scene refs", "no identity-carrying sources")
+    sr = getattr(P, "SOURCE_REFS", None)
+    if not isinstance(sr, dict):
+        return add("27b scene refs", False,
+                   "NO SOURCE_REFS - every human shot will be handed the same blanket "
+                   "identity set regardless of where the camera stands. Declare "
+                   "SOURCE_REFS = {source: [1-3 refs]} chosen per scene from "
+                   "assets/nev/ (face turnaround · closeups · wardrobe front/profile/"
+                   "back - see index.json).")
+    bad = []
+    missing = [k for k in carrying if not sr.get(k)]
+    if missing:
+        bad.append(f"identity-carrying sources with no scene refs: {missing}")
+    fat = [k for k, v in sr.items() if len(v) > 3]
+    if fat:
+        bad.append(f"more than 3 refs (dilution, not selection): {fat}")
+    sets = [tuple(sorted(sr[k])) for k in carrying if sr.get(k)]
+    if len(sets) > 1 and len(set(sets)) == 1:
+        bad.append("every source declares the IDENTICAL ref set - that is the "
+                   "scene-blind blanket, renamed")
+    behind = [k for k in carrying if sr.get(k) and any(
+        c in P.SOURCES[k][4].lower()
+        for c in ("over-the-shoulder", "from behind", "close behind"))]
+    noback = [k for k in behind if not any(
+        "back" in os.path.basename(r).lower() for r in sr[k])]
+    if noback:
+        bad.append(f"shot from behind but no back reference in the set: {noback}")
+    return add("27b scene refs", not bad,
+               f"{len([k for k in carrying if sr.get(k)])}/{len(carrying)} sources "
+               f"carry scene-matched refs, {len(set(sets))} distinct sets"
+               if not bad else " · ".join(bad))
+
+
 # ---------------------------------------------------------------- 17 COST
 def check_cost(P, balance):
     c = P.cost()
@@ -1403,6 +1464,14 @@ def write_doc(P, path, name="?"):
         a("```")
         a(prompt)
         a("```")
+        # SCENE-MATCHED REFS (2026-08-11, his catch): show WHICH references this
+        # exact scene is handed, never the blanket set. planqc 27b enforces it.
+        _sr = (getattr(P, "SOURCE_REFS", {}) or {}).get(k)
+        if _sr:
+            a("")
+            a("**identity refs for THIS scene** (chosen by facing/framing - planqc 27b):")
+            for _r in _sr:
+                a(f"- `{_r}`")
         a("")
     a("---")
     a("")
@@ -1606,6 +1675,7 @@ def main():
     check_field_sanity(P)
     check_style_declared(P, pf)
     check_identity_coverage(P)
+    check_scene_refs(P)
     check_framing_diversity(P)
     check_relationships(P)
     check_threshold_provenance(P)

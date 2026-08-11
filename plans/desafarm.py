@@ -62,7 +62,7 @@ MAX_CROP  = 1.40
 TARGET_S  = 28.31                    # 46 beats = 28.3077s. Inside the measured 16-29s.
 
 LESSONS_ACK = {            # ledger counts this plan was written against (planqc 23)
-    "general craft": 115,  # 99, 100 and 101 were all filed 2026-08-07 BY THIS PLAN'S
+    "general craft": 116,  # 99, 100 and 101 were all filed 2026-08-07 BY THIS PLAN'S
     "travel vlog":    6,   # OWN PROBE AND INGEST - premortem "THE OTHER FOUR SECONDS",
                            # "THE LIGHT IS A SPEC" and "EXPOSE FOR WHAT". Source A,
                            # source C and _LOOK were all rewritten against them.
@@ -674,6 +674,49 @@ DELOGO    = {}          # EMPTY ON PURPOSE. The signage risk is handled by FRAMI
 # delivered cut still reads late, the fault is the ALLOCATOR, not the clip: measure
 # again before adding a span here. tools/syncqc.py check 1 blocks if the event lands
 # past 40% of shot 0's window.
+# ---------------------------------------------------------------- SCENE REFS
+# HIS CORRECTION 2026-08-11, looking at the storyboard: "it uses the same three
+# reference picture... analyze the scene and choose which reference picture is the
+# best to use... you got a front face, side face, back face, zoom in, zoom out,
+# close-up". The library is assets/nev/ - 97 measured images (index.json): a 6-frame
+# face turnaround, closeups, 11 wardrobe sets shot front/profile/back. This film's
+# wardrobe is 10_shirt_white_print. 1-3 refs per scene - the BEST match, never the
+# blanket. profile_right and front_calm carry the EARRING (README finding 5).
+# planqc 27b enforces: entry per human source, <=3, not all identical, back ref on
+# any shot from behind.
+SOURCE_REFS = {
+    # A: camera close and low BESIDE him, crouched mid-struggle -> his side to the
+    # lens: right profile (earring) + front anchor + the shirt worn on a body.
+    "A": ["assets/nev/face/profile_right.jpeg",
+          "assets/nev/face/front_neutral.jpeg",
+          "assets/nev/wardrobe/10_shirt_white_print/75_front.jpeg"],
+    # C: OVER-THE-SHOULDER onto the windscreen -> the camera sees the back of his
+    # head and the right side of his face, never a full front. Back of head + right
+    # profile + the overshirt's BACK.
+    "C": ["assets/nev/face/back_head.jpeg",
+          "assets/nev/face/profile_right.jpeg",
+          "assets/nev/wardrobe/10_shirt_white_print/76_back.jpeg"],
+    # E: crouching height BESIDE him feeding the calf -> side-on again: right
+    # profile + front anchor + shirt front.
+    "E": ["assets/nev/face/profile_right.jpeg",
+          "assets/nev/face/front_neutral.jpeg",
+          "assets/nev/wardrobe/10_shirt_white_print/75_front.jpeg"],
+    # H: THE LAUGH - medium-close, chest up, INTO the lens, startled -> laugh.
+    # Both endpoint expressions, plus the shirt front for the chest-up frame.
+    "H": ["assets/nev/face/front_neutral.jpeg",
+          "assets/nev/face/front_smile.jpeg",
+          "assets/nev/wardrobe/10_shirt_white_print/75_front.jpeg"],
+    # L: tracking backwards AHEAD of him -> full frontal walk: calm front (earring)
+    # + neutral front + shirt front on a full body.
+    "L": ["assets/nev/face/front_calm.jpeg",
+          "assets/nev/face/front_neutral.jpeg",
+          "assets/nev/wardrobe/10_shirt_white_print/75_front.jpeg"],
+    # N: out of focus BEHIND the leaving goat, half-risen, facing the lens at
+    # distance -> identity is soft here by design: one front + the shirt is enough.
+    "N": ["assets/nev/face/front_neutral.jpeg",
+          "assets/nev/wardrobe/10_shirt_white_print/75_front.jpeg"],
+}
+
 BAN_SPANS = {}
 
 # THE ONE DECLARED BACKWARDS BOUNDARY (planqc 30). Boundary 0 only.

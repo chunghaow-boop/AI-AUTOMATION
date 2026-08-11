@@ -76,6 +76,11 @@ Timeline board (real frames appear here automatically once clips exist):
 Vertical 9:16. THE EVENT. THIS CLIP IS ONE CONTINUOUS ESCALATION FROM ITS FIRST FRAME TO ITS LAST AND IT NEVER SETTLES - there is no calm second anywhere in it. AFTERNOON. Camera close and low beside the man from the second reference images (white print shirt under an open dark overshirt, hair dry, no cap, no sunglasses; face, hair and EARRING match the references exactly), crouched on the open green slope of the first reference image with a plain white feeding bottle in his hand. AT FRAME ZERO THE TAKE IS ALREADY IN PROGRESS, MID-STRUGGLE, NEVER BEGINNING: the brown-and-white goat's mouth is already CLAMPED on the bottle, its head already wrenched hard sideways, its front hooves already off the ground, his wrist already bent over by the pull and his elbow already dragged forward. Nothing approaches, nothing starts, the first frame is already the middle of it. From there it ONLY escalates and never reverses: the goat twists further and DOWN, the bottle tears out of his grip, his hand snatches after it and closes on air, he rocks back on his heels, and the goat carries the bottle away past the lens with its head high while he is still reaching after it. The last frame is the emptiest his hand ever is. FORBIDDEN - these are exactly the failures this shot exists to avoid: the goat calmly drinking or nursing, the goat standing still with the bottle in its mouth, all four hooves planted on the ground, a settled peaceful feed, any second of this clip in which nothing is being pulled. The stated time of day is a hard specification, not a mood: whatever the hour, the frame is FULLY EXPOSED and every subject in it is clearly readable - never underexposed, never a low-key or moody treatment, never crushed black shadows. Cold clear highland air at two thousand metres; true texture on skin, hide, cloth and paint. REAL FOOTAGE, NOT A RENDER: handheld micro-shake, natural depth of field, accurate reflections, no HDR halos. Negative: calm feeding, peaceful nursing, static animal, underexposed, low-key lighting, moody darkness, crushed blacks, heavy shadow, teal-and-orange grade, CGI, videogame look, postcard oversaturation, invented signage text, legible device screens, visible registration plates, model badges or lettering of any kind, any legible slogan wordmark logo or printed graphic on clothing, buildings sheds or ticket booths in frame, extra fingers, warped faces, drone-stock look.
 ```
 
+**identity refs for THIS scene** (chosen by facing/framing - planqc 27b):
+- `assets/nev/face/profile_right.jpeg`
+- `assets/nev/face/front_neutral.jpeg`
+- `assets/nev/wardrobe/10_shirt_white_print/75_front.jpeg`
+
 ### `B` · BRZ on the highland road  ·  act: EXTERIOR  ·  plates: crocker, brz
 
 ```
@@ -88,6 +93,11 @@ Vertical 9:16. DAWN going to full MORNING - one continuous light move, which is 
 Vertical 9:16. MORNING. EXPOSE FOR THE CABIN, NOT FOR THE WINDSCREEN - this is the single most important instruction in this shot. Bright morning daylight FLOODS the interior and fills it; the driver's face, hands and clothing are fully lit and clearly readable at all times; the windscreen is allowed to be bright, even blown out, and that is correct. NEVER a silhouette, NEVER a dark cabin against a bright window, NEVER a dim moody interior, NEVER crushed black shadows anywhere in the frame. Interior of the low blue coupe from the second reference image, over-the-shoulder onto the windscreen: the man from the first reference images (white print shirt under an open dark overshirt, hair dry, no cap, no sunglasses; face, hair and EARRING match the references exactly) driving, sitting LOW the way a sports car seats you, one hand on the wheel, the highland road unrolling ahead through the glass and green pasture opening on both sides. Continuous forward movement of the road through the glass, first frame to last. Real skin, no smoothing. No legible instrument display of any kind. The stated time of day is a hard specification, not a mood: whatever the hour, the frame is FULLY EXPOSED and every subject in it is clearly readable - never underexposed, never a low-key or moody treatment, never crushed black shadows. Cold clear highland air at two thousand metres; true texture on skin, hide, cloth and paint. REAL FOOTAGE, NOT A RENDER: handheld micro-shake, natural depth of field, accurate reflections, no HDR halos. Negative: silhouette, backlit subject, dark interior, dim cabin, underexposed, low-key lighting, moody darkness, crushed blacks, heavy shadow, teal-and-orange grade, CGI, videogame look, postcard oversaturation, invented signage text, legible device screens, visible registration plates, model badges or lettering of any kind, any legible slogan wordmark logo or printed graphic on clothing, buildings sheds or ticket booths in frame, extra fingers, warped faces, drone-stock look.
 ```
 
+**identity refs for THIS scene** (chosen by facing/framing - planqc 27b):
+- `assets/nev/face/back_head.jpeg`
+- `assets/nev/face/profile_right.jpeg`
+- `assets/nev/wardrobe/10_shirt_white_print/76_back.jpeg`
+
 ### `D` · BRZ at the pasture edge  ·  act: EXTERIOR  ·  plates: brz, desa
 
 ```
@@ -99,6 +109,11 @@ Vertical 9:16. MORNING. Low three-quarter static on the blue coupe from the firs
 ```
 Vertical 9:16. MIDDAY going to AFTERNOON. Close, camera at crouching height beside the man from the first reference images (white print shirt under an open dark overshirt, hair dry, no cap, no sunglasses; face, hair and EARRING match the references exactly) holding a plain white bottle to a black-and-white Holstein calf on the pasture of the second reference image. The calf SHOVES the bottle upward with its head the way calves actually feed, tongue working, froth at the corner of its mouth, his arm absorbing each butt. Continuous animal movement first frame to last. The stated time of day is a hard specification, not a mood: whatever the hour, the frame is FULLY EXPOSED and every subject in it is clearly readable - never underexposed, never a low-key or moody treatment, never crushed black shadows. Cold clear highland air at two thousand metres; true texture on skin, hide, cloth and paint. REAL FOOTAGE, NOT A RENDER: handheld micro-shake, natural depth of field, accurate reflections, no HDR halos. Negative: underexposed, low-key lighting, moody darkness, crushed blacks, heavy shadow, teal-and-orange grade, CGI, videogame look, postcard oversaturation, invented signage text, legible device screens, visible registration plates, model badges or lettering of any kind, any legible slogan wordmark logo or printed graphic on clothing, buildings sheds or ticket booths in frame, extra fingers, warped faces, drone-stock look.
 ```
+
+**identity refs for THIS scene** (chosen by facing/framing - planqc 27b):
+- `assets/nev/face/profile_right.jpeg`
+- `assets/nev/face/front_neutral.jpeg`
+- `assets/nev/wardrobe/10_shirt_white_print/75_front.jpeg`
 
 ### `F` · the herd on the slope  ·  act: EXTERIOR  ·  plates: desa
 
@@ -117,6 +132,11 @@ Vertical 9:16. MIDDAY going to AFTERNOON. Camera close at goat height on the pas
 ```
 Vertical 9:16. AFTERNOON going to GOLDEN. THIS CLIP PERFORMS A CHANGE OF STATE FROM ITS FIRST FRAME TO ITS LAST AND THAT ARC IS THE POINT OF IT - it must be MONOTONIC, never a loop. Medium-close on the man from the reference images (white print shirt under an open dark overshirt, hair dry, no cap, no sunglasses; face, hair and EARRING match the references exactly), chest up, the jostling goats over one shoulder and the switchback road dropping away below the green slope over the other, both thrown soft. HE STARTS STARTLED: eyes wide, mouth open, head pulled back, hands still up where the bottle was. Then it TURNS across the second half of the clip - the shoulders drop, he shakes his head once and breaks into a real laugh, looking off toward the animals. Real skin, no smoothing. The stated time of day is a hard specification, not a mood: whatever the hour, the frame is FULLY EXPOSED and every subject in it is clearly readable - never underexposed, never a low-key or moody treatment, never crushed black shadows. Cold clear highland air at two thousand metres; true texture on skin, hide, cloth and paint. REAL FOOTAGE, NOT A RENDER: handheld micro-shake, natural depth of field, accurate reflections, no HDR halos. Negative: underexposed, low-key lighting, moody darkness, crushed blacks, heavy shadow, teal-and-orange grade, CGI, videogame look, postcard oversaturation, invented signage text, legible device screens, visible registration plates, model badges or lettering of any kind, any legible slogan wordmark logo or printed graphic on clothing, buildings sheds or ticket booths in frame, extra fingers, warped faces, drone-stock look.
 ```
+
+**identity refs for THIS scene** (chosen by facing/framing - planqc 27b):
+- `assets/nev/face/front_neutral.jpeg`
+- `assets/nev/face/front_smile.jpeg`
+- `assets/nev/wardrobe/10_shirt_white_print/75_front.jpeg`
 
 ### `I` · PAYOFF · the road down  ·  act: PAYOFF  ·  plates: brz, crocker
 
@@ -142,11 +162,20 @@ Vertical 9:16. MIDDAY. Static wide on the rolling green pasture of the reference
 Vertical 9:16. MIDDAY. Tracking backwards ahead of the man from the first reference images (white print shirt under an open dark overshirt, hair dry, no cap, no sunglasses; face, hair and EARRING match the references exactly) as he walks out across the open pasture of the second reference image carrying a plain white feeding bottle, cattle in the middle distance turning toward him, wind pulling at the open overshirt. Head-and-chest framing, continuous walking movement. The stated time of day is a hard specification, not a mood: whatever the hour, the frame is FULLY EXPOSED and every subject in it is clearly readable - never underexposed, never a low-key or moody treatment, never crushed black shadows. Cold clear highland air at two thousand metres; true texture on skin, hide, cloth and paint. REAL FOOTAGE, NOT A RENDER: handheld micro-shake, natural depth of field, accurate reflections, no HDR halos. Negative: underexposed, low-key lighting, moody darkness, crushed blacks, heavy shadow, teal-and-orange grade, CGI, videogame look, postcard oversaturation, invented signage text, legible device screens, visible registration plates, model badges or lettering of any kind, any legible slogan wordmark logo or printed graphic on clothing, buildings sheds or ticket booths in frame, extra fingers, warped faces, drone-stock look.
 ```
 
+**identity refs for THIS scene** (chosen by facing/framing - planqc 27b):
+- `assets/nev/face/front_calm.jpeg`
+- `assets/nev/face/front_neutral.jpeg`
+- `assets/nev/wardrobe/10_shirt_white_print/75_front.jpeg`
+
 ### `N` · the goat walks off with it  ·  act: EVENT  ·  plates: desa, nev
 
 ```
 Vertical 9:16. AFTERNOON. Camera low at goat height on the open green slope of the first reference image: the brown-and-white goat TROTS AWAY from the lens with the plain white bottle of milk gripped sideways in its mouth, head high, other goats turning to follow it; the man from the second reference images (white print shirt under an open dark overshirt, hair dry, no cap, no sunglasses; face, hair and EARRING match the references exactly) is out of focus behind, half-risen from his crouch with both hands still open. This is the AFTERMATH: the bottle is already gone and the goat is already leaving, never the moment of taking it. Continuous animal movement first frame to last. The stated time of day is a hard specification, not a mood: whatever the hour, the frame is FULLY EXPOSED and every subject in it is clearly readable - never underexposed, never a low-key or moody treatment, never crushed black shadows. Cold clear highland air at two thousand metres; true texture on skin, hide, cloth and paint. REAL FOOTAGE, NOT A RENDER: handheld micro-shake, natural depth of field, accurate reflections, no HDR halos. Negative: underexposed, low-key lighting, moody darkness, crushed blacks, heavy shadow, teal-and-orange grade, CGI, videogame look, postcard oversaturation, invented signage text, legible device screens, visible registration plates, model badges or lettering of any kind, any legible slogan wordmark logo or printed graphic on clothing, buildings sheds or ticket booths in frame, extra fingers, warped faces, drone-stock look.
 ```
+
+**identity refs for THIS scene** (chosen by facing/framing - planqc 27b):
+- `assets/nev/face/front_neutral.jpeg`
+- `assets/nev/wardrobe/10_shirt_white_print/75_front.jpeg`
 
 ### `M` · BRZ detail, ridge behind  ·  act: EXTERIOR  ·  plates: brz, desa
 

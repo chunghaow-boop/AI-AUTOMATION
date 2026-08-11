@@ -229,6 +229,20 @@ def build(name, out=None):
                         return out_
         return out_
 
+    def scene_refs_strip(src):
+        """SCENE-MATCHED REFS (2026-08-11, HIS CATCH on this very page: every shot
+        showed the same three reference pictures. If the plan declares SOURCE_REFS
+        for a source, the board shows THOSE - the refs this exact scene is handed -
+        instead of the blanket plate set. planqc 27b enforces the selection."""
+        rels = (getattr(P, "SOURCE_REFS", {}) or {}).get(src) or []
+        out_ = []
+        for rel in rels[:6]:
+            p_ = rel if os.path.isabs(rel) else os.path.join(HERE, rel)
+            b = b64_of(p_, max_w=150) if os.path.exists(p_) else None
+            out_.append((b, f"{src} scene-ref · {os.path.basename(rel)}",
+                         os.path.relpath(p_, HERE)))
+        return out_
+
     rows, missing, n_real, n_plate = [], [], 0, 0
     for i, (src, crop, kind, note) in enumerate(P.SHOTS):
         meta = (getattr(P, "SOURCES", {}) or {}).get(src, ())
@@ -290,7 +304,7 @@ def build(name, out=None):
             "framing": framing.get(src, ""),                 # camera movement / position
             "prompt": (meta[4] if len(meta) > 4 else ""),    # the VERBATIM prompt
             "plates": plates,
-            "refs": identity_strip(plates),                  # 3-5 identity references
+            "refs": scene_refs_strip(src) or identity_strip(plates),  # scene-matched first
         })
 
     # ------------------------------------------------------------------ render

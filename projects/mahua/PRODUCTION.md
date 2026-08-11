@@ -76,6 +76,11 @@ Timeline board (real frames appear here automatically once clips exist):
 Vertical 9:16. THE EVENT, and it RESOLVES INSIDE 1.2 SECONDS. Camera low at water level at the edge of the shallow plunge pool from the first reference image, MIDDAY light coming down through the canopy. THE DROP IS ALREADY HAPPENING AT FRAME ZERO - his body is entering the water in the first three frames, never after a beat of empty pool. The man from the second reference images - white print shirt, dark shorts - drops into the cold pool from the boulder rim and the water bursts white around his chest in the first half second; he comes up gasping, hair flat and soaked, the seventeen-metre column still falling behind him. A body event, not a camera move. His face, hair and EARRING match the references exactly. Humid highland Borneo air at a thousand metres; true texture on skin, soaked fabric and leaf. REAL FOOTAGE, NOT A RENDER: handheld micro-shake, natural depth of field, accurate reflections, no HDR halos. Negative: CGI, videogame look, postcard oversaturation, invented signage text, legible device screens, visible registration plates, rear model badges or lettering of any kind, any legible slogan wordmark logo or printed graphic on clothing, any legible instrument-cluster or infotainment display, extra fingers, warped faces, drone-stock look.
 ```
 
+**identity refs for THIS scene** (chosen by facing/framing - planqc 27b):
+- `assets/nev/face/profile_right.jpeg`
+- `assets/nev/face/front_neutral.jpeg`
+- `assets/nev/wardrobe/10_shirt_white_print/75_front.jpeg`
+
 ### `B` · the Crocker road at first light  ·  act: EXTERIOR  ·  plates: crocker, glc300
 
 ```
@@ -87,6 +92,11 @@ Vertical 9:16. DAWN, first light. Long lens from across a valley onto the switch
 ```
 Vertical 9:16. DAWN turning to full MORNING - one continuous light move, which is why this single clip serves both of its shots. Interior of the SUV from the second reference image, over-the-shoulder onto the windscreen: the man from the first reference images - white print shirt, dry, hair dry - driving with the window down, cold air moving his hair, the mountain road narrowing into forest ahead through the glass, mist crossing the windscreen. His face, hair and EARRING match the references exactly, real skin, no smoothing. Humid highland Borneo air at a thousand metres; true texture on skin, soaked fabric and leaf. REAL FOOTAGE, NOT A RENDER: handheld micro-shake, natural depth of field, accurate reflections, no HDR halos. Negative: CGI, videogame look, postcard oversaturation, invented signage text, legible device screens, visible registration plates, rear model badges or lettering of any kind, any legible slogan wordmark logo or printed graphic on clothing, any legible instrument-cluster or infotainment display, extra fingers, warped faces, drone-stock look.
 ```
+
+**identity refs for THIS scene** (chosen by facing/framing - planqc 27b):
+- `assets/nev/face/back_head.jpeg`
+- `assets/nev/face/profile_right.jpeg`
+- `assets/nev/wardrobe/10_shirt_white_print/76_back.jpeg`
 
 ### `D` · the walkway in  ·  act: EXTERIOR  ·  plates: mahua
 
@@ -112,11 +122,21 @@ Vertical 9:16. LATE MORNING into MIDDAY under canopy shade. Ground-level camera 
 Vertical 9:16. AFTERNOON. Handheld camera close behind and slightly above the man from the first reference images, standing waist-deep at the edge of the pool of the second reference image, shirt and hair SOAKED, holding a phone up at arm's length toward the falling water. THE PHONE IS SEEN FROM BEHIND, its blank back to the lens, and its screen is never visible or legible. His shoulders are drawn up and tight against the cold, jaw set, breath short - he is enjoying it and he is freezing at the same time. He turns his head back toward the lens with a grin, water running off his hair. Face and EARRING exact. Humid highland Borneo air at a thousand metres; true texture on skin, soaked fabric and leaf. REAL FOOTAGE, NOT A RENDER: handheld micro-shake, natural depth of field, accurate reflections, no HDR halos. Negative: CGI, videogame look, postcard oversaturation, invented signage text, legible device screens, visible registration plates, rear model badges or lettering of any kind, any legible slogan wordmark logo or printed graphic on clothing, any legible instrument-cluster or infotainment display, extra fingers, warped faces, drone-stock look.
 ```
 
+**identity refs for THIS scene** (chosen by facing/framing - planqc 27b):
+- `assets/nev/face/back_head.jpeg`
+- `assets/nev/wardrobe/10_shirt_white_print/76_back.jpeg`
+- `assets/nev/face/profile_right.jpeg`
+
 ### `H` · NEV · THE COLD LETS GO  ·  act: HUMAN  ·  plates: nev
 
 ```
 Vertical 9:16. GOLDEN hour, low warm side light. THIS CLIP PERFORMS A CHANGE OF STATE FROM ITS FIRST FRAME TO ITS LAST AND THAT ARC IS THE POINT OF IT - it must be monotonic, never a loop. Medium-close on the man from the reference images, chest up, hair soaked flat, shirt dark with water, forest thrown out of focus behind him. HE STARTS COLD: arms crossed hard over his chest, shoulders up around his ears, jaw locked, short shallow breaths, one visible shiver. Then the low sun reaches him and it LETS GO across the second half of the clip - the arms come down, the shoulders drop, he shakes the water out of his hair in one quick movement with droplets flying off into the light, and he grins. Face, hair, EARRING exact, real skin, no smoothing. Humid highland Borneo air at a thousand metres; true texture on skin, soaked fabric and leaf. REAL FOOTAGE, NOT A RENDER: handheld micro-shake, natural depth of field, accurate reflections, no HDR halos. Negative: CGI, videogame look, postcard oversaturation, invented signage text, legible device screens, visible registration plates, rear model badges or lettering of any kind, any legible slogan wordmark logo or printed graphic on clothing, any legible instrument-cluster or infotainment display, extra fingers, warped faces, drone-stock look.
 ```
+
+**identity refs for THIS scene** (chosen by facing/framing - planqc 27b):
+- `assets/nev/face/front_neutral.jpeg`
+- `assets/nev/face/front_smile.jpeg`
+- `assets/nev/face/front_calm.jpeg`
 
 ### `I` · PAYOFF · the road out  ·  act: PAYOFF  ·  plates: glc300, crocker
 

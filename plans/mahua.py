@@ -59,7 +59,7 @@ MAX_CROP  = 1.40
 TARGET_S  = 28.97                    # 48 beats = 28.9739s. Band-top of the measured 16-29s.
 
 LESSONS_ACK = {            # ledger counts this plan was written against (planqc 23)
-    "general craft": 115,  # pillar-INDEPENDENT: measurement, tooling, process
+    "general craft": 116,  # pillar-INDEPENDENT: measurement, tooling, process
     "travel vlog":    6,   # this pillar's GENRE lessons
     # NEIGHBOURING PILLARS (planqc 23b, blocking since 2026-08-08; acked 2026-08-11
     # after reading all three): the transferable prior art is i8 L9-L12 (3-second
@@ -651,6 +651,37 @@ CALLBACKS = []          # no repeated (source, crop) pair exists - every repeat 
 # J0's veto class, delivered inside a clip that was prompted against it.
 # BANNING the airborne head moves shot 0 to the impact for ZERO extra credits.
 # Capacity after the ban: A needs 2.41s, has 5.0 - 0.52 - 0.1 = 4.38s (planqc 21).
+# ---------------------------------------------------------------- SCENE REFS
+# HIS CORRECTION 2026-08-11 (see desafarm's block for the full statement): refs are
+# chosen PER SCENE from assets/nev/ (97 measured images, index.json), never the
+# blanket three. Wardrobe here is 10_shirt_white_print - but it is SOAKED DARK from
+# shot 8 onward, so wet scenes deliberately carry NO wardrobe ref: a crisp white
+# reference would fight the prompt's "shirt dark with water". planqc 27b enforces.
+SOURCE_REFS = {
+    # A: THE COLD HIT - camera low at water level, his body entering side-on at
+    # frame zero: right profile (earring) + front anchor + dry shirt front.
+    "A": ["assets/nev/face/profile_right.jpeg",
+          "assets/nev/face/front_neutral.jpeg",
+          "assets/nev/wardrobe/10_shirt_white_print/75_front.jpeg"],
+    # C: OVER-THE-SHOULDER onto the windscreen -> back of head + right profile +
+    # the shirt's BACK (that is what the lens actually sees).
+    "C": ["assets/nev/face/back_head.jpeg",
+          "assets/nev/face/profile_right.jpeg",
+          "assets/nev/wardrobe/10_shirt_white_print/76_back.jpeg"],
+    # G: close BEHIND and slightly above, waist-deep, soaked -> back of head + the
+    # shirt's back for shoulder geometry; right profile for the sliver of face at
+    # the phone. Soaked scene: the wardrobe back is for CUT, not colour.
+    "G": ["assets/nev/face/back_head.jpeg",
+          "assets/nev/wardrobe/10_shirt_white_print/76_back.jpeg",
+          "assets/nev/face/profile_right.jpeg"],
+    # H: THE COLD LETS GO - medium-close, chest up, INTO the lens, cold -> grin.
+    # Face-only set, all three fronts: the arc's endpoints (neutral -> smile) plus
+    # calm for the EARRING. No wardrobe ref: the shirt is soaked dark by design.
+    "H": ["assets/nev/face/front_neutral.jpeg",
+          "assets/nev/face/front_smile.jpeg",
+          "assets/nev/face/front_calm.jpeg"],
+}
+
 BAN_SPANS = {"A": [(0.0, 0.52)]}
 DELOGO    = {}          # EMPTY ON PURPOSE. The phone-screen risk is handled in the PROMPT
                         # (G shows the phone's blank back; "legible phone screens" is in
