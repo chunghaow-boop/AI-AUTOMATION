@@ -1,9 +1,14 @@
 PASTE THIS INTO A NEW CHAT
 ==========================
 
-Read these FOUR files in this order before doing anything, then tell me where we
+Read these FIVE files in this order before doing anything, then tell me where we
 are in ONE line and wait:
 
+    0. 00-READ-THIS-FIRST.md  START HERE. The day a film passed every gate and he
+                            rejected it on sight. Why checking every ELEMENT and
+                            shipping still ships a broken film, why you cannot send
+                            a link that `talyx.py deliver` did not print, and what
+                            he catches that the instruments miss. Short. Read it all.
     1. CLAUDE.md            the rules and the contract
     2. SYSTEM-MAP.md        the WHOLE pipeline top to bottom - every file, every
                             gate and its threshold, the plan->engine contract,
@@ -25,6 +30,16 @@ DO NOT re-derive the architecture by reading planqc.py / engine.py / verify.py.
 It is ALL in SYSTEM-MAP.md. Re-deriving it burns a third of a session before any
 work happens. If the map disagrees with the code, the CODE is right - fix the map
 and note it in the RESUME.
+
+A VIDEO LEAVES ONE WAY AND ONE WAY ONLY:
+
+    python talyx.py deliver <project>
+
+It runs verify, runs the mastermind's final scorecard, crosschecks the plan against
+the cut against the file, and REFUSES to print the path if anything blocks. On
+2026-08-07 verify said BLOCK with six failures and the link was sent anyway. His
+words: "QC did its job but the video still proceeded anyway." Never send him a link
+that deliver did not print.
 
 Local: C:\Users\User\Desktop\AI
 Repo:  https://github.com/chunghaow-boop/AI-AUTOMATION

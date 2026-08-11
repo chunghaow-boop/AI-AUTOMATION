@@ -65,34 +65,74 @@ def duration(path):
     try: return float(o.splitlines()[0])
     except: return 0.0
 
-def video_metrics(path, outdir, hook_window=2.0):
+def video_metrics(path, outdir, hook_window=2.0, cuts=None):
+    """MEASURED 2026-08-08: this function reported shot_count = 1 for a TWENTY shot
+    film, and it is the input the final scorecard scores 'shot variety' on.
+
+    Cause: cuts were detected as a Bhattacharyya distance > 0.45 between GREYSCALE
+    64-bin histograms. desafarm is graded consistently and half of it is green
+    pasture, so the grey histogram barely moves across a cut and not one of the 19
+    cuts cleared 0.45. Then 'shot variety' failed for the wrong reason, and
+    sharpness_min reported 9.0 because the single blurriest frame in the film is
+    the middle of the declared whip - a transition doing exactly its job, scored
+    as a melted frame.
+
+    Now: take the ENGINE'S OWN cut list when it exists (it wrote the film, it knows
+    where the cuts are), and when it does not, detect on mean absolute frame
+    difference with an adaptive threshold - the method that found all 19 by hand.
+    Sharpness is measured AWAY from cuts, with the blur at cuts reported separately
+    so a transition can never be mistaken for a soft shot."""
     cap = cv2.VideoCapture(path)
     fps = cap.get(cv2.CAP_PROP_FPS) or 24
     n   = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
-    prev, flows, sharps, brights, frames_t = None, [], [], [], []
-    shot_cuts, i = [], 0
-    prev_hist = None
+    prev, flows, frames_t = None, [], []
+    sharps_t, brights = [], []
+    diffs, diff_t = [], []
+    prev_small = None
+    i = 0
     while True:
         ok, fr = cap.read()
         if not ok: break
-        if i % max(1, int(fps//6)) == 0:   # ~6 samples/sec
+        if i % max(1, int(fps//6)) == 0:
             g = cv2.cvtColor(fr, cv2.COLOR_BGR2GRAY)
             small = cv2.resize(g, (160, 284))
+            t = i / fps
             if prev is not None:
                 f = cv2.calcOpticalFlowFarneback(prev, small, None, .5,3,15,3,5,1.2,0)
                 flows.append(float(np.linalg.norm(f, axis=2).mean()))
-                frames_t.append(i/fps)
+                frames_t.append(t)
             prev = small
-            sharps.append(float(cv2.Laplacian(g, cv2.CV_64F).var()))
+            sharps_t.append((t, float(cv2.Laplacian(g, cv2.CV_64F).var())))
             brights.append(float(g.mean()))
-            hist = cv2.calcHist([g],[0],None,[64],[0,256]); hist=cv2.normalize(hist,hist).flatten()
-            if prev_hist is not None:
-                d = cv2.compareHist(prev_hist, hist, cv2.HISTCMP_BHATTACHARYYA)
-                if d > 0.45: shot_cuts.append(round(i/fps,2))
-            prev_hist = hist
+            if prev_small is not None:
+                diffs.append(float(np.abs(small.astype(np.float32)
+                                          - prev_small.astype(np.float32)).mean()))
+                diff_t.append(t)
+            prev_small = small
         i += 1
     cap.release()
     dur = n/fps if fps else 0
+
+    if cuts:
+        shot_cuts = [round(float(c), 2) for c in cuts]
+        cut_src = "engine cut manifest"
+    else:
+        shot_cuts = []
+        if diffs:
+            mu, sd = float(np.mean(diffs)), float(np.std(diffs))
+            thr = max(18.0, mu + 2.2 * sd)
+            for t, d in zip(diff_t, diffs):
+                if d > thr and (not shot_cuts or t - shot_cuts[-1] > 0.25):
+                    shot_cuts.append(round(t, 2))
+        cut_src = "measured (mean abs frame difference, adaptive)"
+
+    # sharpness AWAY from cuts - a transition is not a soft shot
+    def _near_cut(t, w=0.25):
+        return any(abs(t - c) <= w for c in shot_cuts)
+    clean = [s for t, s in sharps_t if not _near_cut(t)]
+    at_cut = [s for t, s in sharps_t if _near_cut(t)]
+    sharps = [s for _t, s in sharps_t]
+
     hook_idx = [k for k,t in enumerate(frames_t) if t <= hook_window]
     hook_motion = float(np.mean([flows[k] for k in hook_idx])) if hook_idx else 0.0
     return {
@@ -100,12 +140,14 @@ def video_metrics(path, outdir, hook_window=2.0):
         "motion_mean": round(float(np.mean(flows)),3) if flows else 0,
         "hook_motion": round(hook_motion,3),
         "motion_min": round(float(np.min(flows)),3) if flows else 0,
-        "sharpness_mean": round(float(np.mean(sharps)),1) if sharps else 0,
-        "sharpness_min": round(float(np.min(sharps)),1) if sharps else 0,
+        "sharpness_mean": round(float(np.mean(clean or sharps)),1) if sharps else 0,
+        "sharpness_min": round(float(np.min(clean or sharps)),1) if sharps else 0,
+        "sharpness_min_at_cut": round(float(np.min(at_cut)),1) if at_cut else None,
         "brightness_mean": round(float(np.mean(brights)),1) if brights else 0,
         "brightness_min": round(float(np.min(brights)),1) if brights else 0,
-        "blank_frames": int(sum(1 for s in sharps if s < 8)),
+        "blank_frames": int(sum(1 for s in (clean or sharps) if s < 8)),
         "shot_cuts": shot_cuts, "shot_count": len(shot_cuts)+1,
+        "shot_cuts_source": cut_src,
     }
 
 def contact_sheet(path, outdir, cols=5, rows=3):
@@ -246,10 +288,17 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("video"); ap.add_argument("--vo"); ap.add_argument("--cards")
     ap.add_argument("--bed", help="music bed — defines the beat grid")
+    ap.add_argument("--cuts", help="engine cut manifest (*_cuts.json) — authoritative")
     ap.add_argument("--out", default="qc")
     A = ap.parse_args()
     os.makedirs(A.out, exist_ok=True)
-    v = video_metrics(A.video, A.out)
+    _cuts = None
+    if A.cuts and os.path.exists(A.cuts):
+        try:
+            _cuts = json.load(open(A.cuts)).get("cuts") or None
+        except Exception:
+            _cuts = None
+    v = video_metrics(A.video, A.out, cuts=_cuts)
     a = audio_metrics(A.vo or A.video)
     bands, spec = band_energy(A.vo or A.video, A.out)
     cards = json.load(open(A.cards)) if A.cards else []

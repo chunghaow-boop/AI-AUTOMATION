@@ -462,9 +462,25 @@ def build(name, out_path=None, use_cache=True):
                 out.append((b, hi))
         return out
 
+    # THE BLEND MUST COME OUT OF THE OVERLAP, NOT OUT OF THE FILM (2026-08-08).
+    # MEASURED on desafarm: the declared 240ms whip removed 197ms from shot 8's
+    # DURATION instead of overlapping two shots, so the film came out 28.16s against
+    # a planned 28.31s. Shot-to-shot spacing stayed perfect at +3/+4ms everywhere,
+    # which is why every per-shot check passed - and the entire film after shot 8 sat
+    # ~170ms early against a bed that kept its own tempo, about a third of a beat,
+    # for 60% of the running time. The mastermind's SFX OFF-BEAT gate caught it
+    # independently at a median 78.5ms, on a run nobody had made.
+    # A cross-dissolve needs BOTH shots to supply the overlapped frames. So a shot
+    # that hands off into a blend is RESERVED and RENDERED one blend-width longer,
+    # and the blend eats that width instead of the timeline.
+    _BW = float(getattr(P, "BLEND_WIDTH", 0.0) or 0.0)
+    _BLEND_AT = set(getattr(P, "BLEND_AFTER", []) or [])
+    render_d = {}
     by_src = {}
     for i, ((key, _c2, _kind2, _n2), (_s2, d2, _k2)) in enumerate(zip(P.SHOTS, tl)):
-        by_src.setdefault(key, []).append((i, d2))
+        d_eff = d2 + (_BW if i in _BLEND_AT else 0.0)
+        render_d[i] = d_eff
+        by_src.setdefault(key, []).append((i, d_eff))
     shot_tin, alloc_fail = {}, []
     mid_action, look_dupes = [], []
     for key, shots_of in by_src.items():
@@ -630,10 +646,11 @@ def build(name, out_path=None, use_cache=True):
         # segment of the OLD content serves silently.
         _cst = os.stat(clips[key])
         spec = (f"{os.path.basename(clips[key])}|{_cst.st_size}|{int(_cst.st_mtime)}|"
-                f"{tin:.3f}|{d:.3f}|{cs}|{cx}|{cy}|frames|dl={dl}")
+                f"{tin:.3f}|{render_d.get(i, d):.3f}|{cs}|{cx}|{cy}|frames|dl={dl}")
         sf = o + ".spec"
         if (use_cache and os.path.exists(o) and os.path.exists(sf)
-                and open(sf).read() == spec and abs(dur(o) - d) < 0.10):
+                and open(sf).read() == spec
+                and abs(dur(o) - render_d.get(i, d)) < 0.10):
             segs.append(o)
             if i:
                 cuts.append(round(t, 3))
@@ -653,15 +670,17 @@ def build(name, out_path=None, use_cache=True):
                 return 1
             vf += f",delogo=x={x_}:y={y_}:w={w_}:h={h_}"
             print(f"  shot {i} ({key}): DELOGO patch {w_}x{h_} at ({x_},{y_})")
-        nfr = int(round(d * FPS))          # FRAME-EXACT. -t drifts +34ms/shot at 24fps.
+        d_render = render_d.get(i, d)   # one blend-width longer when this shot
+                                        # hands off into a blend (see the note above)
+        nfr = int(round(d_render * FPS))  # FRAME-EXACT. -t drifts +34ms/shot at 24fps.
         rc, err = sh(f'ffmpeg -y -v error -ss {tin:.3f} -i "{clips[key]}" -vf "{vf}" '
                      f'-frames:v {nfr} -an -c:v libx264 -crf 18 -preset veryfast '
                      f'-pix_fmt yuv420p "{o}"')
         if rc != 0 or not os.path.exists(o):
             print(f"  !! shot {i} FAILED: {err.strip()[:90]}"); return 1
         got = dur(o)
-        if abs(got - d) > 0.10:
-            print(f"  !! shot {i} is {got:.2f}s, asked {d:.2f}s — SHORT, not silently kept")
+        if abs(got - d_render) > 0.10:
+            print(f"  !! shot {i} is {got:.2f}s, asked {d_render:.2f}s — SHORT, not silently kept")
         open(sf, "w").write(spec)
         segs.append(o)
         if i:
@@ -1264,10 +1283,29 @@ def build(name, out_path=None, use_cache=True):
     json.dump(pm, open(os.path.join(tmp, "manifest_peaks.json"), "w"), indent=1)
 
     lens = [d for _s, d, _k in tl]
-    print(f"\n  -> {os.path.relpath(OUT, HERE)}   {dur(OUT):.2f}s")
+    _got = dur(OUT)
+    print(f"\n  -> {os.path.relpath(OUT, HERE)}   {_got:.2f}s")
     print(f"     median shot {st.median(lens):.2f}s   cuts/min {len(actual)/(t/60):.1f}")
     print(f"     {len(actual)} ACTUAL post-blend cuts declared ({len(cuts)} planned)")
-    print(f"\n  NEXT: python3 talyx.py verify {name}")
+
+    # THE LENGTH ASSERTION (2026-08-08). The whip drift was invisible to every
+    # per-shot measurement - spacing stayed perfect at +3/+4ms and only the RUNNING
+    # TOTAL was wrong. One line compares the film to the plan and catches the whole
+    # class: any step that quietly adds or removes time shows up here or nowhere.
+    _want = float(getattr(P, "TARGET_S", 0) or sum(lens))
+    _drift = _got - _want
+    if abs(_drift) > 0.05:
+        print(f"\n  !! THE FILM IS {abs(_drift)*1000:.0f} ms "
+              f"{'SHORT OF' if _drift < 0 else 'LONGER THAN'} THE PLAN "
+              f"({_got:.3f}s against {_want:.3f}s).")
+        print(f"     Shot spacing can be perfect and the film still sit off the music:")
+        print(f"     every cut after whatever moved is {abs(_drift)*1000:.0f} ms out "
+              f"against a bed that kept its own tempo.")
+        print(f"     REFUSING to declare this cut. Find what changed the length.")
+        return 1
+    print(f"     length {_got:.2f}s against the plan's {_want:.2f}s "
+          f"({_drift*1000:+.0f} ms) — on the grid")
+    print(f"\n  NEXT: python3 talyx.py deliver {name}   (verify + mastermind + crosscheck)")
     return 0
 
 
