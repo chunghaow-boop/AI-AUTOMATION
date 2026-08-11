@@ -21,6 +21,11 @@ Local Claude Code loads this automatically.
 > before any build." **Neither file exists.** The first instruction every session
 > read was a dead pointer - a large part of why every session started cold.
 
+## MODEL
+Sessions run on **Claude Fable 5** (renewed 2026-08-11). Earlier commit footers
+that name a different model are historical artifacts of the tooling, not a
+record of what is in use. Do not add model names to commit footers.
+
 ## WHAT THIS IS
 Fully-AI short-form video for a Malaysian recond-car audience. Three formats — **vlog · car
 review · industry value** — all generated, fronted by a consistent AI KOL persona (Nev).
