@@ -29,7 +29,15 @@ VERIFIED FACTS (fetched 2026-08-11, sources in CONTENT below):
   river (sightings NOT guaranteed - amazingborneo.com says so outright) · Tusan Beach
   ~40 min from Miri.
 
-STATUS 2026-08-11: PLANNED, NOT GENERATED. Nothing spent.
+STATUS 2026-08-11 (Phase 2, session 9): PLATES BUILT - 16cr MEASURED
+(4,294.82 -> 4,278.82), all four 5504x3072, RapidOCR at 2048px: ZERO text on all
+four including the Defender body. Face refs uploaded to Higgsfield (media ids in
+PLATES.nev). VIDEO GENERATION BLOCKED by an account-wide moderation misfire:
+7/7 seedance jobs returned status=nsfw and were REFUNDED - including a
+no-reference bland-prompt control, the 2_5 model, and a silent (no-audio)
+control. Not our prompts, not our plate (craft L117). Job IDs for the support
+report: bc29937b, c8c5c208, 50f73f04, bc66ad08, 7f3ddb05 (2_5: f39fe81a),
+659b0793 (silent). RETRY: one probe of G; if clean, batch the remaining 12.
 """
 
 PROJECT   = "NEV · SABAH TO SARAWAK, ONE ROAD · Defender 110 SE · travel vlog"
@@ -51,7 +59,7 @@ MAX_CROP  = 1.40
 TARGET_S  = 28.97                    # 48 beats = 28.9739s. Band-top of measured 16-29s.
 
 LESSONS_ACK = {            # ledger counts this plan was written against (planqc 23)
-    "general craft": 116,  # incl. L116 (scene-blind refs - THIS plan's SOURCE_REFS
+    "general craft": 117,  # incl. L116 (scene-blind refs - THIS plan's SOURCE_REFS
     "travel vlog":    6,   # exists because of it) and the whole desafarm-v2 set
                            # L101-L115. tv L5 (whip stole the timeline) bites here:
                            # this plan declares the same 240ms whip.
@@ -660,7 +668,18 @@ CONTENT = {
 # ---------------------------------------------------------------- PLATES
 PLATES = {
     "nev": {"job": None, "res": "4k", "ar": "4:5", "cr": 0,
-            "status": "EXISTS - the measured 97-image library, no generation",
+            "status": "EXISTS - the measured 97-image library, no generation. "
+                      "UPLOADED to Higgsfield 2026-08-11, media ids: "
+                      "front_neutral efdb9f44-cd50-4976-86c8-ca4afa395a00 · "
+                      "front_calm 44009a35-52c5-4fb4-92c8-e3f1763b7af8 · "
+                      "front_smile 66e529c7-d40e-4508-a242-103d68b59e1b · "
+                      "profile_right 1bdbaed4-3297-488f-9373-ec9885027f2a · "
+                      "back_head 451cdf9d-ac99-435d-adf3-693b87e1161c. "
+                      "Wardrobe refs are PROMPT-TEXT ONLY this build - the "
+                      "container cannot reach upload.higgsfield.ai (403, "
+                      "measured again 2026-08-11) and the wardrobe files are "
+                      "not in the public repo; declared per-prompt instead, "
+                      "a stated choice.",
             "identity_refs": ["assets/nev/face/front_neutral.jpeg",
                               "assets/nev/face/profile_right.jpeg",
                               "assets/nev/face/front_calm.jpeg"],
@@ -677,9 +696,10 @@ PLATES = {
                          "outside the cabin.",
             "prompt": "(identity from photo references, not regenerated)"},
 
-    "defender": {"job": None, "res": "4k", "ar": "16:9", "cr": 4,
-            "status": "TO BUILD, 4k, then LOOK at it - OCR for ANY lettering "
-                      "before it references a single clip (the glc300 protocol).",
+    "defender": {"job": "ac20b2f6-e69a-4d99-9d7e-0427bfc78b45", "res": "4k", "ar": "16:9", "cr": 4,
+            "status": "BUILT 2026-08-11, 5504x3072. OCR CLEAN at 2048px: zero "
+                      "text, no plate, no badges, no tyre lettering (glc300 "
+                      "protocol, run in the Higgsfield sandbox).",
             "must_show": "Land Rover Defender 110 SE, L663 generation. GEOMETRY, "
                          "not badge-trust: boxy two-box silhouette with short "
                          "front and rear overhangs; upright windscreen; flat "
@@ -713,8 +733,8 @@ PLATES = {
             # dead centre, and it is the angle most of the film's tracking shots
             # see. J4 protocol: LOOK at the render, OCR it, THEN reference it.
 
-    "klias": {"job": None, "res": "4k", "ar": "16:9", "cr": 4,
-            "status": "TO BUILD, 4k",
+    "klias": {"job": "fb748a80-7151-4469-befc-20ccc8d42a8e", "res": "4k", "ar": "16:9", "cr": 4,
+            "status": "BUILT 2026-08-11, 5504x3072, OCR CLEAN",
             "must_show": "the Klias river: broad, slow, tea-brown water between "
                          "unbroken walls of mangrove and nipah palm, flat bright "
                          "overcast sky, a plain wooden jetty low over the water. "
@@ -730,8 +750,8 @@ PLATES = {
             "halos. Negative: CGI, videogame look, postcard oversaturation, any "
             "signboard or lettering, buildings, power lines."},
 
-    "tusan": {"job": None, "res": "4k", "ar": "16:9", "cr": 4,
-            "status": "TO BUILD, 4k",
+    "tusan": {"job": "8926debd-3b50-46f0-8c13-cc52f2b56d14", "res": "4k", "ar": "16:9", "cr": 4,
+            "status": "BUILT 2026-08-11, 5504x3072, OCR CLEAN",
             "must_show": "Tusan Beach near Miri at golden hour: tall layered "
                          "sandstone cliffs glowing orange, a long flat sand "
                          "shelf, shallow gold-lit surf sheets, grassy clifftop "
@@ -750,8 +770,8 @@ PLATES = {
             "oversaturation, any signboard or lettering, horse-shaped rock arch, "
             "people, buildings."},
 
-    "kuching": {"job": None, "res": "4k", "ar": "16:9", "cr": 4,
-            "status": "TO BUILD, 4k",
+    "kuching": {"job": "038e32ad-8c9b-4cfe-82c5-6289df3678a4", "res": "4k", "ar": "16:9", "cr": 4,
+            "status": "BUILT 2026-08-11, 5504x3072, OCR CLEAN",
             "must_show": "Kuching waterfront at dusk: the riverfront promenade "
                          "with lamps just lit, the Sarawak river dark and calm, "
                          "warm western afterglow low in the sky, city glow "
