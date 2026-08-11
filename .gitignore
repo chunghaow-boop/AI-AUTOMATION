@@ -46,3 +46,17 @@ ffmpeg-extracted/
 !assets/pillars/**/*.png
 !projects/*/analysis/*.png
 *.spec
+
+# ---- asset bank (added 2026-08-08) ----
+# The measured SFX/foley bank is 353MB of audio. Same rule as refs and bgm:
+# the AUDIO stays out, the MEASUREMENTS stay in. bank_index.json IS the bank -
+# the folders are just where the bytes sit, and they re-download from the zip.
+assets/bank/**/*.flac
+assets/bank/**/*.aiff
+assets/bank/**/*.ogg
+!assets/bank/bank_index.json
+!assets/bank/bank.py
+!assets/bank/*.md
+
+# rolling backups - local safety copies, not history
+_backup_*/
