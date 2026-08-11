@@ -86,7 +86,7 @@ MAX_CROP  = 1.40
 TARGET_S  = 28.97                    # 48 beats = 28.9739s. Band-top of measured 16-29s.
 
 LESSONS_ACK = {            # ledger counts this plan was written against (planqc 23)
-    "general craft": 117,  # incl. L116 (scene-blind refs - THIS plan's SOURCE_REFS
+    "general craft": 118,  # incl. L116 (scene-blind refs - THIS plan's SOURCE_REFS
     "travel vlog":    6,   # exists because of it) and the whole desafarm-v2 set
                            # L101-L115. tv L5 (whip stole the timeline) bites here:
                            # this plan declares the same 240ms whip.
