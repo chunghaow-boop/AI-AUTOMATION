@@ -74,7 +74,31 @@ BUILD = _first(os.path.join(HERE, "engine.py"),
                os.path.join(PDIR, "legacy", "build.py")) or ""
 SRCDIRS = [d for d in (os.path.join(PDIR, "clips"), HERE, os.path.join(HERE, "work"))
            if os.path.isdir(d)]
-PILLAR = "car_cinematic"
+
+
+def _plan_pillar():
+    """Read PILLAR out of plans/<PROJECT>.py.
+
+    FIX 2026-08-08. This line used to read `PILLAR = "car_cinematic"`, full stop.
+    Every travel_vlog project - desafarm, kundasang, mahua - was verified against
+    the CAR profile. Check 1 shelled out to qc.py with --pillar car_cinematic, and
+    check 5's exposure budget came from car footage shot in one light state.
+
+    That is exactly his complaint: "it keeps on happening, especially when i switch
+    frm vlog content to car review". The delivery gate itself was the thing carrying
+    car numbers onto a travel vlog. planqc has read P.PILLAR since day one; verify
+    never did.
+    """
+    for p in glob.glob(os.path.join(HERE, "plans", "*.py")):
+        if os.path.basename(p)[:-3] == PROJECT:
+            for ln in open(p, encoding="utf-8", errors="ignore"):
+                if ln.strip().startswith("PILLAR"):
+                    return ln.split("=", 1)[1].strip().strip('"\'').split("#")[0].strip()
+    return ""
+
+
+PILLAR = _plan_pillar() or "car_cinematic"
+PILLAR_FROM_PLAN = bool(_plan_pillar())
 
 R = []          # (name, ok, detail, blocking)
 
@@ -527,8 +551,25 @@ def check_tally():
 
 # ---------------------------------------------------------------- 5 EXPOSURE
 def check_exposure(video, cuts):
+    """FIX 2026-08-08: the 18 was hard-coded in the comparison.
+
+    A travel vlog runs golden hour to night BY DESIGN. A car cinematic is shot in
+    one light state. Judging both against the same luma swing is the same mistake
+    as shot_match_clamp, which was fitted on night car footage and quietly carried
+    into travel_vlog until it stopped working.
+
+    The budget now comes from the pillar's own style block, and the message says
+    WHERE the number came from. A threshold you cannot trace is a guess wearing a
+    lab coat.
+    """
     if not cuts:
         return add("5 exposure match", False, "NOT MEASURED — no cuts manifest")
+    try:
+        _st = (profile().get("style") or {})
+        budget = float(_st.get("exposure_max_swing", 18.0))
+        src = f"{PILLAR}.exposure_max_swing"
+    except Exception:
+        budget, src = 18.0, "FALLBACK 18.0 — the pillar declares no exposure_max_swing"
     fr = frames_gray(video)
     lv = [f.mean() for f in fr]
     fps = 30.0
@@ -539,7 +580,7 @@ def check_exposure(video, cuts):
             continue
         d = abs(lv[b] - lv[a])
         worst = max(worst, d)
-        if d > 18:
+        if d > budget:
             over += 1
     note = ""
     if over:
@@ -547,7 +588,23 @@ def check_exposure(video, cuts):
                 "by relighting: v14 bought a smooth number by moving one of his "
                 "'close to perfect' shots +72 luma. Check 15 is the harder limit.")
     return add("5 exposure match", over == 0,
-               f"{over}/{len(cuts)} cuts swing >18 (worst {worst:.0f}){note}")
+               f"{over}/{len(cuts)} cuts swing >{budget:.0f} (worst {worst:.0f}) "
+               f"[budget from {src}]{note}")
+
+
+# --------------------------------------------------- 5b WHICH PILLAR ARE WE JUDGING
+def check_pillar_source():
+    """A gate that judges a travel vlog by car numbers is worse than no gate.
+
+    Blocking, because the failure is silent: every downstream number simply comes
+    from the wrong profile and every one of them still prints as if it were fine.
+    """
+    if not PILLAR_FROM_PLAN:
+        return add("5b pillar source", False,
+                   f"plans/{PROJECT}.py declares no PILLAR, so every check below is "
+                   f"judging this film as '{PILLAR}'. Declare it in the plan.")
+    return add("5b pillar source", True,
+               f"judging as '{PILLAR}', read from plans/{PROJECT}.py")
 
 
 # ---------------------------------------------------------------- 15 RELIGHT AUDIT
@@ -887,6 +944,7 @@ def main():
 
     fresh = check_fresh(video)
     if fresh:
+        check_pillar_source()   # FIRST: everything below reads this pillar's numbers
         check_profile(video)
         check_beat(video, cuts)
         check_sfx(video, cuts)

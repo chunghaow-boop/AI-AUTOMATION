@@ -1,0 +1,92 @@
+{
+  "_what": "The transition bank. DEFINITIONS, not clips.",
+
+  "_why": "He asked for a transition bank so 'the video editor can analyse which one is suitable and watch the transition'. It cannot watch - it is code. And a folder of transition footage would not have caught the failure that made this file necessary.\n\nThe 240ms whip in DESAFARM_CINEMATIC_v2 did not fail because it was the wrong whoosh. It failed because it SHORTENED shot 8 by 197ms instead of OVERLAPPING it. Internal spacing between every other shot stayed perfect, so no per-shot check could see it - the back 60% of the film simply sat ~170ms early against the music. That is a property of the transition's DEFINITION (does it consume time or overlap it), and nothing else in the pipeline stated it.",
+
+  "_the_field_that_matters": "timing. 'overlap' means the transition borrows frames from BOTH neighbours and the shot keeps its full length - the engine must RESERVE duration_ms of extra source. 'consume' means the transition eats duration_ms out of the outgoing shot and the timeline shortens. Get this wrong and every cut after it drifts, silently, forever.",
+
+  "_how_the_engine_uses_this": "engine.py reads BLEND_KIND per index in BLEND_AFTER. For timing='overlap' it adds duration_ms to that shot's render length (already patched 2026-08-07). For timing='consume' it does not. planqc check 34 refuses a plan whose declared transition contradicts what the footage or the shot lengths can support.",
+
+  "_sfx_pairing": "pairs_with_sfx is a literal query into assets/bank/bank_index.json via bank.py. It is not a filename, because a filename rots and a query does not. 126 files currently satisfy cut_safe=True.",
+
+  "transitions": [
+    {
+      "kind": "hard",
+      "duration_ms": 0,
+      "timing": "consume",
+      "requires_motion_out": 0.0,
+      "requires_motion_in": 0.0,
+      "min_shot_len_s": 0.0,
+      "max_per_film": null,
+      "pairs_with_sfx": null,
+      "why": "The default. Costs nothing, drifts nothing, and is correct far more often than the alternatives. Every other entry in this file has to earn its place against this one."
+    },
+    {
+      "kind": "whip",
+      "duration_ms": 240,
+      "timing": "overlap",
+      "requires_motion_out": 0.35,
+      "requires_motion_in": 0.35,
+      "min_shot_len_s": 0.9,
+      "max_per_film": 3,
+      "pairs_with_sfx": {
+        "bucket": "sfx/transition",
+        "cut_safe": true,
+        "band": "high",
+        "max_tail_ms": 600,
+        "clean_only": true
+      },
+      "why": "THE ONE THAT BROKE DESAFARM. Declared 240ms and delivered -197ms on shot 8 because the engine shortened instead of overlapping. timing='overlap' is the whole point of this entry. It also needs real motion on BOTH sides - a whip out of a static frame reads as a glitch, and the laplacian collapsed 463 -> 9 at the boundary, which verify flagged as a smear."
+    },
+    {
+      "kind": "flash",
+      "duration_ms": 120,
+      "timing": "overlap",
+      "requires_motion_out": 0.0,
+      "requires_motion_in": 0.0,
+      "min_shot_len_s": 0.6,
+      "max_per_film": 2,
+      "pairs_with_sfx": {
+        "bucket": "sfx/impact",
+        "cut_safe": true,
+        "max_tail_ms": 400,
+        "clean_only": true
+      },
+      "why": "Works from a static frame, which whip does not - that is its only reason to exist. Capped at 2 because a third flash stops reading as emphasis and starts reading as a broken file. Interacts with check 5: a flash IS a luma spike, so it must be excluded from the exposure swing count or it fails a gate for doing its job."
+    },
+    {
+      "kind": "dip",
+      "duration_ms": 300,
+      "timing": "consume",
+      "requires_motion_out": 0.0,
+      "requires_motion_in": 0.0,
+      "min_shot_len_s": 1.2,
+      "max_per_film": 1,
+      "pairs_with_sfx": {
+        "bucket": "sfx/transition",
+        "role": "gesture",
+        "band": "low",
+        "clean_only": true
+      },
+      "why": "The only 'consume' transition with real duration, so it is the only one that legitimately shortens the timeline - the plan's TARGET_S must already account for it. Reads as a scene break, so at most one, and never inside the hook."
+    },
+    {
+      "kind": "match_cut",
+      "duration_ms": 0,
+      "timing": "consume",
+      "requires_motion_out": 0.20,
+      "requires_motion_in": 0.20,
+      "min_shot_len_s": 0.8,
+      "max_per_film": 2,
+      "pairs_with_sfx": null,
+      "requires_composition_similarity": [0.72, 0.88],
+      "why": "The only entry with a similarity WINDOW rather than a ceiling. Below 0.72 the shapes do not rhyme and it reads as a normal cut; above 0.88 verify 13 correctly calls it a duplicate. This is the one transition that gets HARDER as it gets better, and it is why the duplicate check needed two axes - a match cut and a true duplicate look identical on composition alone."
+    }
+  ],
+
+  "_still_open": [
+    "duration_ms values are conventions carried from the desafarm plan, not derived from anything that measurably held attention.",
+    "requires_motion_out/in reuse the pillar's motion_floor scale but were never fitted for transitions specifically.",
+    "max_per_film numbers are taste, written down so they can be argued with. They are not measurements and must not be defended as such."
+  ]
+}

@@ -988,6 +988,84 @@ def check_threshold_provenance(P):
     return r
 
 
+def check_transition_contract(P):
+    """34 TRANSITION CONTRACT - does the plan's transition agree with its own timeline?
+
+    THE FAILURE THIS IS BUILT FROM. desafarm declared a 240 ms whip after shot 8.
+    The engine SHORTENED shot 8 by 197 ms instead of OVERLAPPING it. Spacing between
+    every other shot stayed perfect, so no per-shot check could see anything wrong -
+    the back 60% of the film just sat ~170 ms early against a verified 97.5 BPM grid.
+
+    The bug was never in the whoosh. It was that nothing in the system stated whether
+    a transition CONSUMES time or OVERLAPS it. assets/transitions/TRANSITIONS.json
+    states it now, and this check refuses a plan that contradicts it.
+    """
+    import json as _j
+    bank = _first(os.path.join(HERE, "assets", "transitions", "TRANSITIONS.json"))
+    if not bank:
+        return warn("34 transition contract",
+                    "assets/transitions/TRANSITIONS.json not found - transitions are "
+                    "running on whatever the plan happens to say")
+    T = {t["kind"]: t for t in _j.load(open(bank, encoding="utf-8"))["transitions"]}
+
+    after = list(getattr(P, "BLEND_AFTER", []) or [])
+    if not after:
+        return add("34 transition contract", True,
+                   "no transitions declared - every cut is hard")
+
+    kind = str(getattr(P, "BLEND_KIND", "") or "").strip()
+    width_ms = float(getattr(P, "BLEND_WIDTH", 0.0) or 0.0) * 1000.0
+    spec = T.get(kind)
+    if not spec:
+        return add("34 transition contract", False,
+                   f"BLEND_KIND '{kind}' is not in the transition bank. Known kinds: "
+                   f"{', '.join(sorted(T))}. An undeclared transition is an undeclared "
+                   f"timing rule, and that is exactly how the whip drifted.")
+
+    bad = []
+    if abs(width_ms - spec["duration_ms"]) > 1.0:
+        bad.append(f"BLEND_WIDTH is {width_ms:.0f} ms but the bank defines '{kind}' as "
+                   f"{spec['duration_ms']} ms")
+
+    # the whip bug, made un-shippable
+    tgt = float(getattr(P, "TARGET_S", 0) or 0)
+    shots = list(getattr(P, "SHOTS", []) or [])
+    if spec["timing"] == "overlap":
+        if not getattr(P, "BLEND_RESERVES_OVERLAP", False):
+            bad.append(
+                f"'{kind}' is timing='overlap': the engine must RESERVE {spec['duration_ms']} ms "
+                f"of extra source on each of the {len(after)} blended shots, or the timeline "
+                f"pulls {spec['duration_ms'] * len(after):.0f} ms early - the desafarm whip "
+                f"exactly. Declare BLEND_RESERVES_OVERLAP = True once the plan accounts for it.")
+    else:
+        eaten = spec["duration_ms"] * len(after) / 1000.0
+        if tgt and eaten > 0.05:
+            bad.append(f"'{kind}' is timing='consume': {len(after)} transitions eat "
+                       f"{eaten:.2f}s. TARGET_S={tgt:.2f} must already include that loss.")
+
+    # a transition that needs motion cannot sit on a shot too short to have any
+    mn = float(spec.get("min_shot_len_s") or 0)
+    if mn and shots:
+        try:
+            lens = [float(s[1]) for s in shots]
+            for i in after:
+                if 0 <= i < len(lens) and lens[i] < mn:
+                    bad.append(f"shot {i} is {lens[i]:.2f}s but '{kind}' needs >= {mn}s")
+        except Exception:
+            pass
+
+    cap = spec.get("max_per_film")
+    if cap and len(after) > cap:
+        bad.append(f"{len(after)} '{kind}' transitions, the bank caps it at {cap} "
+                   f"({spec['why'].split('.')[0]})")
+
+    if bad:
+        return add("34 transition contract", False, " | ".join(bad[:4]))
+    return add("34 transition contract", True,
+               f"{len(after)}x '{kind}' {spec['duration_ms']}ms timing={spec['timing']} "
+               f"- matches assets/transitions/TRANSITIONS.json")
+
+
 def check_relationships(P):
     """32 RELATIONSHIPS - the check that exists because of how the others failed.
 
@@ -1518,6 +1596,7 @@ def main():
     check_framing_diversity(P)
     check_relationships(P)
     check_threshold_provenance(P)
+    check_transition_contract(P)
     check_cost(P, args.balance)
 
     print()

@@ -213,10 +213,19 @@ def main(mod="supra", out=None):
     use = {}
     for s, _c, _k, _t in P.SHOTS:
         use[s] = use.get(s, 0) + 1
+    # FIX 2026-08-08: this was `col_x = [L, L+760, L+1520]` with `cx = col_x[n // 3]`,
+    # i.e. exactly 3 columns x 3 rows. Source number TEN raised IndexError and the
+    # contact sheet never rendered. desafarm has FOURTEEN sources - the board could
+    # not draw the very plan it was meant to review, and "show him the contact sheet
+    # before anything is assembled" is a standing order.
+    # Rows per column now grow with the source count instead of the column list
+    # running off the end.
     col_x = [L, L + 760, L + 1520]
+    _n = max(1, len(P.SOURCES))
+    _rows = max(3, -(-_n // len(col_x)))          # ceil(sources / columns), min 3
     for n, (k, (lab, col, act, plates, _p)) in enumerate(P.SOURCES.items()):
-        cx = col_x[n // 3]
-        ry = gy + 34 + (n % 3) * 46
+        cx = col_x[min(n // _rows, len(col_x) - 1)]
+        ry = gy + 34 + (n % _rows) * 46
         d.rectangle([cx, ry, cx + 26, ry + 26], fill=col)
         _t = _thumb(name, P, k)
         if _t is not None:
