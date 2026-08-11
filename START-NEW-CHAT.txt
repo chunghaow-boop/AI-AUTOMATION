@@ -9,6 +9,12 @@ are in ONE line and wait:
                             shipping still ships a broken film, why you cannot send
                             a link that `talyx.py deliver` did not print, and what
                             he catches that the instruments miss. Short. Read it all.
+    0b. 30-what-he-actually-wants.md   THE GOAL, in his own words. An agent that
+                            scans what is winning, measures it, builds better.
+                            His judgment is the bootstrap, not the spec - and the
+                            only thing that gives CAUSE, not correlation. Two
+                            plausible-sounding wrong readings are recorded so you
+                            do not repeat them.
     1. CLAUDE.md            the rules and the contract
     2. SYSTEM-MAP.md        the WHOLE pipeline top to bottom - every file, every
                             gate and its threshold, the plan->engine contract,

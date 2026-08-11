@@ -668,9 +668,26 @@ def check_lessons_ack(P):
               if k not in need and v.get("lessons")}
     if others:
         big = sorted(others.items(), key=lambda x: -x[1])[:3]
-        warn("23b neighbouring genres",
-             "other pillars' GENRE lessons (not required, often the closest prior art): "
-             + " · ".join(f"'{k}' {v}" for k, v in big))
+        # BLOCKS since 2026-08-08. This was a WARNING, and it is the single
+        # mechanism behind his loudest complaint: "it keeps on happening,
+        # especially when i switch frm vlog content to car review then switch to
+        # car cinematic there turns out to be more and more problem".
+        # planqc 23 only blocks on the topics a plan DECLARES, so a lesson filed
+        # under another genre was invisible - not deprioritised, invisible. The
+        # neighbouring pillar is almost always the closest prior art there is.
+        # Reading it is now required, exactly like your own genre's.
+        stale_n = [f"{k} {n}" for k, n in sorted(big)
+                   if int(ack.get(k, -1)) != n]
+        if stale_n:
+            add("23b neighbouring genres", False,
+                "the closest prior art is in another pillar and this plan has not "
+                "read it - ack these too: " + " · ".join(stale_n)
+                + "  (a lesson filed under another genre is INVISIBLE to check 23, "
+                  "which is why switching format keeps surfacing old problems)")
+        else:
+            add("23b neighbouring genres", True,
+                "neighbouring pillars' lessons acked: "
+                + " · ".join(f"{k} {n}" for k, n in sorted(big)))
     return r
 
 
@@ -918,6 +935,57 @@ _REL_PAIRS = {
          "BEST available pair was 0.911/0.973 - that one is a PLAN error, the clip "
          "could never have carried two shots."),
 }
+
+
+def check_threshold_provenance(P):
+    """33 THRESHOLD PROVENANCE - a number tuned on one format is not a constant.
+
+    2026-08-08, from his sharpest complaint: "it keeps on happening, especially
+    when i switch frm vlog content to car review then switch to car cinematic
+    there turns out to be more and more problem".
+
+    Two mechanisms cause that. Lessons not travelling is one, and check 23b now
+    blocks on it. This is the other, and it is the silent one: numbers DO travel,
+    when they should not. engine.py's shot_match_clamp carries a comment saying it
+    was "tuned on a NIGHT car edit, one light state end to end" - then travel_vlog
+    runs golden hour to night by design and the same 0.14 quietly stopped working.
+    Nobody changed it. It just started being wrong.
+
+    ledgers/thresholds.json now records what every tuned number was fitted on, how
+    many samples, and which pillars it is allowed to run on. This check refuses a
+    plan whose pillar inherits a threshold that was never derived for it.
+
+    And it reports what is PROVISIONAL, because that is the list the future
+    scanning agent exists to replace. His words: his judgment is the fastest
+    feedback available, not the ceiling - the standard is meant to come from
+    measuring what actually wins."""
+    path = os.path.join(HERE, "ledgers", "thresholds.json")
+    if not os.path.exists(path):
+        return warn("33 thresholds", "no ledgers/thresholds.json - every tuned "
+                                     "number in this build is unprovenanced")
+    try:
+        T = json.load(open(path, encoding="utf-8")).get("thresholds", [])
+    except Exception as e:
+        return add("33 thresholds", False, f"thresholds.json unreadable: {str(e)[:60]}")
+    pil = getattr(P, "PILLAR", "")
+    borrowed = [t for t in T
+                if "*" not in (t.get("pillars") or [])
+                and pil not in (t.get("pillars") or [])
+                and t.get("where", "").startswith(("engine", "assets"))]
+    prov = [t["id"] for t in T if t.get("status") in ("provisional", "guess")
+            and ("*" in (t.get("pillars") or []) or pil in (t.get("pillars") or []))]
+    if borrowed:
+        return add("33 thresholds", False,
+                   f"'{pil}' would inherit {len(borrowed)} number(s) never derived "
+                   f"for it: " + " · ".join(f"{t['id']} (fitted on {t['fitted_on']})"
+                                            for t in borrowed[:3]))
+    r = add("33 thresholds", True,
+            f"no borrowed numbers for '{pil}'; {len(prov)} of its thresholds are "
+            f"PROVISIONAL and awaiting real measurement")
+    if prov:
+        warn("33b provisional", "these are placeholders, not constants - the "
+                                "scanning agent replaces them: " + ", ".join(prov[:6]))
+    return r
 
 
 def check_relationships(P):
@@ -1449,6 +1517,7 @@ def main():
     check_identity_coverage(P)
     check_framing_diversity(P)
     check_relationships(P)
+    check_threshold_provenance(P)
     check_cost(P, args.balance)
 
     print()

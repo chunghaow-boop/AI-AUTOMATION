@@ -7,6 +7,21 @@ on sight in under a minute.
 
 ---
 
+## BEFORE ANYTHING: WHAT HE IS ACTUALLY BUILDING
+
+Read `30-what-he-actually-wants.md` first. It is short, it is in his own words, and
+I got the answer wrong twice in one conversation — both times plausibly.
+
+The one-line version: **he wants an agent that scans what is winning right now,
+measures it, and builds better.** Not a video generator. His judgment is the
+fastest feedback available while that agent doesn't exist yet — the bootstrap, not
+the ceiling. But it is also the only source that gives you a CAUSE rather than a
+correlation, and that never gets replaced.
+
+And when he says something feels off but can't say why, that is the most valuable
+report you will get. Run `python3 tools/flinch.py <project> <seconds>` and point
+every instrument at that moment. Never ask him to justify it first.
+
 ## THE ONE THING TO UNDERSTAND
 
 The video that failed was not broken in any of its parts. It was broken **between**

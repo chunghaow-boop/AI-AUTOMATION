@@ -65,6 +65,26 @@ CRAFT_MARKERS = (
     "balance", "credit", "plate", "claim", "source", "verified", "stale",
 )
 
+# INVERTED 2026-08-08, and this is the fix for the thing that has cost him most.
+# His words: "it keeps on happening, especially when i switch frm vlog content to
+# car review then switch to car cinematic there turns out to be more and more
+# problem". The cause was in this file. _route DEFAULTED to the pillar's own topic
+# and only sent a lesson to craft if it happened to contain one of the markers
+# above - so most lessons got filed under a genre, and planqc 23 only blocks on the
+# topics a plan DECLARES. A lesson filed under "travel vlog" was not deprioritised
+# for a car review plan, it was INVISIBLE to it. Every format switch started over.
+# Ledger at the time of the fix: general craft 112, car cinematic 15, car review 8,
+# travel vlog 6 - and almost nothing in those genre buckets was truly genre-only.
+# NOW: craft is the default. A lesson goes to a genre ONLY if it is about that
+# genre's own conventions - how this KIND of video should look, move or sound - or
+# if it is filed with --genre explicitly. Anything about the pipeline, the gates,
+# the measurement or the craft travels with you to every format.
+GENRE_MARKERS = (
+    "this pillar", "this genre", "this format", "audience of this",
+    "car cinematic looks", "vlog looks", "review looks",
+    "genre convention", "for this kind of video", "viewers of this genre",
+)
+
 
 def _today():
     return datetime.date.today().isoformat()
@@ -98,9 +118,15 @@ def _sig(text):
     return " ".join(words[:12])
 
 
-def _route(text, pillar_topic):
+def _route(text, pillar_topic, force_genre=False):
+    """Craft by default. A lesson only belongs to a genre if it is ABOUT that genre.
+
+    See the note on GENRE_MARKERS: this used to be the other way round and it is
+    why every format switch felt like starting over."""
     low = text.lower()
-    if pillar_topic and not any(m in low for m in CRAFT_MARKERS):
+    if force_genre and pillar_topic:
+        return pillar_topic
+    if pillar_topic and any(m in low for m in GENRE_MARKERS):
         return pillar_topic
     return CRAFT
 

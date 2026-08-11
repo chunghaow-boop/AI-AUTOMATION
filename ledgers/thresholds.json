@@ -1,0 +1,99 @@
+{
+  "_what": "Every tuned number in the pipeline, with what it was fitted on and how many samples. A threshold with no provenance is a guess wearing a lab coat.",
+  "_why": "2026-08-08. Two things forced this. (1) engine.py's shot_match_clamp was 'tuned on a NIGHT car edit, one light state end to end' and then silently carried into travel_vlog, which runs golden hour to night by design - it stopped working and nobody changed it. (2) verify 13's duplicate threshold carried its OWN comment saying 'fitted to THREE samples... widen the sample and re-derive before trusting it further' and nobody did, so it passed three duplicates by a hair. His complaint - 'it keeps on happening, especially when i switch frm vlog content to car review' - is partly this: numbers travel between formats when they should not.",
+  "_and_this_matters_more": "His judgment is the BOOTSTRAP, not the ceiling. The end goal is an agent that scans what is actually winning, measures it, and builds better. When that exists, most of the numbers below get REPLACED by measurements from real winning videos. They are provisional by design. status=provisional means: re-derive me, do not defend me.",
+  "_how_to_read": "fitted_on = the footage the number came from. samples = how many. status = measured | provisional | guess. pillars = which pillars it is allowed to run on; '*' means genuinely universal and you must justify that.",
+
+  "thresholds": [
+    {
+      "id": "verify13.composition",
+      "value": 0.80,
+      "where": "verify.py check_composition_dupes",
+      "fitted_on": "desafarm 190 shot-pairs, 3 duplicates confirmed by eye by Gavril",
+      "samples": 6,
+      "status": "provisional",
+      "pillars": ["travel_vlog"],
+      "note": "Paired with the colour axis below - NEITHER works alone. The BRZ on grass scored 0.916 against a glass of milk, higher than a real duplicate at 0.871."
+    },
+    {
+      "id": "verify13.colour",
+      "value": 0.80,
+      "where": "verify.py check_composition_dupes",
+      "fitted_on": "same 190 pairs",
+      "samples": 6,
+      "status": "provisional",
+      "pillars": ["travel_vlog"],
+      "note": "Worst true margin 0.071, worst false margin 0.060. Six samples is not a constant."
+    },
+    {
+      "id": "verify16.soundscape_delta",
+      "value": 0.03,
+      "where": "verify.py check_soundscape",
+      "fitted_on": "desafarm: cuts 0.935 vs mid-shot control 0.947",
+      "samples": 1,
+      "status": "provisional",
+      "pillars": ["*"],
+      "note": "ONE film. The principle is sound - a cut is a change of place and the sound must know - but the margin is a guess."
+    },
+    {
+      "id": "verify17.fragment_ratio",
+      "value": 1.6,
+      "where": "verify.py check_card_overlap",
+      "fitted_on": "desafarm: clean captions 17-29 glyph fragments, the collision 59-60",
+      "samples": 1,
+      "status": "provisional",
+      "pillars": ["*"],
+      "note": "Self-calibrates against the film's own captions, so it should survive a font change. Untested on any other film."
+    },
+    {
+      "id": "engine.shot_match_clamp",
+      "value": 0.14,
+      "where": "assets/pillars/PILLAR-PROFILES.json per pillar",
+      "fitted_on": "a NIGHT car edit, one light state end to end",
+      "samples": 1,
+      "status": "provisional",
+      "pillars": ["car_cinematic"],
+      "note": "THE ORIGINAL SIN OF THIS FILE. Carried into travel_vlog, which spans golden hour to night by design, and quietly stopped working. Do not let it out of car_cinematic without re-deriving."
+    },
+    {
+      "id": "travel_vlog.median_shot",
+      "value": 1.13,
+      "where": "assets/pillars/PILLAR-PROFILES.json travel_vlog",
+      "fitted_on": "unclear - claims MEASURED, provenance not recorded",
+      "samples": null,
+      "status": "guess",
+      "pillars": ["travel_vlog"],
+      "note": "DIRECTLY CONTESTED 2026-08-08. Published short-form guidance says a visual change every 1.5-2.0s and that under 1.2s 'reads as noise'. Our films cut at 1.23s. One of these is wrong and neither is grounded in Malaysian car content. THIS IS THE FIRST NUMBER THE SCANNING AGENT SHOULD REPLACE."
+    },
+    {
+      "id": "travel_vlog.target_length",
+      "value": 28.31,
+      "where": "plans/*.py TARGET_S",
+      "fitted_on": "the pillar's 16-29s band",
+      "samples": null,
+      "status": "guess",
+      "pillars": ["travel_vlog"],
+      "note": "Published guidance cites 20-25s as the completion sweet spot and says loops break above 35s. Untested against his own page."
+    },
+    {
+      "id": "engine.action_resolution",
+      "value": 0.80,
+      "where": "engine.py allocator - window ends above 80% of its own action peak",
+      "fitted_on": "his note 'clips cut off way too early' 2026-08-04",
+      "samples": null,
+      "status": "provisional",
+      "pillars": ["*"],
+      "note": "A reaction turned into a number without measurement. It BLOCKS now, so a wrong value here refuses good windows - watch for that."
+    },
+    {
+      "id": "mix.foley_trim_clamp",
+      "value": 8.0,
+      "where": "engine.py sound engineer calibration",
+      "fitted_on": "nothing - it is a safety rail someone picked",
+      "samples": 0,
+      "status": "guess",
+      "pillars": ["*"],
+      "note": "Bound on every travel_vlog build because Seedance ambience arrives around -22dB. Reports its shortfall now rather than lying, but the real fix is louder source audio, not a wider clamp."
+    }
+  ]
+}
