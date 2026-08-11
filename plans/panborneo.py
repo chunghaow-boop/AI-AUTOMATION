@@ -38,6 +38,19 @@ no-reference bland-prompt control, the 2_5 model, and a silent (no-audio)
 control. Not our prompts, not our plate (craft L117). Job IDs for the support
 report: bc29937b, c8c5c208, 50f73f04, bc66ad08, 7f3ddb05 (2_5: f39fe81a),
 659b0793 (silent). RETRY: one probe of G; if clean, batch the remaining 12.
+
+DIAGNOSIS COMPLETE (same day, his ask): the culprit is SEEDANCE'S PROVIDER-SIDE
+safety classifier, not our prompt, not the plate, not the account. Proof: a
+no-reference bland control flagged; his own unrelated web-UI prompt flagged; and
+kling3_0 with the SAME defender plate COMPLETED CLEAN (job d0cb2935, 5.04s, AAC,
+luma 101.8 - MEASURED charge 8.75cr against a 10cr preflight, balance
+4,278.82 -> 4,270.07). Higgsfield docs: providers run independent safety
+systems, false positives acknowledged, no manual override, credits auto-refund.
+HIS PICK: WAIT for Seedance (auto-retry armed +3h/+6h). Fallback if it stays
+down: Kling keyframe pipeline (nano 9:16 keyframe per shot -> kling
+start_image, ~182cr total) - but kling takes start/end images only, no
+multi-references, and FOLLOWS THE START IMAGE'S ASPECT (the test came out
+1284x716 from a 16:9 plate), so keyframes must be 9:16.
 """
 
 PROJECT   = "NEV · SABAH TO SARAWAK, ONE ROAD · Defender 110 SE · travel vlog"
