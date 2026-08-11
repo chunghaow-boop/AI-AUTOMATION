@@ -72,6 +72,25 @@ def find_bed(P, pdir):
     does not match the plan (lesson 25 — always re-measure the file, never trust
     the filename)."""
     import glob
+
+    # 2026-08-07, found by desafarm's first real build: THE PLAN NAMES ITS BED AND
+    # NOTHING READ IT. SOUND['bed'] declared BGM/travel_vlog/liqwyd-to-the-moon.mp3,
+    # "97.5 BPM NATIVE, zero stretch" - and this function returned Pathway-Home.mp3,
+    # the LARGEST file in the pillar bank, measured at 166.7 BPM. verify_bed_tempo
+    # then refused the build, which is the gate working, but the plan had been
+    # overruled by a file-size sort. Same class as the plate lesson: a spec that
+    # lives only in the plan is never read by the pipeline. The DECLARED bed wins
+    # when it is on disk; the glob below stays as the fallback it always was.
+    declared = (getattr(P, "SOUND", {}) or {}).get("bed", "")
+    if declared:
+        cand = declared.split(" - ")[0].split(" \u2014 ")[0].strip()
+        cand = cand.replace("\\", "/").lstrip("/")
+        full = cand if os.path.isabs(cand) else os.path.join(HERE, cand)
+        if os.path.exists(full):
+            return full
+        print(f"  !! the plan declares bed {cand!r} and it is NOT on disk - "
+              f"falling back to the pillar bank, and the tempo gate will judge it")
+
     pil = getattr(P, "PILLAR", "")
     # 2026-08-05: the pillar banks hold MP3 (that is what a download gives you), and
     # find_bed globbed *.wav ONLY — so a correctly-stocked BGM/travel_vlog/ resolved to
@@ -447,6 +466,7 @@ def build(name, out_path=None, use_cache=True):
     for i, ((key, _c2, _kind2, _n2), (_s2, d2, _k2)) in enumerate(zip(P.SHOTS, tl)):
         by_src.setdefault(key, []).append((i, d2))
     shot_tin, alloc_fail = {}, []
+    mid_action, look_dupes = [], []
     for key, shots_of in by_src.items():
         c = sense[key]
         free = [(0.0, max(0.1, c["duration"] - 0.05))]
@@ -460,6 +480,67 @@ def build(name, out_path=None, use_cache=True):
                 return None
             return mc[min(len(mc) - 1, max(0, int(ts * cfps / 2)))]
 
+        # LOOK DIVERSITY (2026-08-07, HIS CALL: "i think the duplicated scenes are
+        # not something wrong with the ai video generation, its at the video editing
+        # side"). He was right, and measuring it split the blame exactly:
+        # searching EVERY non-overlapping window pair of the three duplicated
+        # sources for the most different pair available -
+        #   source C (cabin)  best available comp 0.817 / col 0.798  DELIVERED 0.928 / 0.986
+        #   source G (goats)  best available comp 0.868 / col 0.872  DELIVERED 0.866 / 0.933
+        #   source E (calf)   best available comp 0.911 / col 0.973  DELIVERED 0.878 / 0.984
+        # For C a clean pair EXISTED and this allocator threw it away, because it
+        # ranked candidates on action peak alone and never asked whether the two
+        # windows LOOK different. For E nothing in the clip could have worked - that
+        # one is a plan error and ingest_gate() catches it before assembly.
+        chosen_looks = []
+
+        def _look(ts):
+            """composition + colour of the frame at ts, for window comparison."""
+            try:
+                import cv2 as _cv, numpy as _np
+                cap = _cv.VideoCapture(clips[key])
+                cap.set(_cv.CAP_PROP_POS_MSEC, max(0.0, ts) * 1000.0)
+                ok, fr = cap.read(); cap.release()
+                if not ok:
+                    return None
+                sm = _cv.resize(fr, (64, 112))
+                g = _cv.cvtColor(sm, _cv.COLOR_BGR2GRAY).astype(_np.float32)
+                gx = _cv.Sobel(g, _cv.CV_32F, 1, 0, ksize=3)
+                gy = _cv.Sobel(g, _cv.CV_32F, 0, 1, ksize=3)
+                mag = _np.sqrt(gx * gx + gy * gy)
+                ang = (_np.arctan2(gy, gx) + _np.pi) * (8 / (2 * _np.pi))
+                v = []
+                for r_ in range(4):
+                    for c_ in range(4):
+                        m = mag[r_ * 28:(r_ + 1) * 28, c_ * 16:(c_ + 1) * 16]
+                        a_ = ang[r_ * 28:(r_ + 1) * 28, c_ * 16:(c_ + 1) * 16]
+                        hh = _np.zeros(8)
+                        for b_ in range(8):
+                            hh[b_] = m[(a_.astype(int) % 8) == b_].sum()
+                        v.append(hh / (hh.sum() + 1e-9))
+                v = _np.concatenate(v); v = v / (_np.linalg.norm(v) + 1e-9)
+                ch = _cv.calcHist([sm], [0, 1, 2], None, [8, 8, 8], [0, 256] * 3)
+                ch = _cv.normalize(ch, ch).flatten()
+                return (v, ch)
+            except Exception:
+                return None
+
+        def _dupe_penalty(tin_, d2_):
+            """max similarity of this window to the ones already taken from THIS
+            source. 0 when nothing is taken yet or the frame cannot be read."""
+            if not chosen_looks:
+                return 0.0
+            import cv2 as _cv
+            L = _look(tin_ + d2_ / 2.0)
+            if L is None:
+                return 0.0
+            worst = 0.0
+            for P0 in chosen_looks:
+                cs = float(L[0] @ P0[0])
+                ks = float(_cv.compareHist(L[1], P0[1], _cv.HISTCMP_CORREL))
+                worst = max(worst, min(cs, ks))   # both axes must agree to be a dupe
+            return worst
+
         for i, d_ in sorted(shots_of, key=lambda s: (-s[1], s[0])):   # longest first
             cands = []
             for pk in c["action_peaks_s"]:
@@ -470,14 +551,27 @@ def build(name, out_path=None, use_cache=True):
                     if tin_ <= pk <= tin_ + d_:
                         # ACTION RESOLUTION (2026-08-04, his catch: "clips cut
                         # off way too early"). A window that ends while motion
-                        # is still >=80% of its peak cuts MID-action; prefer
-                        # windows whose end is past the action, then nearest
-                        # the clip's best moment.
+                        # is still >=80% of its peak cuts MID-action.
                         mp, me = _mot(pk), _mot(tin_ + d_)
                         unresolved = 1 if (mp and me and me > 0.8 * mp) else 0
-                        cands.append((unresolved, abs(pk - c["best_in_s"]), tin_))
+                        dup = _dupe_penalty(tin_, d_) if len(shots_of) > 1 else 0.0
+                        # rank: never cut mid-action, then never repeat the look,
+                        # then sit nearest the clip's best moment.
+                        cands.append((unresolved, round(dup, 2),
+                                      abs(pk - c["best_in_s"]), tin_))
             if cands:
-                tin_ = sorted(cands)[0][2]
+                cands.sort()
+                tin_ = cands[0][3]
+                if len(shots_of) > 1:
+                    L = _look(tin_ + d_ / 2.0)
+                    if L is not None:
+                        chosen_looks.append(L)
+                if cands[0][0]:
+                    mid_action.append(f"{key}: shot {i} ends while motion is still "
+                                      f">=80% of its peak - the event is cut off")
+                if cands[0][1] >= 0.80:
+                    look_dupes.append(f"{key}: shots share a look at {cands[0][1]:.2f} "
+                                      f"(best window available was no better)")
             else:
                 gaps = sorted(((hi - lo, lo) for lo, hi in free if hi - lo >= d_),
                               reverse=True)
@@ -490,6 +584,29 @@ def build(name, out_path=None, use_cache=True):
                       f"(free space, not choice)")
             shot_tin[i] = tin_
             free = _sub(free, tin_, tin_ + d_)
+    # HARD GATES, 2026-08-07. Both of these were already COMPUTED and both were
+    # only ever used as sort keys, so the build shipped with the defect and every
+    # downstream gate passed it:
+    #   - "unresolved" (window ends above 80% of its own action peak) existed since
+    #     2026-08-04 and desafarm still delivered shot 5 at 96% and shot 14 at 83%.
+    #     His words: "some scenes important events are cutted out".
+    #   - look duplication was not measured at all until he said the duplicates were
+    #     an EDITING problem, not a generation one. He was right.
+    # A preference that never blocks is not a rule, it is a hope.
+    if mid_action:
+        print("!! EVENTS CUT BEFORE THEY FINISH:")
+        for m in mid_action:
+            print(f"   {m}")
+        print("   Fix the PLAN (lengthen the shot or re-source it). REFUSING to cut "
+              "an event in half.")
+        return 1
+    if look_dupes:
+        print("!! TWO SHOTS FROM ONE SOURCE READ AS THE SAME PICTURE:")
+        for m in look_dupes:
+            print(f"   {m}")
+        print("   This clip cannot carry two shots. Drop it to one in the plan, or "
+              "generate a second angle. REFUSING to show the same shot twice.")
+        return 1
     if alloc_fail:
         print("!! SOURCE OVERCOMMITTED — the plan wants more footage than the clip has:")
         for f_ in alloc_fail:
@@ -1027,8 +1144,28 @@ def build(name, out_path=None, use_cache=True):
         if bl is not None and HAVE_FOLEY and fg_spans:
             flv = _active_rms(foley_path, 0.0, spans=fg_spans)
             if flv is not None:
-                FOL_DB = max(-8.0, min(8.0, (bl + FOL_TGT) - flv))
+                want = (bl + FOL_TGT) - flv
+                FOL_DB = max(-8.0, min(8.0, want))
                 rows.append(("foley (foreground)", flv, bl + FOL_TGT, FOL_DB))
+                # HIS CATCH, 2026-08-07: "the bgm is slightly louder than everything
+                # it covers all the sfx, and foley which is not balanced".
+                # ROOT CAUSE, and it is this clamp. On desafarm the mixer measured
+                # foley at -22.5dB against a -6.2dB target, computed the correct
+                # +16.3dB, applied the +8.0dB the clamp allows, and PRINTED "+8.0dB"
+                # as though it had succeeded. Foley shipped 8.3dB under its own
+                # target and verify's soundscape median came out 0.935 - cuts sounded
+                # no different from mid-shot. Seedance ambience is always this quiet,
+                # so the clamp binds on every travel_vlog build.
+                # A limiter that silently eats half the correction is a lie. Say so.
+                FOLEY_SHORT = round(want - FOL_DB, 1)
+                if FOLEY_SHORT > 1.0:
+                    print(f"      !! FOLEY CLAMPED: needed {want:+.1f}dB, the +/-8dB "
+                          f"limit allowed {FOL_DB:+.1f}dB - foley lands "
+                          f"{FOLEY_SHORT:.1f}dB UNDER target and the bed will cover it.")
+                    print(f"         The clip audio is too quiet to lift by gain alone. "
+                          f"Fix at the SOURCE (generate_audio louder / normalise the "
+                          f"foley stem before mixing), not by widening this clamp.")
+                    globals()["_FOLEY_SHORTFALL"] = FOLEY_SHORT
         print("      SOUND ENGINEER calibration (active RMS at mix gain):")
         for nm, meas, tgt, tr in rows:
             print(f"        {nm:20s} measured {meas:6.1f}dB  target {tgt:6.1f}dB  "

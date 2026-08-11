@@ -313,8 +313,30 @@ def check_captions(P, pf=None):
     if getattr(P, "CARD_STYLE", "") == "narrative":
         limit = max(limit, 5)
     long = [c[0] for c in P.CARDS if len(c[0].split()) > limit]
-    ok = not centre and not over and not long
+    # CARD COLLISION, 2026-08-07. This check validated the ZONE - are the cards at
+    # y=0.72, do they fit, are they short enough - and never asked whether two of
+    # them are IN that zone at the same time. desafarm shipped
+    #   ('TWO THOUSAND METRES UP', shot 14, 4 shots)  -> shots 14,15,16,17
+    #   ('KUNDASANG NEXT WEEKEND?', shot 16, 4 shots) -> shots 16,17,18,19
+    # and cards.py drew both on the same baseline. From 20.9s to 23.4s the lower
+    # third was two captions printed through each other, unreadable. This check
+    # said OK, and so did verify 6. The most visible defect in the film passed
+    # every gate that was supposed to be looking straight at it.
+    spans = []
+    for c in P.CARDS:
+        s0 = int(c[1]); n0 = int(c[2]) if len(c) > 2 else 1
+        spans.append((c[0], s0, s0 + max(1, n0) - 1))
+    collide = []
+    for a in range(len(spans)):
+        for b in range(a + 1, len(spans)):
+            t1, a0, a1 = spans[a]; t2, b0, b1 = spans[b]
+            if a0 <= b1 and b0 <= a1:
+                lo, hi = max(a0, b0), min(a1, b1)
+                collide.append(f"{t1!r} and {t2!r} both on shots {lo}-{hi}")
+    ok = not centre and not over and not long and not collide
     d = f"{len(P.CARDS)} cards at y={y}"
+    if collide:
+        d += " - TWO CARDS IN THE SAME ZONE AT THE SAME TIME: " + " · ".join(collide)
     if centre:
         d += " - IN THE CENTRE BAND (0.34-0.60), this is where the car is"
     if over:
@@ -850,6 +872,86 @@ def check_consequence_spine(P):
                f"{len(cons)} consequence boundaries, floor {need} {tail}", False)
 
 
+
+# ---------------------------------------------------------------- 32 RELATIONSHIPS
+_REL_PAIRS = {
+    # key: (what must agree, the failure that put it on this list)
+    "subject_vs_background":
+        ("a subject's implied geometry must agree with the world behind it",
+         "desafarm 2026-08-07, HIS CATCH: 'nev driving a car horizontally but the "
+         "road is going vertically'. A SIDE window (wing mirror visible, no steering "
+         "wheel in frame) with the road receding straight away through it = the car "
+         "is driving at 90 degrees to its own road. Both halves were fine alone."),
+    "performance_vs_sound":
+        ("a performed emotion must be carried by audio, not mime",
+         "desafarm, HIS CATCH: 'nevs expression have no sfx or other elements to back "
+         "it up'. MEASURED: the shot where he laughs out loud has a voice-band ratio "
+         "of 0.25 and the shot where he is shocked 0.16, against 0.19 for a shot of "
+         "EMPTY HILLS. He performed into silence."),
+    "bed_vs_foley":
+        ("music must not cover the diegetic sound of the place",
+         "desafarm, HIS CATCH: 'the bgm is slightly louder than everything it covers "
+         "all the sfx, and foley'. MEASURED: soundscape similarity across cuts 0.935 "
+         "vs 0.947 mid-shot control - a goat pen and a car interior sounded the same."),
+    "card_vs_card":
+        ("no two cards may occupy the caption zone at the same time",
+         "desafarm: two captions printed through each other for 2.5s, 20.9-23.4s. "
+         "planqc 12 and verify 6 both checked the ZONE and neither checked the CLOCK."),
+    "event_vs_window":
+        ("the shot must be long enough to contain the whole event",
+         "desafarm, HIS CATCH: 'some scenes important events are cutted out'. Shot 5 "
+         "ended at 96% of its own action peak, shot 14 at 83%, and the hook ended with "
+         "the bottle still in his hand - the goat takes it 13 seconds later."),
+    "arc_vs_shot_order":
+        ("a clip with an internal arc must be used in that arc's order",
+         "desafarm: source H was written startled -> laugh, MONOTONIC. Delivered as "
+         "laugh at 15.8s and startled at 20.9s. He reacts after he has already laughed."),
+    "picture_grid_vs_music_grid":
+        ("a transition must not shift the picture off the music",
+         "desafarm: the 240ms whip SHORTENED shot 8 by 197ms instead of overlapping, "
+         "so every cut after it sits ~170ms early against a bed that kept its tempo."),
+    "clip_variety_vs_shot_count":
+        ("a source may carry N shots only if it can supply N distinct looks",
+         "desafarm, HIS CALL: the duplicates were 'at the video editing side'. Measured "
+         "over every non-overlapping window pair: source C could have delivered "
+         "0.817/0.798 and the editor chose 0.928/0.986 - the editor's fault. Source E's "
+         "BEST available pair was 0.911/0.973 - that one is a PLAN error, the clip "
+         "could never have carried two shots."),
+}
+
+
+def check_relationships(P):
+    """32 RELATIONSHIPS - the check that exists because of how the others failed.
+
+    Every defect Gavril found in DESAFARM_CINEMATIC_v2 was a RELATIONSHIP between
+    two elements that each passed on its own. The car passed. The road passed. The
+    music passed. The foley passed. The cards each sat in the zone. The shot lengths
+    matched the beat grid. Thirty-four plan checks and fifteen verify checks all
+    looked at elements, and not one asked whether the elements AGREED.
+
+    So the plan must now name, for each pair below, how it holds that pair together.
+    This does not measure the film - it forces the mastermind to predict the failure
+    at planning time, which is the only place it is free to fix."""
+    rel = getattr(P, "RELATIONSHIPS", None)
+    if not isinstance(rel, dict):
+        return add("32 relationships", False,
+                   "NO RELATIONSHIPS block - the plan does not say how it keeps "
+                   f"{len(_REL_PAIRS)} known element-pairs in agreement: "
+                   + ", ".join(sorted(_REL_PAIRS)))
+    missing = [k for k in _REL_PAIRS if not str(rel.get(k, "")).strip()]
+    thin = [k for k, v in rel.items()
+            if k in _REL_PAIRS and 0 < len(str(v).strip()) < 40]
+    if missing:
+        return add("32 relationships", False,
+                   f"{len(missing)} pair(s) unaddressed: " + ", ".join(sorted(missing)))
+    if thin:
+        return add("32 relationships", False,
+                   "answer is too thin to be a plan (under 40 chars): "
+                   + ", ".join(sorted(thin)))
+    return add("32 relationships", True,
+               f"all {len(_REL_PAIRS)} element-pairs have a stated mitigation")
+
+
 def check_linkage(P, name):
     """Every shot is planned to CONNECT to its neighbours — exit motion into entry
     motion, lighting, direction — so the editor gets footage that already wants to
@@ -1346,6 +1448,7 @@ def main():
     check_style_declared(P, pf)
     check_identity_coverage(P)
     check_framing_diversity(P)
+    check_relationships(P)
     check_cost(P, args.balance)
 
     print()

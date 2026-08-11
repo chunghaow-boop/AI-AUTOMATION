@@ -286,7 +286,10 @@ def check_far_repeats(video, cuts):
             if short and hits / short >= 0.5:
                 dup.append(f"shots {i1}&{i2} ({hits}/{short} frames identical)")
     return add("10 far repeats", not dup,
-               f"no far pair shares footage across {len(shots)} shots" if not dup
+               f"no far pair reuses the same FRAMES across {len(shots)} shots "
+               f"(this is a PIXEL test - two windows of one clip are different "
+               f"pixels and still read as the same shot; that is check 13's job)"
+               if not dup
                else f"DUPLICATED FOOTAGE: " + " · ".join(dup[:4]))
 
 
@@ -407,58 +410,71 @@ def check_place_variety(video, cuts, thresh=0.90):
                f"framing dupes 3->0 while place repeats held at 7.")
 
 
-def check_composition_dupes(video, cuts, thresh=0.93):
-    """13 COMPOSITION DUPLICATES — Gavril's catch on KK v1 (2026-08-05).
+def _colour_hist(img):
+    """Colour/tone descriptor - the axis composition is deliberately blind to."""
+    import numpy as np
+    h = cv2.calcHist([img], [0, 1, 2], None, [8, 8, 8], [0, 256] * 3)
+    h = cv2.normalize(h, h).flatten()
+    return h
 
-    He saw duplicated shots in a cut where check 4 (repetition) said 0/19 and
-    check 10 (far repeats) said CLEAN. Both were right and both were blind:
-    check 4 compares ACROSS a cut, check 10 compares PIXELS for shared footage.
-    Two non-overlapping windows of one static clip are provably distinct footage
-    and still read as the same shot — file 27 named this 'duplicate FEEL' and
-    nothing measured it.
 
-    Worse, the duplicates were not only WITHIN a source. On KK, sources A, C and I
-    all cited the same waterfront plate and all generated the SAME receding-boardwalk
-    composition: shots 0, 1, 5, 12 and 16 are one image seen five times, from three
-    different sources. Any check scoped to same-source pairs cannot see that.
+def check_composition_dupes(video, cuts, comp_thresh=0.80, col_thresh=0.80):
+    """13 COMPOSITION DUPLICATES - TWO AXES, because one was never enough.
 
-    So: compare EVERY shot pair, on composition alone. First attempts failed
-    honestly and are recorded so they are not retried — raw-pixel NCC (0.76 on a
-    pair the eye calls identical) and pHash (0.62) were both dominated by the
-    time-of-day colour shift while the framing stayed identical."""
+    HISTORY. Gavril caught duplicate shots on KK v1 while checks 4 and 10 said
+    clean, so this check was written on a COMPOSITION descriptor at threshold 0.93,
+    fitted to THREE samples. Its own comment said: "a starting point, not a measured
+    constant - widen the sample and re-derive before trusting it further." Nobody did.
+
+    2026-08-07, desafarm: he caught three duplicate pairs BY EYE and this check
+    passed all three, printing "no pair shares a composition (>= 0.93)":
+
+        shots  2 & 4  (source C, the cabin)   composition 0.920   colour 0.984
+        shots  9 & 14 (source E, the calf)    composition 0.885   colour 0.985
+        shots 10 & 13 (source G, the goats)   composition 0.871   colour 0.930
+
+    All three sat just under 0.93. But LOWERING the threshold cannot fix it, and
+    this is the whole lesson: the highest composition score in that film was
+
+        shots 5 & 15  (the BRZ on grass vs a glass of milk)  composition 0.916
+
+    - a pair with nothing in common, scoring HIGHER than a real duplicate at 0.871.
+    Gradient orientation alone cannot separate "same shot twice" from "two shots
+    that happen to have lines in the same places". No single threshold exists.
+
+    So the check now requires BOTH axes to agree: composition (where the lines are)
+    AND colour/tone (what it is made of). On the 190 pairs of desafarm, comp >= 0.80
+    AND colour >= 0.80 reproduces his eye EXACTLY - all three real pairs flagged,
+    every other pair clear, worst true margin 0.071, worst false margin 0.060
+    (shots 6 & 10 at colour 0.740). Fitted to 6 eye-confirmed samples across two
+    films; re-derive as more accumulate, and record the samples when you do."""
     import numpy as np
     if not cuts:
-        return add("13 composition dupes", False, "NOT MEASURED — no cuts manifest")
+        return add("13 composition dupes", False, "NOT MEASURED - no cuts manifest")
     fr = frames_color(video)
     fps = 30.0
     bounds = [0.0] + list(cuts) + [len(fr) / fps]
-    mids = []
+    comp, col = [], []
     for i in range(len(bounds) - 1):
         t = (bounds[i] + bounds[i + 1]) / 2.0
         idx = min(int(t * fps), len(fr) - 1)
-        mids.append(_composition(fr[idx]))
+        comp.append(_composition(fr[idx]))
+        col.append(_colour_hist(fr[idx]))
     hits = []
-    for i in range(len(mids)):
-        for j in range(i + 1, len(mids)):
-            s = float(mids[i] @ mids[j])
-            if s >= thresh:
-                hits.append((round(s, 3), i, j))
+    for i in range(len(comp)):
+        for j in range(i + 1, len(comp)):
+            c = float(comp[i] @ comp[j])
+            k = float(cv2.compareHist(col[i], col[j], cv2.HISTCMP_CORREL))
+            if c >= comp_thresh and k >= col_thresh:
+                hits.append((round(c, 3), round(k, 3), i, j))
     hits.sort(reverse=True)
-    n = len(mids)
-    # THRESHOLD CALIBRATION (2026-08-05, validated by EYE on three flagged pairs):
-    #   0.913  boardwalk vs prawns on a grill  -> FALSE POSITIVE. The descriptor caught
-    #          the boardwalk's receding lines rhyming with the grill grate. Nothing alike.
-    #   0.947  two boardwalk shots             -> REAL
-    #   0.958  two palm sunsets                -> REAL
-    # 0.93 separates them. Fitted to THREE samples, so it is a starting point, not a
-    # measured constant - widen the sample and re-derive before trusting it further.
+    n = len(comp)
     return add("13 composition dupes", not hits,
-               f"{n} shots, no pair shares a composition (>= {thresh})" if not hits
-               else f"{len(hits)} pair(s) READ AS THE SAME SHOT despite distinct footage: "
-                    + " · ".join(f"{i}&{j} @{s}" for s, i, j in hits[:6])
-                    + f" — {n} shots collapse to ~{n - len(set(j for _s, _i, j in hits))} "
-                      f"distinct images")
-
+               f"{n} shots, no pair matches on BOTH composition (>= {comp_thresh}) "
+               f"and colour (>= {col_thresh})" if not hits
+               else f"{len(hits)} pair(s) READ AS THE SAME SHOT: "
+                    + " \u00b7 ".join(f"{i}&{j} comp {c} col {k}" for c, k, i, j in hits[:6])
+                    + f" - {n} shots collapse to ~{n - len(hits)} distinct images")
 
 def check_tally():
     """CONFORMANCE — the finished cut against the plan, shot by shot. mastermind
@@ -704,6 +720,143 @@ def check_blank(video):
                f"{black} frames at mean<4 (Laplacian 'blank' is BLUR, not black)")
 
 
+# ---------------------------------------------------------------- 16 SOUNDSCAPE
+def check_soundscape(video, cuts):
+    """16 SOUNDSCAPE CHANGE - does the sound know a cut happened?
+
+    HIS CATCH, 2026-08-07, and nothing in the pipeline was asking it: "the bgm is
+    slightly louder than everything it covers all the sfx, and foley which is not
+    balanced". Measured on DESAFARM_CINEMATIC_v2:
+
+        median spectral similarity ACROSS the 19 cuts      0.935
+        median at random mid-shot control points            0.947
+
+    Cutting from a goat pen to a car interior changed the soundscape NO MORE than a
+    random moment inside one shot. The bed was carrying the entire film. Every audio
+    check passed anyway: check 8 measures loudness, check 3 measures the transient at
+    a cut - neither asks whether the world SOUNDS different on the other side.
+
+    A cut is a change of place. If the sound does not change, there is no foley in
+    the mix, whatever the mixer's log claims it applied."""
+    import numpy as np, wave, subprocess, tempfile
+    if not cuts:
+        return add("16 soundscape", False, "NOT MEASURED - no cuts manifest")
+    wav = os.path.join(tempfile.gettempdir(), "verify_sound.wav")
+    rc, _ = sh(f'ffmpeg -y -v error -i "{video}" -vn -ac 1 -ar 22050 "{wav}"')
+    if rc or not os.path.exists(wav):
+        return add("16 soundscape", False, "could not extract audio")
+    w = wave.open(wav); sr = w.getframerate()
+    x = np.frombuffer(w.readframes(w.getnframes()), dtype=np.int16).astype(float) / 32768
+    w.close()
+    hop, win = 256, 1024
+    F = max(0, int((len(x) - win) / hop))
+    if F < 32:
+        return add("16 soundscape", False, "audio too short to measure")
+    S = np.zeros((F, win // 2 + 1))
+    hann = np.hanning(win)
+    for i in range(F):
+        S[i] = np.abs(np.fft.rfft(x[i * hop:i * hop + win] * hann))
+
+    def prof(a, b):
+        i, j = int(a * sr / hop), int(b * sr / hop)
+        i, j = max(0, i), min(F, j)
+        if j - i < 2:
+            return None
+        v = S[i:j].mean(0)
+        return v / (np.linalg.norm(v) + 1e-9)
+
+    sims = []
+    for c in cuts:
+        a, b = prof(c - 0.30, c - 0.05), prof(c + 0.05, c + 0.30)
+        if a is not None and b is not None:
+            sims.append(float(a @ b))
+    if not sims:
+        return add("16 soundscape", False, "no measurable cut boundaries")
+    rng = np.random.default_rng(0)
+    ctrl = []
+    dur = len(x) / sr
+    for _ in range(max(12, len(sims))):
+        t = float(rng.uniform(0.6, max(0.7, dur - 0.6)))
+        a, b = prof(t - 0.30, t - 0.05), prof(t + 0.05, t + 0.30)
+        if a is not None and b is not None:
+            ctrl.append(float(a @ b))
+    med = float(np.median(sims))
+    cm = float(np.median(ctrl)) if ctrl else 1.0
+    # A cut must change the sound MORE than a random moment inside a shot does.
+    # Threshold measured on desafarm (0.935 vs 0.947 control = failure) and set with
+    # margin: the cut median must sit at least 0.03 BELOW the control median.
+    ok = med <= cm - 0.03
+    return add("16 soundscape", ok,
+               f"cut similarity {med:.3f} vs mid-shot control {cm:.3f} "
+               + ("- the sound changes at cuts" if ok else
+                  "- THE BED IS CARRYING THE FILM: cuts sound the same as "
+                  "mid-shot, so the foley is not audible in the mix"))
+
+
+# ---------------------------------------------------------------- 17 CARD COLLISION
+def check_card_overlap(video):
+    """17 CARD COLLISION - two captions printed on top of each other.
+
+    2026-08-07, desafarm: 'KUNDASANG NEXT WEEKEND?' rendered OVER 'TWO THOUSAND
+    METRES UP' from 20.9s to 23.4s - unreadable overlapping letters for 2.5s, the
+    most visible defect in the film. planqc 12 passed it and verify 6 passed it:
+    both validate the caption ZONE (are the cards at y=0.72?) and neither asks
+    whether two of them are in it AT THE SAME TIME.
+
+    The two captions land on the SAME baseline, so counting text ROWS cannot see it.
+    What double-printing does is shatter the glyphs: strokes cross strokes and the
+    line breaks into far more connected fragments than any single line of text.
+    MEASURED on this film, caption line component counts:
+
+        clean captions   17, 17, 23, 23, 25, 29, 29   (ink density 0.202 - 0.221)
+        the collision    59, 59, 59                   (ink density 0.251)
+
+    Self-calibrating on the film's own clean captions rather than an absolute
+    constant, because component count scales with the font and the caption length."""
+    import numpy as np
+    cap = cv2.VideoCapture(video)
+    fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
+    n = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
+    samples = []
+    t = 0.3
+    while t * fps < n:
+        cap.set(cv2.CAP_PROP_POS_FRAMES, int(t * fps))
+        ok, f = cap.read()
+        if not ok:
+            break
+        h, w = f.shape[:2]
+        strip = cv2.cvtColor(f[int(h * 0.63):int(h * 0.80)], cv2.COLOR_BGR2GRAY)
+        ink = (strip > 230).astype(np.uint8)
+        rows = ink.sum(1)
+        if rows.max() >= 8:
+            r = int(np.argmax(rows))
+            line = ink[max(0, r - 14):min(strip.shape[0], r + 14)]
+            ncomp, _ = cv2.connectedComponents(line)
+            samples.append((round(t, 2), ncomp - 1, float(line.mean())))
+        t += 0.3
+    cap.release()
+    if len(samples) < 4:
+        return add("17 card collision", True,
+                   f"{len(samples)} captioned frames - too few to calibrate", blocking=False)
+    comps = sorted(s[1] for s in samples)
+    med = comps[len(comps) // 2]
+    # a caption line with >= 1.6x the median fragment count is two texts superimposed
+    bad = [s for s in samples if s[1] >= max(med * 1.6, med + 8)]
+    spans = []
+    for tt, c, d in bad:
+        if spans and tt - spans[-1][1] <= 0.7:
+            spans[-1][1] = tt
+        else:
+            spans.append([tt, tt])
+    long = [s for s in spans if s[1] - s[0] >= 0.5]
+    return add("17 card collision", not long,
+               f"{len(samples)} captioned frames, median {med} glyph fragments, "
+               f"no line above {max(int(med*1.6), med+8)}" if not long
+               else "TWO CAPTIONS SUPERIMPOSED (glyph fragments "
+                    f"{max(s[1] for s in bad)} vs median {med}): "
+                    + " \u00b7 ".join(f"{a:.1f}-{b:.1f}s" for a, b in long))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--video", default=DEFAULT_VIDEO)
@@ -747,6 +900,8 @@ def main():
         check_transitions(video, meta)
         check_composition_dupes(video, cuts)
         check_place_variety(video, cuts)
+        check_soundscape(video, cuts)
+        check_card_overlap(video)
         check_relight()
         check_tally()
 
