@@ -46,11 +46,25 @@ kling3_0 with the SAME defender plate COMPLETED CLEAN (job d0cb2935, 5.04s, AAC,
 luma 101.8 - MEASURED charge 8.75cr against a 10cr preflight, balance
 4,278.82 -> 4,270.07). Higgsfield docs: providers run independent safety
 systems, false positives acknowledged, no manual override, credits auto-refund.
-HIS PICK: WAIT for Seedance (auto-retry armed +3h/+6h). Fallback if it stays
-down: Kling keyframe pipeline (nano 9:16 keyframe per shot -> kling
-start_image, ~182cr total) - but kling takes start/end images only, no
-multi-references, and FOLLOWS THE START IMAGE'S ASPECT (the test came out
-1284x716 from a 16:9 plate), so keyframes must be 9:16.
+HIS PICK (asked twice, 2026-08-11 evening): WAIT for Seedance. Auto-retry
+armed +3h/+6h. LIKELY CAUSE of the misfire, his own theory and the timeline
+supports it: Seedance 2.5 LAUNCHED AUG 7 (the day mahua ran 9/9 clean on 2.0)
+with an 'unlimited Aug 7-14' promo running NOW - a shared new safety stack
+and/or a promo-abuse clampdown would flag both versions exactly as observed.
+Implication: may not clear until ~Aug 14.
+
+THE FALLBACK LADDER, researched and PREFLIGHTED (models_explore + get_cost),
+so the next session spends zero time rediscovering it. All three keep or
+adapt the existing plan; Seedance retries stay armed on top:
+  1 gemini_omni  15.0cr/5s -> 13 clips = 195cr  image_references LIKE
+    SEEDANCE (zero plan rework) + native audio + 720p + 9:16. Google's
+    filter, not ByteDance's. THE RECOMMENDED PIVOT if Seedance stays down.
+  2 flux_3_video 27.5cr/5s -> 357.5cr  same reference design, Black Forest
+    Labs provider. Backup if Gemini's look disappoints.
+  3 kling3_0     8.75cr/5s MEASURED -> ~166cr with nano keyframes, but
+    start/end images ONLY (no multi-references) and it FOLLOWS THE START
+    IMAGE'S ASPECT (test d0cb2935 came out 1284x716 from a 16:9 plate) -
+    needs a 9:16 keyframe stage + re-gate. Cheapest, most rework.
 """
 
 PROJECT   = "NEV · SABAH TO SARAWAK, ONE ROAD · Defender 110 SE · travel vlog"
