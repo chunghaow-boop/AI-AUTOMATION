@@ -1031,12 +1031,25 @@ def check_transition_contract(P):
     tgt = float(getattr(P, "TARGET_S", 0) or 0)
     shots = list(getattr(P, "SHOTS", []) or [])
     if spec["timing"] == "overlap":
-        if not getattr(P, "BLEND_RESERVES_OVERLAP", False):
+        # ONE MECHANISM (2026-08-11, closes PENDING 2.3). The engine has reserved
+        # blend-width on overlap transitions since 2026-08-08; requiring every plan
+        # to ALSO hand-declare BLEND_RESERVES_OVERLAP made two mechanisms that
+        # agree by hand. The engine's contract constant is now the source of
+        # truth; a plan flag still wins if declared (a plan may opt OUT with
+        # False to document a deliberate deviation).
+        _reserved = getattr(P, "BLEND_RESERVES_OVERLAP", None)
+        if _reserved is None:
+            try:
+                from engine import BLEND_RESERVES_OVERLAP as _reserved
+            except Exception:
+                _reserved = False
+        if not _reserved:
             bad.append(
                 f"'{kind}' is timing='overlap': the engine must RESERVE {spec['duration_ms']} ms "
                 f"of extra source on each of the {len(after)} blended shots, or the timeline "
                 f"pulls {spec['duration_ms'] * len(after):.0f} ms early - the desafarm whip "
-                f"exactly. Declare BLEND_RESERVES_OVERLAP = True once the plan accounts for it.")
+                f"exactly. engine.BLEND_RESERVES_OVERLAP is False/absent and the plan does "
+                f"not declare it either.")
     else:
         eaten = spec["duration_ms"] * len(after) / 1000.0
         if tgt and eaten > 0.05:

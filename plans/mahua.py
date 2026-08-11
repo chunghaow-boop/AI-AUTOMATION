@@ -59,9 +59,27 @@ MAX_CROP  = 1.40
 TARGET_S  = 28.97                    # 48 beats = 28.9739s. Band-top of the measured 16-29s.
 
 LESSONS_ACK = {            # ledger counts this plan was written against (planqc 23)
-    "general craft": 96,   # pillar-INDEPENDENT: measurement, tooling, process
-    "travel vlog":    5,   # this pillar's GENRE lessons
+    "general craft": 115,  # pillar-INDEPENDENT: measurement, tooling, process
+    "travel vlog":    6,   # this pillar's GENRE lessons
+    # NEIGHBOURING PILLARS (planqc 23b, blocking since 2026-08-08; acked 2026-08-11
+    # after reading all three): the transferable prior art is i8 L9-L12 (3-second
+    # retention beats watch time, hooks UNDER 2s complete 23% better, a Reel rewards
+    # ONE EVENT not a tour - this plan's hook IS a single sub-2s event, by design),
+    # and lc300 L5 (fx.whip's xfade once applied its prep filters to the ENTIRE
+    # clip, not the seam - this plan declares a whip, so that history is live here).
+    # The car-identity lessons (i8 doors, S450 grille, ZX trim) do not transfer.
+    "bmw i8 car cinematic": 16,
+    "car cinematic": 15,
+    "toyota land cruiser 300 zx car review": 8,
 }
+# RE-ACKED 2026-08-11 after reading craft L96-L114 and travel vlog L5 - all filed
+# 2026-08-08 from the desafarm v2 rejection. The two that BITE this build directly:
+# tv L5 (the whip that shortened the timeline - mahua declares the same 240ms whip
+# after shot 4; the engine now RESERVES the overlap by contract and planqc 34 reads
+# engine.BLEND_RESERVES_OVERLAP, one mechanism) and craft L102 (mid-action became a
+# HARD gate - every window that ends above 80% of its own action peak is refused,
+# which protects the cold-water hook this film opens on). L107's card clock: this
+# plan's four card spans (0-3, 8-11, 12-15, 16-19) are disjoint by construction.
 # RE-ACKED TWICE on 2026-08-07: 77->78 and 3->4 after judge round 1, then 78->81 after
 # judge round 2, 81->83 after round 3, 83->84 after round 4, and 84->92 / 4->5 after HE
 # LOOKED AT THE FOOTAGE on 2026-08-07 and nine more lessons were filed from what his
@@ -314,6 +332,30 @@ PREMORTEM = [
      "learned: WHEN A SPAN READS FLAT, ASK WHAT THE CLIP DOES, NOT HOW MANY CLIPS THERE "
      "ARE. A plan-level fix beats a pipeline-level fix even when the pipeline fix is "
      "cleaner - his standing rule, and here it also beat the more expensive fix."),
+
+    # ---- added 2026-08-11 at the L96-L115 / tv-L6 re-ack ----
+    ("THE DECLARED WHIP SHORTENS THE TIMELINE INSTEAD OF OVERLAPPING IT AND EVERY "
+     "LATER CUT SITS EARLY AGAINST THE BED (travel vlog L5, measured on desafarm "
+     "v2: 240ms declared, 197ms stolen from the shot, 60% of the film ~170ms off a "
+     "bed that kept its own tempo - and every per-shot check passed). This plan "
+     "declares the same 240ms whip, after shot 4, on a 48-beat grid that TARGET_S "
+     "was computed from",
+     "The engine reserves and renders the blend-in shot one blend-width longer - "
+     "the blend eats the OVERLAP, never the timeline - and since 2026-08-11 planqc "
+     "34 reads engine.BLEND_RESERVES_OVERLAP itself (one mechanism, PENDING 2.3 "
+     "closed). verify's beat-grid check runs on post-blend boundaries, so if the "
+     "reservation ever regresses the delivered cut fails the grid, not just the "
+     "plan gate."),
+
+    ("A SOURCE WITH AN INTERNAL ARC IS DELIVERED IN THE WRONG ORDER AND THE FILM "
+     "PLAYS ITS REACTION BEFORE ITS CAUSE (craft L101's shape on source H: the "
+     "allocator guarantees non-overlap but never guaranteed ORDER, so the grin "
+     "could arrive before the shiver - this plan's own declared open risk 1)",
+     "SHOT_WINDOW = {16: 0.20, 18: 3.70} - the additive per-shot pin the risk "
+     "asked for, built 2026-08-11 on his go-ahead. Pinned windows allocate first, "
+     "a pin that does not fit FAILS the allocation loudly, and syncqc check 5 "
+     "(arc order) plus the eye on the delivered strip stay as the second and "
+     "third belts."),
 ]
 
 # ---------------------------------------------------------------- PLATES
@@ -759,15 +801,16 @@ CROP_XY = {}            # nothing measured yet; populated only from a probe
 # takes the EARLY window (arms crossed) and shot 18 the LATE one (the grin). The arc
 # can arrive in reverse: he warms up, then shivers.
 #
-# There is no per-shot window field. BAN_SPANS is per SOURCE, so it cannot split one
-# clip between two shots. Three ways out, and only the last is free:
-#   1 PIPELINE, HIS CALL: an additive SHOT_WINDOW = {shot: t_in} read by the allocator
-#     before it searches. ~4 lines at engine.py:465. Never an autonomous edit.
-#   2 accept and CHECK: the raws are kept, so if the delivered strip runs backwards the
-#     fix is to swap which of 16/18 is the burst and re-render. No new credits.
-#   3 pick the split at ingest once the clip exists and its motion curve is measured.
-# THIS IS CHECKED BY EYE ON THE DELIVERED STRIP, ALWAYS. It is the one thing in this
-# plan that a gate cannot see.
+# CLOSED 2026-08-11 - option 1 built on his go-ahead ("help me fix it"). The engine
+# now reads an additive SHOT_WINDOW = {shot: t_in}: pinned shots allocate FIRST (a
+# free-choice shot cannot steal the window) and a pin that does not fit is an
+# ALLOCATION FAILURE, never a silent fallback. Shot 16 is pinned to H's head (arms
+# crossed hard, still cold) and shot 18 to its tail (the grin), so the arc CANNOT
+# arrive in reverse. Values are conservative head/tail picks inside the measured
+# 5.0417s clip; refine at ingest from the motion curve if the state change sits
+# elsewhere. THE STRIP IS STILL CHECKED BY EYE - the pin fixes the order, only the
+# eye confirms the performance.
+SHOT_WINDOW = {16: 0.20, 18: 3.70}
 
 CARD_Y       = 0.72
 CARD_STYLE   = "fragment"           # pillar style: sentence fragments, <= 6 words
@@ -792,6 +835,60 @@ CARDS = [
     ("MAHUA NEXT WEEKEND?",       16, 4, "cta"),  # a question, not a beg
 ]
 AI_LABEL_BURNED_IN = False          # HUMAN step at upload. Never burned in (planqc 15).
+
+# ---------------------------------------------------------------- RELATIONSHIPS
+# planqc 32, built from the desafarm v2 rejection (craft L101): every defect his eye
+# caught was a RELATIONSHIP between two elements that each passed alone. For each
+# known pair: how THIS plan holds it. The clips for this film ALREADY EXIST (214.5cr,
+# zero failures), so several answers point at the delivered footage, not at prompts.
+RELATIONSHIPS = {
+    "subject_vs_background":
+        "The driving shots (B, I) put the SUV on a mountain road: each prompt states "
+        "the camera axis relative to travel, and the contact sheet (tools/contact.py "
+        "--raw, his standing order) is read for window-and-road geometry agreement "
+        "at ingest, BEFORE assembly - the desafarm sideways-road defect is checked "
+        "on real frames here, not asserted.",
+    "performance_vs_sound":
+        "Nev's three states (cold shock at the plunge, shivering at 16, the grin at "
+        "18) each carry their own audio: generate_audio=true kept every clip's OWN "
+        "track and the FOLEY design lays it under the bed at foreground level - the "
+        "plunge has the gasp and the water, the shiver has breath, the release has "
+        "the shake-out. syncqc refuses a foreground-FOLEY clip with an empty lane.",
+    "bed_vs_foley":
+        "The bed is the 99.4 BPM grid-holder, never the place: clip-own diegetic "
+        "audio (water, gorge, road) sits over it and the hero moments duck it. The "
+        "desafarm measurement (cuts changed place, sound did not: 0.935 vs 0.947 "
+        "control) is re-run on the delivered cut - a waterfall film whose cuts do "
+        "not change the sound of water has failed this pair.",
+    "card_vs_card":
+        "Four cards, spans 0-3, 8-11, 12-15, 16-19: disjoint BY CONSTRUCTION, no "
+        "two ever share the y=0.72 zone (craft L107), and planqc 12's clock check "
+        "blocks any future edit that makes them overlap.",
+    "event_vs_window":
+        "The film's events (the plunge, the cascade reveal, the exit) are placed at "
+        "action peaks by the allocator, and the engine's mid-action gate (craft "
+        "L102, now a HARD refusal) blocks any window that ends above 80% of its own "
+        "peak - the cold-water hook cannot be cut off mid-gasp.",
+    "arc_vs_shot_order":
+        "Source H's arc (arms crossed -> grin) is the film's closing state change. "
+        "SHOT_WINDOW = {16: 0.20, 18: 3.70} pins the order mechanically (closed "
+        "2026-08-11); syncqc check 5 stays live as the second belt, and the strip "
+        "is still checked by eye for the performance itself.",
+    "picture_grid_vs_music_grid":
+        "The 240ms whip after shot 4 is timing='overlap': the engine RESERVES a "
+        "blend-width on the outgoing shot by contract "
+        "(engine.BLEND_RESERVES_OVERLAP, read by planqc 34 since 2026-08-11 - one "
+        "mechanism, not two agreeing by hand), so the 48-beat grid that TARGET_S "
+        "was computed from survives the transition; verify measures post-blend "
+        "boundaries against the same grid.",
+    "clip_variety_vs_shot_count":
+        "Seven of nine sources carry two shots. Every pair was planned as two "
+        "DECLARED states (H is the template: cold vs released), the allocator's "
+        "look-dupe gate refuses same-look pairs at >=0.80, and because the raws "
+        "exist, ingest_gate measures each source's best available window pair "
+        "BEFORE assembly - a source that cannot supply two looks loses its second "
+        "shot at plan level, the desafarm source-E lesson (L103/L104).",
+}
 
 GRADE_SAT    = 1.00                 # daylight vlog: the prompts carry the look
 GRADE_BRI    = 0.0

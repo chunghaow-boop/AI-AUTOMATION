@@ -51,7 +51,7 @@
 |---|---|---|
 | **RM10 WITH MYKAD** | 4–7 | cap |
 | **BOOK AHEAD, NO WALK-INS** | 9–12 | cap |
-| **TWO THOUSAND METRES UP** | 14–17 | cap |
+| **TWO THOUSAND METRES UP** | 14–15 | cap |
 | **KUNDASANG NEXT WEEKEND?** | 16–19 | cta |
 
 ---
@@ -200,7 +200,7 @@ All other cuts HARD (33-67ms). Blends 1/19 = 5% (profile 6-33%).
 |---|---|---|
 | **RM10 WITH MYKAD** (cap) | 4-7 | 4.92-9.85s |
 | **BOOK AHEAD, NO WALK-INS** (cap) | 9-12 | 11.08-17.23s |
-| **TWO THOUSAND METRES UP** (cap) | 14-17 | 18.46-24.62s |
+| **TWO THOUSAND METRES UP** (cap) | 14-15 | 18.46-20.92s |
 | **KUNDASANG NEXT WEEKEND?** (cta) | 16-19 | 20.92-28.31s |
 
 **Grade** — saturation 1.0 ONLY (never double-grade; prompts already carry the night look), measured toward black_point 10.0 / saturation 74.5. Mix: engine auto-calibrates the sfx and foley layers against the bed (sfx -> bed-6dB, foley foreground -> bed-2dB, each clamped +/-8dB), then limiter 0.72 level=disabled -> highpass 30Hz -> limiter 0.70. verify.py gates -9.6..-6.5 LUFS and <=-1.0 dBTP. Output written atomically.

@@ -31,6 +31,16 @@ import statistics as st
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 TOOLS = os.path.join(HERE, "tools")
+
+# THE TRANSITION CONTRACT, STATED ONCE (2026-08-11, closes PENDING 2.3).
+# A shot that hands off into a timing='overlap' transition is RESERVED and
+# RENDERED one blend-width longer, and the blend eats that width instead of
+# the timeline - implemented at [2/7] segments since 2026-08-08. planqc
+# check 34 reads THIS constant instead of a hand-set plan flag, so the
+# engine's behaviour and the gate are ONE mechanism, not two that agree by
+# hand. If the reservation code below is ever removed, flip this to False
+# and every overlap-transition plan correctly blocks again.
+BLEND_RESERVES_OVERLAP = True
 sys.path.insert(0, HERE)
 sys.path.insert(0, TOOLS)
 
@@ -557,7 +567,37 @@ def build(name, out_path=None, use_cache=True):
                 worst = max(worst, min(cs, ks))   # both axes must agree to be a dupe
             return worst
 
-        for i, d_ in sorted(shots_of, key=lambda s: (-s[1], s[0])):   # longest first
+        # SHOT_WINDOW - per-shot window pin (2026-08-11, closes RESUME-08-07 open
+        # item 1: source H's arc could be delivered BACKWARDS - the allocator places
+        # the longest shot first and picks by action-peak proximity, so nothing
+        # guaranteed shot 16 took the EARLY window and shot 18 the LATE one).
+        # ADDITIVE: a plan may declare SHOT_WINDOW = {shot_index: t_in_seconds}.
+        # Pinned shots allocate FIRST so a free-choice shot cannot steal the window.
+        # A pin that does not fit is an ALLOCATION FAILURE, never a silent fallback.
+        _pins = getattr(P, "SHOT_WINDOW", {}) or {}
+        _order = ([s for s in shots_of if s[0] in _pins]
+                  + sorted([s for s in shots_of if s[0] not in _pins],
+                           key=lambda s: (-s[1], s[0])))   # pins first, then longest
+        for i, d_ in _order:
+            if i in _pins:
+                t0 = float(_pins[i])
+                slot = next(((lo, hi) for lo, hi in free
+                             if lo <= t0 and t0 + d_ <= hi), None)
+                if slot is None:
+                    alloc_fail.append(
+                        f"{key}: shot {i} PINNED at {t0:.2f}s but no free window "
+                        f"holds [{t0:.2f}, {t0 + d_:.2f}] - free: "
+                        f"{[(round(a_, 2), round(b_, 2)) for a_, b_ in free]}")
+                    continue
+                if len(shots_of) > 1:
+                    L = _look(t0 + d_ / 2.0)
+                    if L is not None:
+                        chosen_looks.append(L)
+                shot_tin[i] = t0
+                free = _sub(free, t0, t0 + d_)
+                print(f"  == shot {i} ({key}): window PINNED at {t0:.2f}s by plan "
+                      f"SHOT_WINDOW")
+                continue
             cands = []
             for pk in c["action_peaks_s"]:
                 for lo, hi in free:

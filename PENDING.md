@@ -1,4 +1,4 @@
-# PENDING — updated 2026-08-08 (evening)
+# PENDING — updated 2026-08-11
 
 What changed this session is at the bottom. This is what is still open.
 
@@ -8,7 +8,7 @@ What changed this session is at the bottom. This is what is still open.
 
 | # | task |
 |---|---|
-| 1.1 | **Double-click `FINISH.bat`** in `C:\Users\User\Desktop\AI`. It clears the stale `.git\index.lock`, backs up your loose files into a stash, applies all 6 commits, and pushes to GitHub. It is the only step I cannot do — the push needs your credentials and the lock cannot be removed through the file bridge. |
+| 1.1 | **Double-click `FINISH.bat`** in `C:\Users\User\Desktop\AI`. It clears the stale `.git\index.lock`, backs up your loose files into a stash, applies ALL the session commits in `talyx-FINISH.bundle` (08-07 + 08-08 + the 08-11 fixes), and pushes to GitHub. It is the only step I cannot do — the push needs your credentials and the lock cannot be removed through the file bridge. |
 | 1.2 | Download the bank: `talyx-bank-v3.zip` → unzip into `assets\bank\`. **Do not let it overwrite `assets\bank\bank.py`** — the copy inside the zip is the broken one. |
 
 ---
@@ -18,9 +18,9 @@ What changed this session is at the bottom. This is what is still open.
 | # | task | note |
 |---|---|---|
 | 2.1 | **Reference-video bank** | You hand me winning video files. I measure cut times, shot lengths, motion curve, luma arc, hook timing, caption timing. This is the only path left to §4 — and the only one that survives without API keys. **This is now the biggest single item.** |
-| 2.2 | `plans/desafarm.py` still fails planqc | checks 12 (card collision), 23 (stale acks), 32 (no `RELATIONSHIPS` block), 33 (borrowed clamp), and now **34 (transition contract)**. All five are correct refusals. The plan needs editing, not the gates. |
-| 2.3 | Wire `BLEND_RESERVES_OVERLAP` into `engine.py` | The engine already reserves overlap width (patched 08-07). The plan flag now exists and blocks. They should be one mechanism, not two that agree by hand. |
 | 2.4 | Two stale skills | rewrite or delete |
+
+**CLOSED 2026-08-11** (was 2.2 / 2.3): `desafarm` AND `mahua` now pass planqc **38/38** — cards de-collided, acks re-read against craft 115 / travel vlog 6 + the three neighbouring pillars, `RELATIONSHIPS` blocks written for both, thresholds derived. And `BLEND_RESERVES_OVERLAP` is ONE mechanism: `engine.py` exports the contract constant, planqc 34 reads it from the engine — a plan flag is now only an explicit opt-out. Also closed: `SHOT_WINDOW` per-shot pins (mahua's arc-order risk, both plans pinned) and verify check 5 is REPORT-ONLY for travel_vlog (`style.exposure_gate`), still blocking for car_cinematic. |
 
 ---
 
@@ -33,7 +33,7 @@ Seven guesses now declare themselves in `ledgers/thresholds.json`. They still ru
 | `travel_vlog.median_shot` | 1.13 s | guess — published guidance says 1.5–2.0 s |
 | `travel_vlog.target_length` | 28.31 s | guess — 20–25 s cited as the sweet spot |
 | `mix.foley_trim_clamp` | 8.0 dB | guess — 0 samples |
-| `verify5.exposure_max_swing` | 18.0 | **guess — new**, was an unexplained literal |
+| `verify5.exposure_max_swing` | 18.0 | guess — and since 08-11 travel_vlog is REPORT-ONLY on it (`style.exposure_gate`), so the guess can no longer block a legitimate multi-light-state arc. car_cinematic still blocks on it. |
 | `bank.target_lufs_sfx` | −16 LUFS | **guess — new** |
 | `bank.target_lufs_ambience` | −20 LUFS | **guess — new** |
 | `bank.cut_safe_attack_ms` | 25 ms | **guess — new** |

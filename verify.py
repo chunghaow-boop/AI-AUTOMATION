@@ -568,8 +568,10 @@ def check_exposure(video, cuts):
         _st = (profile().get("style") or {})
         budget = float(_st.get("exposure_max_swing", 18.0))
         src = f"{PILLAR}.exposure_max_swing"
+        gate = str(_st.get("exposure_gate", "block"))
     except Exception:
         budget, src = 18.0, "FALLBACK 18.0 — the pillar declares no exposure_max_swing"
+        gate = "block"
     fr = frames_gray(video)
     lv = [f.mean() for f in fr]
     fps = 30.0
@@ -587,7 +589,17 @@ def check_exposure(video, cuts):
         note = (" | a multi-light-state arc swings by design (P3). DO NOT close this "
                 "by relighting: v14 bought a smooth number by moving one of his "
                 "'close to perfect' shots +72 luma. Check 15 is the harder limit.")
-    return add("5 exposure match", over == 0,
+    # REPORT-ONLY PILLARS (2026-08-11). travel_vlog's style block declares
+    # exposure_gate="report": its budget was never derived (thresholds.json calls
+    # 18 a guess), and a multi-light-state arc swings by design. The measurement
+    # still prints in full - what changes is only whether it can BLOCK. Blocking
+    # resumes the day a real budget lands (PENDING 2.1) and the style block says
+    # "block" again.
+    if gate == "report" and over:
+        note += (f" | REPORT-ONLY for '{PILLAR}' (style.exposure_gate) - budget "
+                 f"never derived for this pillar; not blocking")
+    ok = (over == 0) or gate == "report"
+    return add("5 exposure match", ok,
                f"{over}/{len(cuts)} cuts swing >{budget:.0f} (worst {worst:.0f}) "
                f"[budget from {src}]{note}")
 

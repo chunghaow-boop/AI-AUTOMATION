@@ -62,10 +62,30 @@ MAX_CROP  = 1.40
 TARGET_S  = 28.31                    # 46 beats = 28.3077s. Inside the measured 16-29s.
 
 LESSONS_ACK = {            # ledger counts this plan was written against (planqc 23)
-    "general craft": 101,  # 99, 100 and 101 were all filed 2026-08-07 BY THIS PLAN'S
-    "travel vlog":    5,   # OWN PROBE AND INGEST - premortem "THE OTHER FOUR SECONDS",
+    "general craft": 115,  # 99, 100 and 101 were all filed 2026-08-07 BY THIS PLAN'S
+    "travel vlog":    6,   # OWN PROBE AND INGEST - premortem "THE OTHER FOUR SECONDS",
                            # "THE LIGHT IS A SPEC" and "EXPOSE FOR WHAT". Source A,
                            # source C and _LOOK were all rewritten against them.
+                           # RE-ACKED 2026-08-11 after reading craft L102-L114 and
+                           # travel vlog L5 - ALL fifteen were filed FROM THIS PLAN'S
+                           # OWN v2 rejection (the nine defects his eye caught). The
+                           # ones that touch the rebuild are PREMORTEM entries below;
+                           # the ones already mechanised (L102 mid-action hard gate,
+                           # L103/104 look-dupe gate, L107 card clock in planqc 12,
+                           # L110 verify BLOCK means BLOCKED, L113 craft topic split,
+                           # L114 threshold provenance = planqc 33, tv L5 = planqc 34
+                           # + engine.BLEND_RESERVES_OVERLAP) are cited where the
+                           # plan leans on them.
+    # NEIGHBOURING PILLARS (planqc 23b, blocking since 2026-08-08; acked 2026-08-11
+    # after reading all three): the transferable prior art is i8 L9-L12 (3-second
+    # retention beats watch time, hooks UNDER 2s complete 23% better, a Reel rewards
+    # ONE EVENT not a tour - this plan's hook IS a single sub-2s event, by design),
+    # and lc300 L5 (fx.whip's xfade once applied its prep filters to the ENTIRE
+    # clip, not the seam - this plan declares a whip, so that history is live here).
+    # The car-identity lessons (i8 doors, S450 grille, ZX trim) do not transfer.
+    "bmw i8 car cinematic": 16,
+    "car cinematic": 15,
+    "toyota land cruiser 300 zx car review": 8,
 }
 # This is the FIRST plan written after the day he actually looked at footage. Eleven
 # lessons were filed on 2026-08-07 and every one of them that can touch this build is a
@@ -255,6 +275,31 @@ PREMORTEM = [
      "them until clipqc's numbers have been used to mark motion_source and "
      "brightness_source MEASURED. This film is the better sample: a 2,000m farm in open "
      "sun is the BRIGHTEST this pillar will shoot, where mahua's gorge was the darkest."),
+
+    # ---- added 2026-08-11 at the L102-L115 / tv-L6 re-ack ----
+    ("THE MIXER'S CLAMP EATS HALF THE CORRECTION AND PRINTS THE CLAMPED VALUE AS "
+     "SUCCESS (craft L105: FOL_DB = max(-8, min(8, want)) reported +8 when the foley "
+     "needed +16.3, so 'the bgm covers all the sfx' shipped with a green mix line). "
+     "This build's sound design leans on six foreground foley moments, so the same "
+     "lie would bury the goat's grunt - the hero sound of the film",
+     "Every foley pick for this build comes from the measured bank with clean_only "
+     "semantics where possible: bank.pick() ranks gain_limited_db==0 files FIRST and "
+     "why() prints the shortfall warning on any file the clamp may bind on. Any file "
+     "carrying gain_limited_db > 1 dB is either replaced from the bank or its "
+     "shortfall is stated next to the mix line - the clamp can bind, it can no "
+     "longer bind SILENTLY."),
+
+    ("A TRANSITION THAT SHORTENS THE TIMELINE KNOCKS EVERY LATER CUT OFF THE MUSIC "
+     "AND NO PER-SHOT CHECK CAN SEE IT (travel vlog L5 - filed FROM this plan's own "
+     "v2: the declared 240ms whip removed 197ms from shot 8 and 60% of the film sat "
+     "~170ms early against a bed that kept its tempo). This plan still declares the "
+     "same whip after shot 8",
+     "ONE MECHANISM now, not two agreeing by hand (closed 2026-08-11): engine.py "
+     "reserves and renders each blend-in shot one blend-width longer - the blend "
+     "eats the OVERLAP, never the timeline - and planqc 34 reads the engine's own "
+     "BLEND_RESERVES_OVERLAP contract constant instead of a hand-set plan flag. "
+     "verify's beat-grid check then measures the delivered cut boundaries "
+     "post-blend, so a regression cannot pass both gates."),
 ]
 
 # ---------------------------------------------------------------- PLATES
@@ -744,6 +789,16 @@ LINKAGE = [
 
 CROP_XY = {}            # nothing measured yet; populated only from a probe
 
+# SHOT_WINDOW (engine, 2026-08-11): per-shot window pins, allocated BEFORE the free
+# search so a free-choice shot cannot steal a pinned window. Source H performs this
+# film's only two-window arc (startled -> laugh lands) and the allocator otherwise
+# guarantees non-overlap but NOT ORDER - mahua's open risk 1, now closed. Shot 12
+# takes the EARLY window (the startle), shot 16 the LATE one (the laugh landing).
+# Values are conservative head/tail picks inside the 5.04s clip; REFINE AT INGEST
+# from the measured motion curve if the startle sits later than 0.2s. A pin that
+# does not fit the free space is an ALLOCATION FAILURE, never a silent fallback.
+SHOT_WINDOW = {12: 0.20, 16: 3.60}
+
 CARD_Y       = 0.72
 CARD_STYLE   = "fragment"           # pillar style: sentence fragments, <= 6 words
 # Three facts and one ask. Every figure comes from ONE named source that states it
@@ -752,10 +807,69 @@ CARD_STYLE   = "fragment"           # pillar style: sentence fragments, <= 6 wor
 CARDS = [
     ("RM10 WITH MYKAD",           4, 4, "cap"),   # verified. The qualifier is the point.
     ("BOOK AHEAD, NO WALK-INS",   9, 4, "cap"),   # verified - and it is the useful one
-    ("TWO THOUSAND METRES UP",   14, 4, "cap"),   # verified
+    # WAS (14, 4) -> shots 14-17, colliding with the CTA on 16-17: two captions
+    # printed through each other for 2.5s, the most visible defect in the v2 film
+    # (craft L107, and planqc 12 now checks the CLOCK, not just the zone).
+    # 2 shots =~ 2.8s is plenty for four words; the zone is CLEAR before the CTA.
+    ("TWO THOUSAND METRES UP",   14, 2, "cap"),   # verified
     ("KUNDASANG NEXT WEEKEND?",  16, 4, "cta"),   # a question, not a beg
 ]
 AI_LABEL_BURNED_IN = False          # HUMAN step at upload. Never burned in (planqc 15).
+
+# ---------------------------------------------------------------- RELATIONSHIPS
+# planqc 32. Every defect Gavril found in v2 was a RELATIONSHIP between two elements
+# that each passed alone (craft L101). For each known pair: how THIS plan holds it.
+RELATIONSHIPS = {
+    "subject_vs_background":
+        "The v2 sin was THIS FILM'S: a side window with the road receding straight "
+        "through it - nev driving at 90 degrees to his own road. Every in-car prompt "
+        "now states the camera axis AND what the window shows relative to travel "
+        "('through the WINDSCREEN, road receding AWAY'; side glass shows the fence "
+        "line PASSING, never receding), and the ingest contact sheet is checked for "
+        "window-geometry agreement before a single frame is assembled.",
+    "performance_vs_sound":
+        "Nev performed into silence in v2 (voice-band ratio 0.16-0.25, no better "
+        "than empty hills). Every human shot in this plan carries a FOLEY line with "
+        "its emotion's sound - the laugh has the laugh, the flinch at the goat has "
+        "the grunt AND his breath - at foreground level (>=-6dB), and syncqc's "
+        "foreground-foley check refuses a human clip whose audio lane is empty.",
+    "bed_vs_foley":
+        "The bed sat on top of the place in v2 - a goat pen and a car interior "
+        "sounded identical across the cut (0.935 vs 0.947 control). The bed is "
+        "ambience-class from the measured bank (target -20 LUFS), foreground foley "
+        "sits >=-6dB, and the six hero moments duck the bed; cut-adjacent SFX are "
+        "cut_safe picks so the place CHANGES SOUND when the picture changes place.",
+    "card_vs_card":
+        "v2 printed two captions through each other for 2.5s (craft L107). The "
+        "altitude card is now 2 shots (14-15) and the CTA holds 16-19: spans are "
+        "disjoint BY CONSTRUCTION, and planqc 12's clock check blocks any edit "
+        "that reintroduces an overlap in the y=0.72 zone.",
+    "event_vs_window":
+        "v2 cut the bottle-snatch at 96% of its own action peak ('important events "
+        "are cutted out'). Every EVENT shot here declares a monotonic action that "
+        "COMPLETES inside CLIP_S (source A's rewrite is the template), and the "
+        "engine's mid-action gate now REFUSES a window ending above 80% of its "
+        "peak - it stopped being a sort key and became a wall (craft L102).",
+    "arc_vs_shot_order":
+        "Source H performs the film's only two-window arc (startled -> laugh). "
+        "SHOT_WINDOW = {12: 0.20, 16: 3.60} pins shot 12 to the clip's head (the "
+        "startle) and shot 16 to its tail (the laugh landing), so the allocator "
+        "cannot deliver the reaction after the laugh - mahua's open risk 1, closed "
+        "2026-08-11; syncqc check 5 (arc order) stays LIVE as the second belt.",
+    "picture_grid_vs_music_grid":
+        "The 240ms whip after shot 8 is timing='overlap': the engine RESERVES a "
+        "blend-width on the outgoing shot and the blend eats the overlap, never "
+        "the timeline (engine.BLEND_RESERVES_OVERLAP, planqc 34 - one mechanism "
+        "since 2026-08-11). The 97.5 BPM grid survives the transition by contract, "
+        "and verify measures the post-blend boundaries against it.",
+    "clip_variety_vs_shot_count":
+        "v2's duplicates split the blame: the editor threw away source C's clean "
+        "pair, and source E could never have carried two shots at all (best pair "
+        "0.911/0.973). Multi-shot sources here were re-audited for two DECLARED "
+        "states per window, the allocator's look-dupe gate REFUSES same-look pairs "
+        "at >=0.80, and ingest_gate kills a clip whose best available pair is "
+        "already a duplicate before any credit is spent on assembly.",
+}
 
 GRADE_SAT    = 1.00                 # SOURCE LIGHT IS TRUSTED. Nothing grades toward a
 GRADE_BRI    = 0.0                  # target - his instruction, twice given.
