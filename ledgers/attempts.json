@@ -30,6 +30,75 @@
      }
     ]
    }
+  },
+  "mahua": {
+   "JUDGE J2": {
+    "attempts": 4,
+    "history": [
+     {
+      "at": "2026-08-07 03:33",
+      "gate": "judge",
+      "detail": "Only 1 of 5 declared consequence boundaries is a real cause; 0->1 is an editorial rewind, 4->5 asserts a parking that is in no shot, 14->15 and 15->16 are tautologies of locomotion, and shots 11-16 ho"
+     },
+     {
+      "at": "2026-08-07 03:39",
+      "gate": "judge",
+      "detail": "Boundary 11's declared cause is absent from shot 11 (source E is a person-free cross-gorge long lens), boundary 4's cause was written into shot 5 instead of shot 4, boundary 14's cause is already pres"
+     },
+     {
+      "at": "2026-08-07 03:44",
+      "gate": "judge",
+      "detail": "Only boundary 4 survives the visible-cause test; boundary 9's entering-the-water act exists only in source A's first half second which shot 0 already spent, boundary 12 asserts source E's static cross"
+     },
+     {
+      "at": "2026-08-07 04:17",
+      "gate": "judge",
+      "detail": "Shots 16 and 18 are two windows of the single source H and the plan cannot control which end of the clip's arc each one takes; separately shot 15's note claimed a walk OUT that source D - forward-movi"
+     }
+    ]
+   },
+   "JUDGE J4": {
+    "attempts": 3,
+    "history": [
+     {
+      "at": "2026-08-07 03:33",
+      "gate": "judge",
+      "detail": "Card 1 '90 MINUTES FROM KK' asserts the low end of a 1.5-2h range as fact and its claimed two-source agreement is false - sabahparks.org.my states no drive time; separately no prompt banned a registra"
+     },
+     {
+      "at": "2026-08-07 03:39",
+      "gate": "judge",
+      "detail": "All four cards verify clean against four independent sources, but _LOOK is appended to every SOURCE prompt and to NO PLATE prompt, and PLATES['glc300'] was framed three-quarter front with an explicit "
+     },
+     {
+      "at": "2026-08-07 03:44",
+      "gate": "judge",
+      "detail": "Every card fact verifies independently and signage, plates, badges and phone screens are genuinely banned, but the plan positively requests an unenumerated text surface - the persona's 'white PRINT sh"
+     }
+    ]
+   },
+   "JUDGE J0": {
+    "attempts": 1,
+    "history": [
+     {
+      "at": "2026-08-07 03:39",
+      "gate": "judge",
+      "detail": "Frame zero is a real body event and the thumb stops at ~0.4s, but shot 1 handed the decision beat to source B, a long-lens valley establisher - the most inert image in the timeline - so the second hal"
+     }
+    ]
+   }
+  },
+  "desafarm": {
+   "JUDGE J2": {
+    "attempts": 1,
+    "history": [
+     {
+      "at": "2026-08-07 06:47",
+      "gate": "judge",
+      "detail": "The consequence chain is real but short - shots 8 to 12 - and it DIES at 12, leaving 39% of runtime with no verifiable cause; 3 of 5 declared consequences carry a token that lives only in the shot not"
+     }
+    ]
+   }
   }
  }
 }

@@ -655,7 +655,14 @@ def check_lessons_ack(P):
 LIGHT_ORDER = ["dawn", "morning", "midday", "afternoon", "golden",
                "dusk", "blue", "night"]
 
+# HIS TAXONOMY, 2026-08-07, taught verbatim: "lets add on linkage determination also
+# includes, events, actions, motion, activity, audio, places". The first seven kinds
+# were mine and they were thin - they described what a shot CONTAINS. His six describe
+# what a shot DOES, which is what an editor actually cuts on. Six added, none removed;
+# every existing plan still validates. Full definitions and the decidable test for each
+# are in 28-linkage-master.md. ADDITIVE ONLY - his standing rule.
 CARRY_KINDS = {
+    # --- the original seven: what a shot CONTAINS
     "motion":      "something moving in A keeps moving into B",
     "gaze":        "A looks off-frame, B is what A was looking at",
     "subject":     "the same person/object is in both",
@@ -663,6 +670,25 @@ CARRY_KINDS = {
     "light":       "the same light state continues across the cut",
     "sound":       "a sound starts in A and resolves in B",
     "consequence": "B happens BECAUSE of A — the state of the world changed",
+    # --- HIS SIX, 2026-08-07: what a shot DOES
+    "event":       "a discrete thing HAPPENS in A and B carries its aftermath - the "
+                   "splash, the tear, the slam. The event is the join, not the subject.",
+    "action":      "MATCH ON ACTION: one deliberate act begins in A and completes in B. "
+                   "The oldest invisible cut there is. Needs a clip that PERFORMS the "
+                   "verb (craft L58: five KK boundaries were built on verbs their clips "
+                   "never performed - measured flow 0.50 on 'walking toward lens').",
+    "activity":    "an ongoing occupation continues across the cut - swimming, driving, "
+                   "walking the trail. SPAN-LEVEL, not boundary-level: it is the only "
+                   "kind that describes a run of shots rather than a join, and it is "
+                   "what makes a sequence read as ONE stretch of time.",
+    "audio":       "the SOUND carries the cut - river noise continues, an engine note "
+                   "answers, the bed breathes through. Distinct from 'sound': that one "
+                   "is a transient starting in A and resolving in B; this one is a "
+                   "continuous audio bed spanning the join and hiding it.",
+    "place":       "the same GEOGRAPHY is on both sides - same gorge, same road, same "
+                   "valley. Cheapest carry to verify (both shots cite the same plate) "
+                   "and the one that stops a film reading as a slideshow of postcards. "
+                   "verify 14 already measures shots/places <= 2.0.",
 }
 
 

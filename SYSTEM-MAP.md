@@ -91,6 +91,9 @@ TITLE
 | `refstudy.py` | Reference → target profile. How PILLAR-PROFILES was built. |
 | `reverse.py` | Diff our cut against the reference DNA. |
 | `cutsense.py` | Standalone: LRA floor, far-repeat matrix, event curve. |
+| `syncqc.py` | **NEW 2026-08-07. Does the CUT do what the PLAN said? The only check on the JOIN — every other gate checks one side. Run after build, before verify.** |
+| `contact.py` | **NEW 2026-08-07. 20-panel contact sheet at ingest and on the cut. His standing order: he sees it before anything is assembled.** |
+| `lessons_book.py` | **NEW 2026-08-07. Compiles `knowledge.json` into `LESSONS.md` — one file, 150 lessons. Generated, never hand-edited.** |
 | `smoketest.py` | 9 routes on synthetic inputs. Baseline **79 pass / 0 fail** (2026-08-06; was 74/5 — 4 were one bad bed glob, 1 was an unescaped Windows path). |
 | `fx.py` | Transition bank: dissolve, whip, speedramp, zoomblur, masks, dolly, glitch, flash, dip. |
 | `cards.py` | HTML/CSS → PNG cards via Playwright. Replaces ffmpeg drawtext. |
@@ -374,7 +377,7 @@ present and was verified 2026-08-06.
 
 ---
 
-## 12. THE DOCTRINE DOCS — 28 files the entry path never named
+## 12. THE DOCTRINE DOCS — 29 files the entry path never named
 
 **MEASURED 2026-08-06, in answer to "does the mastermind know this in detail?":** the
 three entry files name **6/6 root pipeline files**, **32/53 tools**, and **1 of these 28**.
@@ -414,6 +417,7 @@ encode. A gate can only measure what one of these decided.
 | `25-qc-debate-protocol.md` | every seat gets challenged before it advances |
 | `26-master-scorecard.md` | one number per video, comparable across all |
 | `27-mastermind-qc.md` | **[FINAL BOSS] the strictest gate. THE MASTERMIND'S PROCEDURE.** |
+| `28-linkage-master.md` | **THE LINKAGE MASTER — his taxonomy, taught 2026-08-07. 13 carry kinds and the decidable test for each. NEW.** |
 
 ### The three that a mastermind must read before it acts
 `27-mastermind-qc.md` (its own procedure + the 16 measurement traps) ·

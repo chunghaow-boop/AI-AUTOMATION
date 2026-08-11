@@ -1,3 +1,7 @@
+> **NOT AN ENTRY POINT ANY MORE (2026-08-07).** Start at `README.md` or
+> `START-NEW-CHAT.txt`: CLAUDE.md -> SYSTEM-MAP.md -> newest RESUME -> LESSONS.md.
+> This file is kept because it is part of the numbered doctrine series.
+
 # 00 — START HERE
 
 > ⚡ **BOOT: read `22-HANDOVER.md` first**, then `RUNNER.md`. The handover holds current state, open threads, credit balance, and what is already proven. Everything else is reference.

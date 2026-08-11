@@ -74,6 +74,159 @@
      "one_line": "Plan clears all three seats - the remaining risk moved to generation, so probe A alone and judge the tear timing before the other nine clips."
     }
    }
+  },
+  {
+   "project": "mahua",
+   "stage": "ingested",
+   "at": "2026-08-07 03:33",
+   "verdict": {
+    "verdicts": [
+     {
+      "seat": "J0",
+      "pass": true,
+      "score": 8,
+      "finding": "Shot 0 is a genuine body event, not a tour, but FRAMING has the subject dropping INTO frame from above, so frame 1 is an empty pool and the 2s window opens text-empty.",
+      "fix": "Pin the drop to frame zero in source A's prompt and move card 1 onto shot 0.",
+      "where": "shot 0, frame 1"
+     },
+     {
+      "seat": "J2",
+      "pass": false,
+      "score": 5,
+      "finding": "Only 1 of 5 declared consequence boundaries is a real cause; 0->1 is an editorial rewind, 4->5 asserts a parking that is in no shot, 14->15 and 15->16 are tautologies of locomotion, and shots 11-16 hold one unchanged state for 7.2s.",
+      "fix": "Give the exit a body cause (23C water) and put a real consequence inside the 11-16 span.",
+      "where": "boundary 14->15 and the span 11-16"
+     },
+     {
+      "seat": "J4",
+      "pass": false,
+      "score": 3,
+      "finding": "Card 1 '90 MINUTES FROM KK' asserts the low end of a 1.5-2h range as fact and its claimed two-source agreement is false - sabahparks.org.my states no drive time; separately no prompt banned a registration plate or rear badge on the GLC.",
+      "fix": "Change the card to the upper bound with a hedge, record the source disagreement, and ban plate/badge text in _LOOK.",
+      "where": "CARDS[0]; sources B, C, I"
+     }
+    ],
+    "overall": {
+     "ship": false,
+     "one_line": "the drive-time card is wrong and its cited agreement does not exist"
+    }
+   }
+  },
+  {
+   "project": "mahua",
+   "stage": "ingested",
+   "at": "2026-08-07 03:39",
+   "verdict": {
+    "verdicts": [
+     {
+      "seat": "J0",
+      "pass": false,
+      "score": 7,
+      "finding": "Frame zero is a real body event and the thumb stops at ~0.4s, but shot 1 handed the decision beat to source B, a long-lens valley establisher - the most inert image in the timeline - so the second half of the 2s window drained the grab instead of compounding it.",
+      "fix": "Swap shot 1 from B to C so 1.21-2.41s holds a face and near-field motion.",
+      "where": "shot 1, 1.21-2.00s"
+     },
+     {
+      "seat": "J2",
+      "pass": false,
+      "score": 4,
+      "finding": "Boundary 11's declared cause is absent from shot 11 (source E is a person-free cross-gorge long lens), boundary 4's cause was written into shot 5 instead of shot 4, boundary 14's cause is already present in the same clip at shot 12, and shots 16-19 close on 7.48s of two alternating clips with zero causal boundaries.",
+      "fix": "Move each cause into the writing of the shot BEFORE its boundary, and put an event in the 16-19 tail.",
+      "where": "boundary 11; also 4, 14, span 16-19"
+     },
+     {
+      "seat": "J4",
+      "pass": false,
+      "score": 6,
+      "finding": "All four cards verify clean against four independent sources, but _LOOK is appended to every SOURCE prompt and to NO PLATE prompt, and PLATES['glc300'] was framed three-quarter front with an explicit request for real tyre sidewall lettering and no registration-plate ban - an invented Malaysian plate would be baked into the 4cr reference image and carried into six shots, and planqc's plate check only tests resolution.",
+      "fix": "Ban plate/badge/tyre lettering in the plate prompt itself and LOOK at the rendered plate before it is used as a reference.",
+      "where": "PLATES['glc300'] prompt, propagating to shots 1,2,3,4,17,19"
+     }
+    ],
+    "overall": {
+     "ship": false,
+     "one_line": "the text bans lived on the clips and not on the plate every clip cites"
+    }
+   }
+  },
+  {
+   "project": "mahua",
+   "stage": "ingested",
+   "at": "2026-08-07 03:44",
+   "verdict": {
+    "verdicts": [
+     {
+      "seat": "J0",
+      "pass": true,
+      "score": 8,
+      "finding": "Frame zero is a real body event resolving by ~0.7s and the cabin shot now holds the second half of the window, but the card sits on top of the splash from 0.00s and competes with the one arresting frame.",
+      "fix": "Start the ABOUT 2 HOURS FROM KK card at the 1.21s cut (start=1, span 4) so the event owns frame zero uncontested.",
+      "where": "shot 0 card overlay"
+     },
+     {
+      "seat": "J2",
+      "pass": false,
+      "score": 4,
+      "finding": "Only boundary 4 survives the visible-cause test; boundary 9's entering-the-water act exists only in source A's first half second which shot 0 already spent, boundary 12 asserts source E's static cross-gorge long lens is the phone's own frame, and boundary 14's before and after states are two windows of the SAME clip G, while shots 16-19 hold 7.2s of one state cut four times out of two clips.",
+      "fix": "Delete the third E window and the H/I repeat, and spend the runtime on one new source containing him leaving the water, so boundary 14 has a before and after in two different clips.",
+      "where": "boundaries 9, 12, 14; spans 11-14 and 16-19"
+     },
+     {
+      "seat": "J4",
+      "pass": false,
+      "score": 6,
+      "finding": "Every card fact verifies independently and signage, plates, badges and phone screens are genuinely banned, but the plan positively requests an unenumerated text surface - the persona's 'white PRINT shirt', centre frame on the hook - and the declared clipqc text-zoom read excluded the HUMAN clips where that surface lives; CONTENT.claim's 'barely waist deep' also drifts from its own sourced 1.3m.",
+      "fix": "Ban clothing wordmarks and instrument displays in _LOOK, extend the text-zoom eyeball to all nine clips, and correct the depth wording.",
+      "where": "_LOOK; SOURCES A and C; PLATES mahua must_show; CONTENT.claim"
+     }
+    ],
+    "overall": {
+     "ship": false,
+     "one_line": "the story spine still rests on state changes that live inside one clip instead of across a cut"
+    }
+   }
+  },
+  {
+   "project": "mahua",
+   "stage": "ingested",
+   "at": "2026-08-07 04:17",
+   "verdict": {
+    "verdicts": [
+     {
+      "seat": "J2",
+      "pass": false,
+      "score": 3,
+      "finding": "Shots 16 and 18 are two windows of the single source H and the plan cannot control which end of the clip's arc each one takes; separately shot 15's note claimed a walk OUT that source D - forward-moving toward the gorge in every frame - cannot deliver, and shot 13's note claimed E's static cross-gorge tripod long lens is the frame a phone at arm's length produced.",
+      "fix": "Pin non-overlapping in-clip windows per shot for source H, and write only what each clip can actually deliver into its note.",
+      "where": "shots 16 and 18 (source H); shots 13 and 15"
+     }
+    ],
+    "overall": {
+     "ship": false,
+     "one_line": "the tail's arc depends on a window order the plan cannot specify"
+    }
+   }
+  },
+  {
+   "project": "desafarm",
+   "stage": "ingested",
+   "at": "2026-08-07 06:47",
+   "verdict": {
+    "verdicts": [
+     {
+      "seat": "J2",
+      "pass": false,
+      "score": 4,
+      "finding": "The consequence chain is real but short - shots 8 to 12 - and it DIES at 12, leaving 39% of runtime with no verifiable cause; 3 of 5 declared consequences carry a token that lives only in the shot note and not in either source prompt; boundary 7 action/grass is impossible because K is a static wide with no person, boundary 13 audio/calf names a sound neither prompt writes, boundary 15 gaze is impossible on a macro glass with nobody in frame; and shot 11 replays source A whose own prompt says the event resolves inside one second, so the payoff lands on spent frames.",
+      "fix": "Give shot 11 its own source, write the carry tokens into the SOURCE PROMPTS rather than the notes, and put the goats and the descending road into H's frame so the tail's causes are visible.",
+      "where": "boundaries 0,7,13,14,15,16; shot 11; tail 17-19"
+     }
+    ],
+    "overall": {
+     "ship": false,
+     "one_line": "the carries live in the shot notes, which the generator never reads"
+    }
+   }
   }
  ]
 }

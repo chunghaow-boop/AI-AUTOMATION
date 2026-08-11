@@ -1,3 +1,8 @@
+> **SUPERSEDED AS SESSION STATE (2026-08-07).** Where we are lives in the newest
+> `RESUME-*.md`; every lesson lives in `LESSONS.md`. This file is kept because it is
+> part of the numbered doctrine series and `ledgers/routing.json` names it as the
+> OPERATOR seat's doc.
+
 # HANDOVER — session state
 ### File 22 · READ THIS FIRST, before any other file. Hard cap 200 lines (auto-archives above).
 ### File 16 = architecture (what the system IS). This = state (where we ARE).
