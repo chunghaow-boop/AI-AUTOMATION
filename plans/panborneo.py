@@ -86,7 +86,7 @@ MAX_CROP  = 1.40
 TARGET_S  = 28.97                    # 48 beats = 28.9739s. Band-top of measured 16-29s.
 
 LESSONS_ACK = {            # ledger counts this plan was written against (planqc 23)
-    "general craft": 123,  # re-acked 2026-08-12 after L119-L123 (this build's own
+    "general craft": 126,  # re-acked 2026-08-12 after L119-L126 (incl. tonight's
     "travel vlog":    7,   # lessons: preview=gate-bypass, one-scene-per-clip,
                            # partial-stack levels, encode-once, bank-in-repo; tv L7
                            # bed-window scan). Original ack was 118/6.
