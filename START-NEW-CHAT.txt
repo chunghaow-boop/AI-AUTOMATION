@@ -4,21 +4,39 @@ PASTE THIS INTO A NEW CHAT
 Read these in order, then tell me where we are in ONE line and wait:
     1. CLAUDE.md
     2. SYSTEM-MAP.md
-    3. RESUME-2026-08-12b.md          <- session 10. THE newest. Read all of it.
-    4. 31-shortdrama-scriptwriter.md  <- new SCRIPTWRITER seat (if planning)
+    3. RESUME-2026-08-12b.md          <- session 10 FINAL. THE newest. Read ALL of it,
+                                         especially "END-OF-SESSION STATE".
+    4. 31-shortdrama-scriptwriter.md  <- SCRIPTWRITER seat (before any planning)
 
 FIRST TWO THINGS, ALWAYS:
-  1. MEASURE the credit balance (was 3,977.57 team, 2026-08-12).
+  1. MEASURE the credit balance (was 3,977.57 team, 2026-08-12, zero spent session 10).
   2. git -C <repo> --no-optional-locks log --oneline -1
-     Expect 00cc146 OR NEWER (he pushes with PUSH.bat). If it is e2b4485 the
-     session-10 direct writes were never committed - STOP and tell him.
+     Expect 076f4d7 OR NEWER. Older = his pushes failed, STOP and tell him.
+     Bridge git is read-only + --no-optional-locks ALWAYS (L133).
 
-RULES THAT BITE (full text in knowledge.json, craft 133 / travel vlog 8):
-  - L130 re-measure every "done" - tools lie, humans repeat them.
-  - L133 bridge git is read-only + --no-optional-locks. No stash/merge/fetch on the mount.
-  - L132 one truth channel per session. Session 10 used DIRECT WRITES on top of 00cc146.
-  - L125 whole clips, reorder only. L128 travel_vlog bed OVER foley (bedcheck.py gates it).
+WHERE WE ARE (2026-08-12 session close):
+  - PANBORNEO_V5.mp4 in repo root: built remotely, bedcheck PASS (+3.5dB bed over
+    foley), loudness I -11.0 / TP -1.0, HIS EAR APPROVED THE AUDIO (APV-4).
+  - UNPOSTED. Publishing = the single highest-value act available. At upload:
+    (1) AI-content label, (2) compression caption (Brunei transit 168km, 1,000+km,
+    multi-day), (3) LiQWYD credit verbatim (in HANDOVER-PASTE / archive).
+  - Card font deviation DECLARED: V5 cards are CapCutSansText-Bold (container had
+    no Montserrat). His eye has NOT ruled on the cards. Ask if he wants the
+    Montserrat re-render (one command on his box).
+  - REORG.bat v2 may or may not have run - if old RESUMEs still at root, remind him
+    (REORG.bat then PUSH.bat, git mv only, nothing deleted).
+  - ACE STUDIO MCP is the next build: setup steps + first-job plan in the RESUME.
+  - Ledgers: craft 135 / travel vlog 8 / approvals 4. Stale-acked plans are
+    correctly BLOCKED until they read + re-ack (lessonize --brief).
 
-WHERE WE ARE (2026-08-12b):
-  panborneo V5 remix queued on HIS BOX (command in the RESUME, bedcheck must PASS).
-  Then: publish (AI label + compression caption + LiQWYD credit). ZERO POSTS, STILL.
+SESSION-10 HARD-WON RULES (full text L128-L136 in knowledge.json):
+  - L130 re-measure every "done" - scripts lie, humans repeat them.
+  - L132 ONE truth channel per session (no bundles anymore - PULL.bat/PUSH.bat only).
+  - L135 exactly TWO sync scripts; FINISH* are retired/parked.
+  - L128 travel_vlog is BGM-LED (bed over foley) - bedcheck.py gates it.
+  - L136 calibrate any new gate against its reference signal solo, and prefer
+    projecting the actual reference over spectral proxies.
+  - L125 whole clips, reorder only (his standing edit rule).
+
+STANDING GAP, UNCHANGED: ZERO POSTS EVER. V5 is approved and sitting there.
+One real 24-hour retention curve outranks everything else in this repo.
