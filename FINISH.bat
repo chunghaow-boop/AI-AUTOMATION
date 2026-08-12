@@ -17,13 +17,14 @@ setlocal
 cd /d "%~dp0"
 
 echo.
-echo === 0. clearing any stale lock ===
-if exist ".git\index.lock" (
-  del /f /q ".git\index.lock"
-  echo    removed .git\index.lock
-) else (
-  echo    no lock present
-)
+echo === 0. clearing ALL stale locks ===
+REM v3 2026-08-12 (L127): a bridge session cannot delete files, so a remote
+REM git attempt leaves index.lock, packed-refs.lock, ORIG_HEAD.lock and
+REM refs\heads\*.lock behind. Clear every one, not just index.lock.
+del /f /q ".git\*.lock" 2>nul
+del /f /q ".git\refs\heads\*.lock" 2>nul
+del /f /q ".git\index.stash.*.lock" 2>nul
+echo    locks cleared
 
 echo.
 echo === 1. where are we ===
@@ -54,10 +55,13 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
-git fetch talyx-FINISH.bundle main:finish-tmp
+REM v3 (L127): older bundles recorded their ref as HEAD, not main - fetch
+REM HEAD first (works for both), fall back to main for good measure.
+git fetch talyx-FINISH.bundle HEAD
+if errorlevel 1 git fetch talyx-FINISH.bundle main
 if errorlevel 1 goto :failed
 
-git merge --ff-only finish-tmp
+git merge --ff-only FETCH_HEAD
 if errorlevel 1 (
   echo.
   echo    ff-only merge refused - your main has diverged.
@@ -65,7 +69,7 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
-git branch -d finish-tmp >nul 2>&1
+git branch -D finish-tmp >nul 2>&1
 
 echo.
 echo === 4. what landed ===
