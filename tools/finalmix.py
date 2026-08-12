@@ -48,6 +48,7 @@ def main():
     ap.add_argument("--bed-ss", type=float, default=0.0)
     ap.add_argument("--whoosh")
     ap.add_argument("--whoosh-at", type=float)
+    ap.add_argument("--whoosh-gain", type=float, default=4.0)
     ap.add_argument("--shots", help="comma frame counts per shot @30fps (for per-shot RMS)")
     ap.add_argument("--out", default="FINAL.mp4")
     a = ap.parse_args()
@@ -78,7 +79,7 @@ def main():
     if a.whoosh and a.whoosh_at is not None:
         inputs += ["-i",a.whoosh]
         wl = (f";[2:a]adelay={int(a.whoosh_at*1000)}|{int(a.whoosh_at*1000)},"
-              f"volume=-6dB[wh];[duckmix][wh]amix=inputs=2:normalize=0[premix]")
+              f"volume={a.whoosh_gain:.1f}dB[wh];[duckmix][wh]amix=inputs=2:normalize=0[premix]")
     graph = (
         f"[0:a]volume={makeup:.2f}dB,aresample=44100[fol];"
         f"[1:a]atrim=0:{dur:.3f},volume={bed_gain:.2f}dB,"
@@ -104,10 +105,10 @@ def main():
 
     # 4 EVIDENCE
     fx,_ = pcm(a.out)
-    ev = {"makeup_db":round(makeup,2),"bed_gain_db":round(bed_gain,2),
-          "shot_rms_before":[round(v,1) for v in shot_rms],
-          "median_shot_rms_before":round(med,1),
-          "final_rms_db":round(rms_db(fx),1),
+    ev = {"makeup_db":round(float(makeup),2),"bed_gain_db":round(float(bed_gain),2),
+          "shot_rms_before":[round(float(v),1) for v in shot_rms],
+          "median_shot_rms_before":round(float(med),1),
+          "final_rms_db":round(float(rms_db(fx)),1),
           "loudnorm_measured_input_I":j["input_i"]}
     print(json.dumps(ev,indent=1))
 
