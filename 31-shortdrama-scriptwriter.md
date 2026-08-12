@@ -1,4 +1,4 @@
-# 28 — THE SHORT-DRAMA SCRIPTWRITER
+# 31 — THE SHORT-DRAMA SCRIPTWRITER
 ### The SCRIPTWRITER seat's craft doc. Born 2026-08-12 from the pan_borneo lesson:
 ### the best build yet won on STORY DEVICES, not cutting DNA. This doc makes that repeatable.
 ### Sources of craft: K vertical micro-drama (60–90s eps, 3s-retention economics) ·

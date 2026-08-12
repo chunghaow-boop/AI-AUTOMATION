@@ -191,7 +191,10 @@ sequence, mandatory, all steps before any credit:
                  every downstream artefact.
 4 HIS PICKS      30 seconds of his time. Cheapest disambiguation in the pipeline.
 5 PLAN           plans/<name>.py, with a CONTENT block (claim + verification source,
-                 twist, why_stop) that planqc REQUIRES.
+                 twist, why_stop) that planqc REQUIRES. The CONTENT block is written
+                 AGAINST file 31 (31-shortdrama-scriptwriter.md, added 2026-08-12 on
+                 his order): K/J short-drama grammar, 7 rules + a 6-question
+                 checklist the SCRIPTWRITER seat runs FREE at plan review.
 6 GATES          planqc -> JUDGE PANEL ON HOOK **AND STORY ARC** -> SOUND ENGINEER QC
                  (file 19+04: foley/diegetic design judged BEFORE spend - added 2026-08-04
                  after the WRX shipped with edit-sfx only and Gavril caught it; clip audio

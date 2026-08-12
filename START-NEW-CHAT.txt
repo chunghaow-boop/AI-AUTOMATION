@@ -5,7 +5,7 @@ Read these in order, then tell me where we are in ONE line and wait:
     1. CLAUDE.md
     2. SYSTEM-MAP.md
     3. RESUME-2026-08-12b.md          <- session 10. THE newest. Read all of it.
-    4. 28-shortdrama-scriptwriter.md  <- new SCRIPTWRITER seat (if planning)
+    4. 31-shortdrama-scriptwriter.md  <- new SCRIPTWRITER seat (if planning)
 
 FIRST TWO THINGS, ALWAYS:
   1. MEASURE the credit balance (was 3,977.57 team, 2026-08-12).

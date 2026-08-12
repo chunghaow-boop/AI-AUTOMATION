@@ -1,5 +1,5 @@
 # SHORT-DRAMA REFERENCE MANIFEST — K/J short drama · short film · anime shorts
-### Built 2026-08-12, session 10. Feeds `28-shortdrama-scriptwriter.md` (pending).
+### Built 2026-08-12, session 10. Feeds `31-shortdrama-scriptwriter.md` (pending).
 ### RULE (title contract step 2): references are for UNDERSTANDING, never generation input.
 ### Fetch: `python tools/reffetch.py <url>` on HIS box. [YT]=yt-dlp works · [APP]=walled, study via official TikTok/YT clips.
 

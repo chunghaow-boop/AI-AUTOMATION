@@ -418,6 +418,9 @@ encode. A gate can only measure what one of these decided.
 | `26-master-scorecard.md` | one number per video, comparable across all |
 | `27-mastermind-qc.md` | **[FINAL BOSS] the strictest gate. THE MASTERMIND'S PROCEDURE.** |
 | `28-linkage-master.md` | **THE LINKAGE MASTER — his taxonomy, taught 2026-08-07. 13 carry kinds and the decidable test for each. NEW.** |
+| `29-relationship-master.md` | RELATIONSHIP MASTER — "the doctrine that exists because of how everything else passed" |
+| `30-what-he-actually-wants.md` | operator-intent doctrine — read before deciding what to build |
+| `31-shortdrama-scriptwriter.md` | **THE SHORT-DRAMA SCRIPTWRITER — K/J micro-drama + anime-short grammar (7 rules, 6-question checklist) feeding the CONTENT block at TITLE CONTRACT steps 2+5. Refs: `docs/SHORTDRAMA-REFS.md`. NEW 2026-08-12.** |
 
 ### The three that a mastermind must read before it acts
 `27-mastermind-qc.md` (its own procedure + the 16 measurement traps) ·
