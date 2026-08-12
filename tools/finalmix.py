@@ -12,10 +12,16 @@ Usage:
       --shots 74,55,56,73,74,56,74,73,74,74,55,74,56 --out FINAL.mp4
 
 Level policy (travel_vlog, MIX file 19: I=-8, TP=-1):
-  foley makeup -> median shot RMS hits FOLEY_TARGET (-18 dB), cap +12
-  bed gain     -> bed RMS = foley target - BED_UNDER (3 dB below foley)
-  duck         -> sidechaincompress ratio 4, 50/250ms — accents push bed down
+  foley makeup -> median shot RMS hits --foley-target (default -18 dB), cap +12
+  bed gain     -> bed RMS = foley target - --bed-under (default 3 dB below foley;
+                  NEGATIVE puts the bed ABOVE foley — the L128 direction)
+  duck         -> sidechaincompress --duck-ratio/--duck-release (default 4, 250ms)
   master       -> 2-pass loudnorm to I/TP, then alimiter safety
+
+L128 (2026-08-12, his ear, measured): v4 shipped bed 3dB UNDER foley + 4:1 duck ->
+melody band flat at -40dB for 64s. travel_vlog is BGM-LED: bed is the anchor.
+The constants became flags so the policy is a CHOICE, never a silent default:
+  --foley-target -22 --bed-under -4 --duck-ratio 2 --duck-release 300
 """
 import argparse, json, subprocess, sys, tempfile, os
 import numpy as np
@@ -51,6 +57,14 @@ def main():
     ap.add_argument("--whoosh-gain", type=float, default=4.0)
     ap.add_argument("--shots", help="comma frame counts per shot @30fps (for per-shot RMS)")
     ap.add_argument("--out", default="FINAL.mp4")
+    ap.add_argument("--foley-target", type=float, default=FOLEY_TARGET,
+                    help="dB RMS the median shot is pushed to (default -18)")
+    ap.add_argument("--bed-under", type=float, default=BED_UNDER,
+                    help="bed sits this many dB under foley target; NEGATIVE = bed above (L128)")
+    ap.add_argument("--duck-ratio", type=float, default=4.0,
+                    help="sidechain ratio (L128 travel_vlog: 2)")
+    ap.add_argument("--duck-release", type=int, default=250,
+                    help="sidechain release ms (L128 travel_vlog: 300)")
     a = ap.parse_args()
 
     dur = float(json.loads(run(["ffprobe","-v","quiet","-print_format","json",
@@ -67,11 +81,11 @@ def main():
         med = float(np.median(shot_rms))
     else:
         med = rms_db(x)
-    makeup = min(FOLEY_TARGET - med, 12.0)
+    makeup = min(a.foley_target - med, 12.0)
 
     # 2 MEASURE the bed window, derive bed gain
     bx,_ = pcm(a.bed, ss=a.bed_ss, t=dur)
-    bed_gain = (FOLEY_TARGET - BED_UNDER) - rms_db(bx)
+    bed_gain = (a.foley_target - a.bed_under) - rms_db(bx)
 
     # 3 build mix (pass 1: loudnorm measure)
     inputs = ["-i",a.video,"-ss",str(a.bed_ss),"-i",a.bed]
@@ -85,7 +99,7 @@ def main():
         f"[1:a]atrim=0:{dur:.3f},volume={bed_gain:.2f}dB,"
         f"afade=t=out:st={dur-0.8:.3f}:d=0.8,aresample=44100[bed];"
         f"[fol]asplit[folA][folB];"
-        f"[bed][folB]sidechaincompress=threshold=0.05:ratio=4:attack=50:release=250[bedduck];"
+        f"[bed][folB]sidechaincompress=threshold=0.05:ratio={a.duck_ratio:g}:attack=50:release={a.duck_release}[bedduck];"
         f"[folA][bedduck]amix=inputs=2:normalize=0[duckmix]"
         + (wl if wl else ";[duckmix]anull[premix]")
     )
@@ -105,7 +119,9 @@ def main():
 
     # 4 EVIDENCE
     fx,_ = pcm(a.out)
-    ev = {"makeup_db":round(float(makeup),2),"bed_gain_db":round(float(bed_gain),2),
+    ev = {"policy":{"foley_target":a.foley_target,"bed_under":a.bed_under,
+          "duck_ratio":a.duck_ratio,"duck_release_ms":a.duck_release},
+          "makeup_db":round(float(makeup),2),"bed_gain_db":round(float(bed_gain),2),
           "shot_rms_before":[round(float(v),1) for v in shot_rms],
           "median_shot_rms_before":round(float(med),1),
           "final_rms_db":round(float(rms_db(fx)),1),
