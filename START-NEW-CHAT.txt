@@ -20,10 +20,10 @@ are in ONE line and wait:
                             gate and its threshold, the plan->engine contract,
                             the bug classes that have cost money, the seats,
                             the cost model, the pillars.
-    3. RESUME-2026-08-12.md the newest RESUME - the v1 preview failure, its five
-                            lessons (L119-L123), the v2 cut in the library, the
-                            finalmix handoff + the bank-in-repo automation design
-    4. LESSONS.md           EVERY lesson this system has learned, 180 of them, in
+    3. RESUME-2026-08-12.md the newest RESUME - the whole night: v1's failure,
+                            the whole-clip rule, v4 shipped, eight lessons,
+                            the bank-in-repo automation design
+    4. LESSONS.md           EVERY lesson this system has learned, 183 of them, in
                             ONE file. Start with "THE TEN THAT COST US MOST" - that
                             is the whole briefing. GENERATED from
                             ledgers/knowledge.json by tools/lessons_book.py; the
@@ -56,49 +56,34 @@ FIRST TWO THINGS, ALWAYS:
   1. MEASURE the credit balance. Never estimate. A past estimate was off 352cr.
   2. python tools\mastermind_loop.py --audit        (must say CLEAN)
 
-WHERE WE ARE (2026-08-07) - THE FIRST BUILD EVER SHIPPED
-  - BALANCE MEASURED 4,713.32cr (team). SPENT 214.50cr on mahua, which is EXACTLY
-    what cost() predicted. First time the cost model was ever checked against a
-    real transaction. Measure again before spending.
-  - plans/mahua.py: planqc PASS 34/34. 3 plates + 9 clips GENERATED, zero failures.
-    A rough ffmpeg preview was cut and HE HAS SEEN IT. The real engine.py build has
-    NOT run yet - see NEXT ACTION.
-  - NEXT ACTION, ON HIS WINDOWS BOX (the remote sandbox cannot download the clips):
-      python tools\pull_mahua.py       the 3 plates + 9 clips onto disk
-      python tools\contact.py mahua --raw    LOOK AT IT FIRST. Always.
-      python talyx.py ingest mahua     clipqc
-      python tools\ingest.py mahua     the manifest engine reads
-      python talyx.py build mahua      the cut
-      python talyx.py verify mahua     15 checks, freshness first
-    ffmpeg on PATH:
-      set PATH=%PATH%;C:\Users\User\Desktop\AI\ffmpeg-extracted\ffmpeg-9.0-essentials_build\bin
-
-THE FIVE THINGS THAT COST US MOST ON 2026-08-07 - ledgers/knowledge.json holds all
-nine, craft is at 92 and travel vlog at 5. READ THEM (tools\lessonize.py <plan> --brief):
-  1. LOOK AT A CONTACT SHEET BEFORE ANYTHING IS ASSEMBLED. tools\contact.py is new.
-     One 20-panel sheet caught what FOUR rounds of LLM judges on prose could not:
-     three different shirts on the persona, an invented sign board, a wrong-shaped
-     waterfall, six duplicate framings. HIS STANDING ORDER: show him the sheet first.
-  2. SOURCE LIGHTING IS TRUSTED. The relight path is the defect, and he has now said
-     so TWICE (2026-08-05 and 2026-08-07). travel_vlog shot_match_max_move is 0.0.
-     DO NOT "fix" an exposure spread - his approval band is 47 luma wide.
-  3. A SPEC THAT LIVES ONLY IN THE PLATE IS NOT READ BY THE GENERATOR. Name the
-     wardrobe, the hair state and the wet/dry state in EVERY human source prompt.
-  4. A NEGATIVE BLOCK DOES NOT STOP INVENTED SIGNAGE. It shipped anyway. Catch text
-     surfaces by EYE, on every clip, after generation.
-  5. A DIFFERENT CROP IS NOT A DIFFERENT PICTURE. planqc 8 passed and six pairs were
-     duplicates at up to 0.975 hist-corr. A static source gets ONE shot; only a clip
-     with real internal movement earns two.
-
-  ALSO: OCR is not a LOOK. The generation API silently substitutes a creative preset
-  for your prompt (decline with declined_preset_id). generate_audio must stay TRUE.
-
-STILL OPEN, HIS CALL:
-  - verify.py check 5 hardcodes "if d > 18" - not profile-driven. Should read
-    exposure_swing_max from the pillar and be report-only for travel_vlog. PIPELINE.
-  - board.py caps at 9 SOURCES (line 216, 3x3 grid). kundasang has 10 -> IndexError.
-  - car_cinematic mix: -31.1dB bass duck measured under every whoosh on WRX v9.
-  - 23 references MEASURED, ZERO READ. Still the best zero-credit work available.
+WHERE WE ARE (2026-08-12, session 9 closed) - THE SECOND FILM IS CUT AND DELIVERED
+  - BALANCE MEASURED 3,977.57cr (team). panborneo spent 308.5cr TOTAL - exactly
+    the gated figure. Measure again before spending.
+  - plans/panborneo.py: planqc was 39/39; LESSONS_ACK re-acked to craft 126 /
+    tv 7 - RE-RUN planqc FIRST to confirm it still passes.
+  - THE FILM: PAN_BORNEO v4, 64.0s, delivered in the old chat as crf22 (chat cap).
+    Built to HIS TWO BINDING EDIT RULES (L120, L125): one scene per clip ->
+    superseded by WHOLE CLIPS, no windows, reorder only, analyze before any cut.
+    Rebuild the crf16 master on his box:
+      python tools\build_panborneo_v4.py     (clips: Downloads\hf_20260812_*)
+      python tools\finalmix.py --video panborneo_V4.mp4 ^
+        --bed assets\bank\bgm\travel_vlog\liqwyd-to-the-moon.mp3 --bed-ss 9.57 ^
+        --whoosh assets\bank\sfx\whoosh_whip.wav --whoosh-at 19.37 --whoosh-gain 4
+  - HE HAS v4. Next session opens on HIS VERDICT of it. If good -> publish path:
+    compression caption (Brunei transit, 1,000+ km, multi-day - J4's binding
+    condition), AI-disclosure label, and the CC BY credit line:
+      To The Moon by LiQWYD | https://www.chosic.com/download-audio/58943/
+      Music promoted by https://www.chosic.com/free-music/all/
+  - AUTOMATION (his standing directive): bank now rides the REPO (chosen bed +
+    whoosh committed). STILL TO DO ON HIS BOX: copy the other 18 BGM tracks from
+    Desktop\AI\BGM into assets\bank\bgm\travel_vlog\ and push - then the full
+    edit->BGM->foley->master loop runs with zero manual steps. Also: his
+    Downloads folder is bridge-reachable - clips he has downloaded once can be
+    staged remotely (the drag step is dead).
+  - READ RESUME-2026-08-12.md IN FULL: tonight produced EIGHT lessons (L119-L126
+    + tv L7) - preview=gate-bypass, whole-clip rule, partial-stack levels,
+    encode-once, bank-in-repo, cadence+seam QC checks, 30MB chat cap, bed-window
+    scan. Every defect his eye caught is now a machine check. Do not repeat them.
 
 IF I BRING A NEW TITLE:
   Music-led pillars (car_cinematic, car_cinematic_chill, travel_vlog) are ready end
