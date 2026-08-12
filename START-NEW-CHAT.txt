@@ -20,7 +20,9 @@ are in ONE line and wait:
                             gate and its threshold, the plan->engine contract,
                             the bug classes that have cost money, the seats,
                             the cost model, the pillars.
-    3. RESUME-2026-08-07.md the newest RESUME - where we actually are
+    3. RESUME-2026-08-12.md the newest RESUME - the v1 preview failure, its five
+                            lessons (L119-L123), the v2 cut in the library, the
+                            finalmix handoff + the bank-in-repo automation design
     4. LESSONS.md           EVERY lesson this system has learned, 148 of them, in
                             ONE file. Start with "THE TEN THAT COST US MOST" - that
                             is the whole briefing. GENERATED from

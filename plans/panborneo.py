@@ -86,8 +86,12 @@ MAX_CROP  = 1.40
 TARGET_S  = 28.97                    # 48 beats = 28.9739s. Band-top of measured 16-29s.
 
 LESSONS_ACK = {            # ledger counts this plan was written against (planqc 23)
-    "general craft": 118,  # incl. L116 (scene-blind refs - THIS plan's SOURCE_REFS
-    "travel vlog":    6,   # exists because of it) and the whole desafarm-v2 set
+    "general craft": 123,  # re-acked 2026-08-12 after L119-L123 (this build's own
+    "travel vlog":    7,   # lessons: preview=gate-bypass, one-scene-per-clip,
+                           # partial-stack levels, encode-once, bank-in-repo; tv L7
+                           # bed-window scan). Original ack was 118/6.
+                           # incl. L116 (scene-blind refs - THIS plan's SOURCE_REFS
+                           # exists because of it) and the whole desafarm-v2 set
                            # L101-L115. tv L5 (whip stole the timeline) bites here:
                            # this plan declares the same 240ms whip.
     # NEIGHBOURING PILLARS (planqc 23b): transferable prior art read 2026-08-11 -
