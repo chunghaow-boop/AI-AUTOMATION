@@ -93,11 +93,14 @@ def main():
     if a.whoosh and a.whoosh_at is not None:
         inputs += ["-i",a.whoosh]
         wl = (f";[2:a]adelay={int(a.whoosh_at*1000)}|{int(a.whoosh_at*1000)},"
-              f"volume={a.whoosh_gain:.1f}dB[wh];[duckmix][wh]amix=inputs=2:normalize=0[premix]")
+              f"volume={a.whoosh_gain:.1f}dB,aresample=44100,aformat=channel_layouts=stereo[wh];"
+              f"[duckmix][wh]amix=inputs=2:normalize=0[premix]")
+    # aformat pins: strict ffmpeg builds refuse sidechaincompress without
+    # explicit channel layouts (found in the cloud container 2026-08-12; no-op elsewhere)
     graph = (
-        f"[0:a]volume={makeup:.2f}dB,aresample=44100[fol];"
+        f"[0:a]volume={makeup:.2f}dB,aresample=44100,aformat=channel_layouts=stereo[fol];"
         f"[1:a]atrim=0:{dur:.3f},volume={bed_gain:.2f}dB,"
-        f"afade=t=out:st={dur-0.8:.3f}:d=0.8,aresample=44100[bed];"
+        f"afade=t=out:st={dur-0.8:.3f}:d=0.8,aresample=44100,aformat=channel_layouts=stereo[bed];"
         f"[fol]asplit[folA][folB];"
         f"[bed][folB]sidechaincompress=threshold=0.05:ratio={a.duck_ratio:g}:attack=50:release={a.duck_release}[bedduck];"
         f"[folA][bedduck]amix=inputs=2:normalize=0[duckmix]"
