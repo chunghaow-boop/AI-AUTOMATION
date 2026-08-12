@@ -37,7 +37,7 @@ PLATES.nev). VIDEO GENERATION BLOCKED by an account-wide moderation misfire:
 no-reference bland-prompt control, the 2_5 model, and a silent (no-audio)
 control. Not our prompts, not our plate (craft L117). Job IDs for the support
 report: bc29937b, c8c5c208, 50f73f04, bc66ad08, 7f3ddb05 (2_5: f39fe81a),
-659b0793 (silent). RETRY: one probe of G; if clean, batch the remaining 12.
+659b0793 (silent). RETRY RAN 2026-08-12 01:33: the filter had recovered. G completed and passed QC; all 12 remaining sources batched with ZERO failures. THE FOOTAGE EXISTS. See CLIPS below.
 
 DIAGNOSIS COMPLETE (same day, his ask): the culprit is SEEDANCE'S PROVIDER-SIDE
 safety classifier, not our prompt, not the plate, not the account. Proof: a
@@ -823,7 +823,19 @@ PROBE_FIRST  = "G"     # the barrier lift. It is the hook, it is the highest
                        # Probe alone (defender plate 4cr + 22.5cr), LOOK + OCR, then
                        # batch the other 11.
 
-CLIPS = {}              # nothing generated - this plan has spent 0cr
+# GENERATED 2026-08-12 (session 9, scheduled retry). seedance_2_0, 720p, std, 5s,
+# 9:16, generate_audio=true. ALL THIRTEEN returned 720x1280, 5.062s, AAC. ZERO
+# failures. MEASURED SPEND: 4,270.07 -> 3,977.57 = 292.50cr, exactly 13 x 22.5;
+# total with plates 308.5cr = the gated figure to the credit. Remote batch QC:
+# OCR clean (3 sub-glyph noise hits, no legible text - border, boulevard and city
+# all sign-free), luma median 104 with ZERO outliers (cabin C = 89.8; the
+# desafarm 37.7 silhouette did not recur), dawn->dusk arc visible in the means.
+# Job ids in projects/panborneo/JOBS.json. Fetch: python tools\pull_panborneo.py
+CLIPS = {"G": "panborneo_G.mp4", "B": "panborneo_B.mp4", "C": "panborneo_C.mp4",
+         "A": "panborneo_A.mp4", "D": "panborneo_D.mp4", "F": "panborneo_F.mp4",
+         "E": "panborneo_E.mp4", "I": "panborneo_I.mp4", "H": "panborneo_H.mp4",
+         "J": "panborneo_J.mp4", "K": "panborneo_K.mp4", "L": "panborneo_L.mp4",
+         "M": "panborneo_M.mp4"}
 
 
 def timeline():
