@@ -38,9 +38,13 @@ echo === 2. syncing with GitHub (rebase, errors visible) ===
 git pull --rebase origin main
 if errorlevel 1 (
     echo.
-    echo   STOPPED: the pull hit a conflict. NOTHING was pushed and nothing
-    echo   is lost. Do NOT re-run. Copy the message above into the chat -
-    echo   ledgers/ conflicts must be MERGED, both machines' entries are real.
+    echo   STOPPED: the pull failed. Nothing is lost. READ THE LINE ABOVE:
+    echo   - "Failed to connect" / "Could not resolve host" = NETWORK, not a
+    echo     conflict. Your commit is safe locally - just RE-RUN this file
+    echo     when the internet is back.
+    echo   - "CONFLICT" / "could not apply" = real conflict. Do NOT re-run;
+    echo     copy the message into the chat. ledgers/ conflicts must be
+    echo     MERGED - both machines' entries are real.
     pause & exit /b 1
 )
 
