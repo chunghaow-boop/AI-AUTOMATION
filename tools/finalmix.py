@@ -63,6 +63,13 @@ def main():
                     help="bed sits this many dB under foley target; NEGATIVE = bed above (L128)")
     ap.add_argument("--duck-ratio", type=float, default=4.0,
                     help="sidechain ratio (L128 travel_vlog: 2)")
+    ap.add_argument("--limit", type=float, default=0.891,
+                    help="master limiter ceiling, LINEAR. 0.891 = -1.0 dBFS (the old "
+                         "hardcoded value). CODEC HEADROOM, measured 2026-08-12: a mix "
+                         "limited to -1.0 decodes from AAC at -0.09 dBFS because the "
+                         "encoder adds ~+0.75 dB; 0.794 (-2.0 dBFS) lands the AAC at "
+                         "-1.01 and meets the -1.0 dBTP spec. The limiter was never "
+                         "the problem - the headroom was.")
     ap.add_argument("--duck-release", type=int, default=250,
                     help="sidechain release ms (L128 travel_vlog: 300)")
     a = ap.parse_args()
@@ -115,7 +122,10 @@ def main():
               f"measured_I={j['input_i']}:measured_TP={j['input_tp']}:"
               f"measured_LRA={j['input_lra']}:measured_thresh={j['input_thresh']}:"
               f"offset={j['target_offset']}:linear=true,"
-              f"alimiter=limit=0.891:level=disabled,aresample=44100[out]")
+              f"alimiter=limit={a.limit}:level=disabled,aresample=44100,"
+              f"aformat=channel_layouts=stereo[out]")   # strict-ffmpeg pin after
+                                                        # loudnorm (container 2026-08-12,
+                                                        # same class as the pass-1 pins)
         run(["ffmpeg","-y","-nostdin"]+inputs+
             ["-filter_complex",graph+ln,"-map","0:v","-map","[out]",
              "-c:v","copy","-c:a","aac","-b:a","256k",a.out])

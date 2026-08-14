@@ -69,6 +69,19 @@ def check_structure(P):
                f"({len(tl)} entries, beat {P.BEAT:.3f}s)")
 
 
+def _is_whole_clip(P):
+    """True when every shot plays essentially its whole generated clip. His standing
+    edit order (see check 38) makes the film longer and slower than any burst-cut
+    profile by DESIGN, so the profile-conformance checks report instead of block."""
+    clip = float(getattr(P, "CLIP_S", 0) or 0)
+    beats = getattr(P, "BEATS", {}) or {}
+    beat = float(getattr(P, "BEAT", 0) or 0)
+    shots = list(getattr(P, "SHOTS", []) or [])
+    if not (clip and beats and beat and shots):
+        return False
+    return all(beats.get(s[2], 0) * beat >= clip * 0.90 for s in shots)
+
+
 def check_profile_band(P, pf):
     if not pf:
         return warn("2 pillar band", "PILLAR-PROFILES.json not found")
@@ -84,9 +97,28 @@ def check_profile_band(P, pf):
     ok_dur = lo <= total <= hi
     ok_med = mlo <= med <= mhi
     ok_cpm = tgt * 0.8 <= cpm <= tgt * 1.2
-    r = add("2 pillar band", ok_dur and ok_med and ok_cpm,
-            f"duration {total:.1f}s in [{lo},{hi}] · median shot {med:.2f}s in "
-            f"[{mlo},{mhi}] · {cpm:.1f} cuts/min vs {tgt} target (+-20%)")
+    detail = (f"duration {total:.1f}s in [{lo},{hi}] · median shot {med:.2f}s in "
+              f"[{mlo},{mhi}] · {cpm:.1f} cuts/min vs {tgt} target (+-20%)")
+    # FINDING 1 (file 31 PART H, 2026-08-12): the references behind this target
+    # disagree with each other by ~3x, so the single figure is a CENTRE OF MASS.
+    # Show the measured spread beside it and treat sitting INSIDE the reference
+    # range as passing, even when it misses the +-20% band around the mean.
+    sp = (pf.get("measured_spread") or {})
+    rng = sp.get("cuts_per_min_range")
+    if rng:
+        detail += (f"  |  refs measured {rng[0]}-{rng[1]} cuts/min across "
+                   f"{sp.get('refs_measured','?')} files")
+        if not ok_cpm and rng[0] <= cpm <= rng[1]:
+            ok_cpm = True
+            detail += " — INSIDE the reference spread, target band waived"
+    if _is_whole_clip(P) and not (ok_dur and ok_med and ok_cpm):
+        # HIS STANDING ORDER OUTRANKS THE PROFILE (2026-08-12). The band was fitted
+        # on burst-cut reference films; a whole-clip film is longer and cuts slower
+        # BY DESIGN. Reported in full, never hidden - but it does not block.
+        r = warn("2 pillar band", detail + "  [WHOLE-CLIP FILM: profile conformance "
+                 "reported, not enforced - his order, check 38]")
+    else:
+        r = add("2 pillar band", ok_dur and ok_med and ok_cpm, detail)
     # 2b SHOT EXTREMES (2026-08-05). The median hides the longest shot, and the
     # plan's BEATS dict is written per-plan — copy a car plan's {burst:2,med:4,hold:8}
     # into a 105 BPM vlog and a "hold" silently becomes 4.57s (4x that genre's median,
@@ -205,18 +237,39 @@ def check_repeat_framing(P):
 
 
 # ---------------------------------------------------------------- 9 THE HOOK
-def check_event(P):
+def check_event(P, pf=None):
     """The LC300 opened on a static wheel because it measured highest motion. Highest
-    motion is not most arresting. Shot 0 must be an EVENT and it must be OVER fast."""
+    motion is not most arresting. Shot 0 must be an EVENT and it must be OVER fast.
+
+    HOOK CEILING IS NOW PER-PILLAR (2026-08-12, file 31 PART H finding 2). The flat
+    2.0s came from i8 retention doctrine, and this pillar's OWN references may
+    disagree: car_cinematic's five refs hold a median 4.07s before their first cut.
+    So the ceiling is max(2.0, the pillar's measured first_cut_median) — doctrine
+    where nothing was measured, measurement where something was. The EVENT
+    requirement never moves; only the length adapts to the genre's own grammar."""
     s0, _c0, k0, _t0 = P.SHOTS[0]
     act = P.SOURCES[s0][2]
     tl, _ = P.timeline()
     d0 = tl[0][1]
     is_event = act.upper() == "EVENT"
-    fast = d0 <= 2.0
-    return add("9 hook is an EVENT", is_event and fast,
-               f"shot 0 = source {s0} ({act}), {d0:.2f}s "
-               f"[needs act=EVENT and <= 2.00s: hooks under 2s measured 23% higher completion]")
+    sp = ((pf or {}).get("measured_spread") or {})
+    fcm = sp.get("first_cut_median_s")
+    ceiling = max(2.0, float(fcm)) if fcm else 2.0
+    src = (f"pillar refs hold {fcm:.2f}s before the first cut, so the ceiling is "
+           f"{ceiling:.2f}s" if fcm and ceiling > 2.0 else
+           "hooks under 2s measured 23% higher completion")
+    fast = d0 <= ceiling
+    detail = (f"shot 0 = source {s0} ({act}), {d0:.2f}s "
+              f"[needs act=EVENT and <= {ceiling:.2f}s: {src}]")
+    if _is_whole_clip(P):
+        # A whole-clip film cannot hold shot 0 to 2s. The EVENT requirement still
+        # BLOCKS (the hook must be an event); the duration becomes a warning, and
+        # the burden moves to the clip itself: its event must land in its own
+        # first seconds. Stated choice, his order (check 38).
+        return add("9 hook is an EVENT", is_event,
+                   detail + ("  [WHOLE-CLIP: length not enforced - the EVENT must "
+                             "resolve inside the clip's own opening seconds]"))
+    return add("9 hook is an EVENT", is_event and fast, detail)
 
 
 def check_hold_placement(P):
@@ -448,8 +501,38 @@ def check_content(P):
     missing = [k for k in ("claim", "verified", "twist", "why_stop") if not c.get(k)]
     if missing:
         return add("18 content", False, f"CONTENT block missing {missing}")
-    return add("18 content", True,
-               f"claim: \"{c['claim'][:58]}...\" verified: {c['verified'][:40]}")
+    # THE PROMISE (web research 2026-08-12): every retention framework in the field
+    # puts a CLEAR PROMISE at seconds 3-5 - the viewer is told what they will get,
+    # and the film later pays it. We had claim / twist / why_stop but never named
+    # the promise or WHERE it is delivered, so it was left to luck. Declare
+    #   CONTENT["promise"]    what the viewer is told they will get
+    #   CONTENT["promise_at"] seconds - the field says 3-5s
+    #   CONTENT["payoff_at"]  seconds - where the film delivers it
+    # Graduated: absent = a named warning, present = validated.
+    detail = f"claim: \"{c['claim'][:52]}...\" verified: {c['verified'][:34]}"
+    if not c.get("promise"):
+        warn("18b the promise",
+             "CONTENT has no 'promise'. The field's retention frameworks all put a "
+             "clear promise at 3-5s (hook 0-3, promise 3-5, body, payoff). Declare "
+             "promise / promise_at / payoff_at so the payoff is planned, not hoped for.")
+    else:
+        _, total = P.timeline()
+        pa, py = c.get("promise_at"), c.get("payoff_at")
+        bad = []
+        try:
+            if pa is None: bad.append("promise_at missing")
+            elif not (0 <= float(pa) <= max(6.0, 0.15 * total)):
+                bad.append(f"promise_at {pa}s - the field puts it at 3-5s")
+            if py is None: bad.append("payoff_at missing")
+            elif pa is not None and float(py) <= float(pa):
+                bad.append("payoff lands before the promise")
+        except Exception as e:
+            bad.append(f"unreadable: {str(e)[:40]}")
+        if bad:
+            warn("18b the promise", " | ".join(bad))
+        else:
+            detail += f" | promise@{float(pa):.1f}s → payoff@{float(py):.1f}s"
+    return add("18 content", True, detail)
 
 
 def check_sound(P):
@@ -541,7 +624,10 @@ def check_capacity(P):
     bad, det = [], []
     for s in sorted(need):
         banned = sum(b - a for a, b in bans.get(s, []))
-        have = P.CLIP_S - banned - 0.1
+        # 2026-08-12: the 0.1s safety shave made a WHOLE-CLIP plan fail against
+        # itself ("needs 4.9s but has 4.9s"). A whole-clip shot is trimmed to the
+        # beat grid by construction, so the shave only applies to windowed cuts.
+        have = P.CLIP_S - banned - (0.0 if _is_whole_clip(P) else 0.1)
         det.append(f"{s} {need[s]:.1f}/{have:.1f}")
         if need[s] > have + 1e-6:
             bad.append(f"source {s} needs {need[s]:.1f}s but has {have:.1f}s usable "
@@ -1079,6 +1165,423 @@ def check_transition_contract(P):
                f"- matches assets/transitions/TRANSITIONS.json")
 
 
+# THE TRIPLE LINK gate, introduced 2026-08-12 (file 31 PART F). Graduated on
+# purpose: a plan that has not adopted LINKS yet gets a NAMED WARNING listing the
+# boundaries that owe a sound link, and a plan that HAS adopted it is held to it.
+# Flip to True when he wants a missing LINKS block to block outright.
+TRIPLE_LINK_BLOCKING = False
+
+
+def check_triple_link(P):
+    """40 TRIPLE LINK — his order 2026-08-12: "the link between scenes seen
+    beforehand, before video generation... I need there to be like three link.
+    That's storytelling."
+
+    Every boundary owes THREE links (file 31 PART F):
+        LINKS = {boundary_index: {"picture": "...", "sound": "...", "story": "..."}}
+      picture  what the eye carries across the cut
+      sound    what the ear carries across the cut
+      story    what shot B means BECAUSE of shot A
+    One link is a transition; three is a story beat; a film of transitions is a
+    showreel. The storyboard renders these per boundary, so the whole chain is
+    inspectable BEFORE a credit is spent.
+
+    SOUND LINKS ARE OWED WHERE THE SOUND MATTERS: any boundary touching a
+    foreground FOLEY line (>= -6 dB) must declare one - that is where the ear is
+    already listening, and it is where a missing bridge is audible."""
+    shots = list(getattr(P, "SHOTS", []) or [])
+    n = len(shots)
+    if n < 2:
+        return add("40 triple link", True, "single-shot film - no boundaries")
+    foley = getattr(P, "FOLEY", {}) or {}
+    fg = {i for i, v in foley.items()
+          if isinstance(i, int) and isinstance(v, (int, float)) and v >= -6.0}
+    owed = sorted({i for i in range(n - 1) if i in fg or (i + 1) in fg})
+    links = getattr(P, "LINKS", None)
+    if not links:
+        detail = (f"NO LINKS BLOCK. {n-1} boundaries; {len(owed)} touch a foreground "
+                  f"FOLEY line and owe a SOUND link: {owed[:8]}"
+                  f"{' ...' if len(owed) > 8 else ''}. Declare LINKS = {{i: "
+                  f"{{'picture':..,'sound':..,'story':..}}}} - one link is a "
+                  f"transition, three is a story beat (file 31 PART F).")
+        return (add("40 triple link", False, detail) if TRIPLE_LINK_BLOCKING
+                else warn("40 triple link", detail))
+    bad, full = [], 0
+    for i in range(n - 1):
+        e = links.get(i) if hasattr(links, "get") else (links[i] if i < len(links) else None)
+        if isinstance(e, (list, tuple)):
+            e = dict(zip(("picture", "sound", "story"), list(e) + ["", "", ""]))
+        e = e or {}
+        got = {k: str(e.get(k, "") or "").strip() for k in ("picture", "sound", "story")}
+        if all(got.values()):
+            full += 1
+        if not got["story"]:
+            bad.append(f"boundary {i}: no STORY link - what does the next shot MEAN "
+                       f"because of this one?")
+        if i in owed and not got["sound"]:
+            bad.append(f"boundary {i}: foreground foley either side and no SOUND link")
+    if bad:
+        return add("40 triple link", False, " | ".join(bad[:4]) +
+                   (f" | +{len(bad)-4} more" if len(bad) > 4 else ""))
+    return add("40 triple link", True,
+               f"{full}/{n-1} boundaries carry all three links; every foreground "
+               f"boundary ({len(owed)}) declares a sound link - read the story "
+               f"column aloud as one paragraph (file 31 PART F test)")
+
+
+def check_layers(P):
+    """41 LAYER DECLARATION — his instruction 2026-08-12: "these are the things the
+    planning phase needs to PREDICT and DETERMINE so that I don't need to check it
+    with my own eye."
+
+    EVERY defect he caught on a board this session was a LAYER THE PLAN NEVER
+    DECIDED, or decided but never showed:
+      · the pillar        - rented travel_vlog's name for a kitchen film (L159)
+      · the persona refs  - board showed a generic plate in the wrong wardrobe (L160)
+      · the transitions   - declared a dip, board printed 'hard cut' five times (L163)
+      · the sound effects - inherited edit_sfx='none' from a talking-head pillar, so
+                            a workshop film had NO sweeteners at all (L165)
+    None of them were caught by a gate. All four were caught by HIS EYE, after every
+    other check passed. This check closes that class: a plan must DECIDE each layer
+    or WAIVE it in writing. A waiver is a sentence, not a silence.
+
+    Layers, and the field that decides each:
+      PILLAR_FIT      why this pillar, and what was DIFFED if its numbers/policy are
+                      inherited (the L165 trap: sound policy inherits too)
+      TRANSITIONS_PLAN  per-scene transitions, or ALL_HARD_CUTS='reason'
+      CARD_REGISTER   the caption register this pillar's references actually use
+      FOLEY           per-shot clip audio, covering every shot
+      SFX_OVERLAYS    bank sweeteners on sound-critical moments, or SFX_WAIVED='reason'
+      SOURCE_REFS/FACE_OPTOUT  every human shot resolved either way
+      LINKS           the triple link at every boundary"""
+    n = len(getattr(P, "SHOTS", []) or [])
+    miss = []
+
+    if not str(getattr(P, "PILLAR_FIT", "") or "").strip():
+        miss.append("PILLAR_FIT — say in one sentence why this pillar fits, and if its "
+                    "numbers or style are INHERITED, name what you diffed (sound policy "
+                    "inherits too, L165)")
+
+    if not (getattr(P, "TRANSITIONS_PLAN", None) or getattr(P, "BLEND_AFTER", None)
+            or str(getattr(P, "ALL_HARD_CUTS", "") or "").strip()):
+        miss.append("TRANSITIONS_PLAN — declare per-scene transitions, or set "
+                    "ALL_HARD_CUTS='why every boundary is a clean cut'")
+
+    if not str(getattr(P, "CARD_REGISTER", "") or "").strip() and (getattr(P, "CARDS", []) or []):
+        miss.append("CARD_REGISTER — this film has cards but never says which register "
+                    "(the pillar's references have one; capcards obeys the plan)")
+
+    fol = getattr(P, "FOLEY", {}) or {}
+    if n and len([i for i in range(n) if i in fol]) < n:
+        miss.append(f"FOLEY covers {len([i for i in range(n) if i in fol])}/{n} shots — "
+                    f"every shot owes a clip-audio level")
+
+    pol = ((profile(getattr(P, "PILLAR", "")) or {}).get("style") or {}).get("edit_sfx", "")
+    if str(pol).lower() != "none":
+        if not (getattr(P, "SFX_OVERLAYS", None) or getattr(P, "IMPACT_AT", None)
+                or str(getattr(P, "SFX_WAIVED", "") or "").strip()):
+            miss.append(f"SFX — the pillar's policy is edit_sfx='{pol}' but the plan "
+                        f"declares no SFX_OVERLAYS and no SFX_WAIVED reason. Which "
+                        f"moments get a bank sweetener, and which are left to the "
+                        f"generator's own audio? (L165: he asked exactly this)")
+
+    srefs = getattr(P, "SOURCE_REFS", {}) or {}
+    optout = getattr(P, "FACE_OPTOUT", {}) or {}
+    human = [k for k, v in (getattr(P, "SOURCES", {}) or {}).items()
+             if isinstance(v, (list, tuple)) and len(v) > 3
+             and ("nev" in (v[3] or []) or str(v[2]).upper() in ("HUMAN", "PAYOFF"))]
+    unresolved = [k for k in human if k not in srefs and k not in optout]
+    if unresolved:
+        miss.append(f"identity unresolved for {unresolved} — every human source needs "
+                    f"SOURCE_REFS (which refs this scene is handed) or FACE_OPTOUT "
+                    f"(why no face)")
+
+    if n > 1 and not getattr(P, "LINKS", None):
+        miss.append("LINKS — the triple link at every boundary (file 31 PART F)")
+
+    if miss:
+        return add("41 layer declaration", False,
+                   "LAYERS THE PLAN NEVER DECIDED: " + " | ".join(miss[:4]) +
+                   (f" | +{len(miss)-4} more" if len(miss) > 4 else ""))
+    return add("41 layer declaration", True,
+               "every review layer decided in the plan: pillar fit · transitions · "
+               "card register · foley · sfx · identity · links")
+
+
+def check_journey(P):
+    """39 THE JOURNEY — vlog pillars owe the audience the PROCESS. His verdict on
+    NIAH_V2, 2026-08-12: "when I hear of a vlog to Batu Niah my first mindset is
+    packing my stuff, road trip, then the hike... this one just suddenly jumps
+    inside. It does not show the audience how do I get there. People like to see
+    videos that have process in it."
+
+    ROOT CAUSE IT CLOSES: the title-contract reference scan researched the SUBJECT
+    and not the FORM, and file 31's drama rule ("never establish") was applied to a
+    vlog, where the getting-there IS the content.
+
+    THE RULE: a vlog plan declares JOURNEY = {beat: shot_index} covering, in order,
+    at least DEPART (leaving/packing/keys/bag), TRANSIT (road/boat/walk toward),
+    ARRIVE (the threshold reached) before the destination content starts. Films
+    that are deliberately destination-only must say so in JOURNEY_WAIVED with a
+    reason - a stated choice (hard rule 10), never an omission.
+
+    Non-vlog pillars pass untouched: a car cinematic owes no packing scene."""
+    pil = str(getattr(P, "PILLAR", "") or "").lower()
+    if "vlog" not in pil:
+        return add("39 journey", True, f"pillar '{pil or 'unset'}' - journey rule "
+                   "applies to vlog pillars only")
+    waived = str(getattr(P, "JOURNEY_WAIVED", "") or "").strip()
+    if waived:
+        return add("39 journey", True, f"JOURNEY WAIVED as a stated choice: {waived[:90]}")
+    j = getattr(P, "JOURNEY", None) or {}
+    need = ["depart", "transit", "arrive"]
+    missing = [b for b in need if b not in {str(k).lower() for k in j}]
+    if missing:
+        return add("39 journey", False,
+                   f"VLOG WITH NO {'/'.join(m.upper() for m in missing)} BEAT. A vlog's "
+                   f"content IS the process - pack/leave, travel, arrive, then the "
+                   f"thing. Declare JOURNEY = {{'depart': shot, 'transit': shot, "
+                   f"'arrive': shot}} (indices into SHOTS), or set JOURNEY_WAIVED "
+                   f"with a reason. NIAH_V2 shipped without this and jumped straight "
+                   f"to the destination.")
+    n = len(getattr(P, "SHOTS", []) or [])
+    try:
+        idx = {b: int(j[[k for k in j if str(k).lower() == b][0]]) for b in need}
+    except Exception as e:
+        return add("39 journey", False, f"JOURNEY malformed: {str(e)[:70]}")
+    order_ok = idx["depart"] <= idx["transit"] <= idx["arrive"]
+    early_ok = idx["arrive"] <= max(1, int(n * 0.6))
+    bad = []
+    if not order_ok:
+        bad.append(f"beats out of order: depart {idx['depart']} -> transit "
+                   f"{idx['transit']} -> arrive {idx['arrive']}")
+    if not early_ok:
+        bad.append(f"ARRIVE at shot {idx['arrive']} of {n} - the journey must land "
+                   f"by 60% or the destination has no room to pay off")
+    if bad:
+        return add("39 journey", False, " | ".join(bad))
+    return add("39 journey", True,
+               f"journey present: depart {idx['depart']} -> transit {idx['transit']} "
+               f"-> arrive {idx['arrive']} of {n} shots, then the destination")
+
+
+def check_whole_clip(P):
+    """38 WHOLE CLIP — HIS STANDING EDIT ORDER, made mechanical 2026-08-12.
+    Stated 2026-08-12 on NIAH_V1: "do not simply cut unless analyzed fully then
+    cut. if not, just piece all the scene together fully." Earlier as L125
+    ("whole clips, reorder only"), which lived ONLY in a RESUME line — so nothing
+    stopped this session's builder from chopping good 5.04s sources into 1.23s
+    bursts to hit a 30s title spec. He judged the FOOTAGE good and the CUT wrong.
+
+    THE RULE THIS ENCODES
+      Default = the whole generated scene plays, and ORDER is the edit.
+      A cut is EARNED, never assumed: any shot shorter than the clip, and any
+      source used more than once, must carry a written justification naming what
+      the discarded seconds contain (measured, not guessed).
+
+      CUT_JUSTIFICATION = {shot_index: "what the discarded seconds contain"}
+      REUSE_JUSTIFICATION = {source: "the two DECLARED states this source holds"}
+
+    The title's duration is a REQUEST; this is an ORDER. When they conflict the
+    film gets LONGER, not choppier — say so in the plan and move on."""
+    clip = float(getattr(P, "CLIP_S", 0) or 0)
+    if not clip:
+        return add("38 whole clip", True, "no CLIP_S declared - not a generated-clip plan")
+    beats = getattr(P, "BEATS", {}) or {}
+    beat = float(getattr(P, "BEAT", 0) or 0)
+    shots = list(getattr(P, "SHOTS", []) or [])
+    cutj = getattr(P, "CUT_JUSTIFICATION", {}) or {}
+    reusej = getattr(P, "REUSE_JUSTIFICATION", {}) or {}
+    floor = clip * 0.90            # a whole clip minus its crossfade tail
+    bad, cuts, uses = [], [], {}
+    for i, s in enumerate(shots):
+        src, kind = s[0], s[2]
+        uses.setdefault(src, []).append(i)
+        dur = beats.get(kind, 0) * beat
+        if dur < floor:
+            cuts.append((i, src, dur))
+            if not str(cutj.get(i, "")).strip():
+                bad.append(f"shot {i} ({src}) plays {dur:.2f}s of a {clip:.0f}s clip "
+                           f"with NO CUT_JUSTIFICATION - name what the other "
+                           f"{clip-dur:.2f}s contain or play the whole scene")
+    for src, idxs in sorted(uses.items()):
+        if len(idxs) > 1 and not str(reusej.get(src, "")).strip():
+            bad.append(f"source {src} used {len(idxs)}x (shots {idxs}) with no "
+                       f"REUSE_JUSTIFICATION - declare the distinct states or use it once")
+    if bad:
+        return add("38 whole clip", False, " | ".join(bad[:4]) +
+                   (f" | +{len(bad)-4} more" if len(bad) > 4 else ""))
+    if cuts:
+        return add("38 whole clip", True,
+                   f"{len(cuts)} cut shot(s), every one justified in the plan; "
+                   f"{len(uses)} sources")
+    return add("38 whole clip", True,
+               f"WHOLE CLIPS - {len(shots)} shots from {len(uses)} sources, "
+               f"each >= {floor:.2f}s of a {clip:.0f}s clip. Order is the edit.")
+
+
+def check_turns(P):
+    """35 TURNS — file 31 rule 3 made mechanical (his call, 2026-08-12 session 11).
+    K-vertical grammar: the situation must CHANGE every 8–12 seconds; a film that is
+    six angles of one car has zero turns. pan_borneo WON on turns (road→river→
+    wildlife→mud→beach→night), so this is the measured shape of the best build yet.
+
+    CALIBRATION NOTE (L136): act labels canNOT be the signal — wrx's acts are
+    framing notes ('front 3/4', 'scoop macro'), so counting label changes would
+    score every shot as a turn and the check would be vacuous. The plan must
+    DECLARE its turns:  TURNS = [(t_seconds, "what changes"), ...]
+    Floor: >= ceil(total/12) turns, no gap > 12s, first turn <= 12s. The
+    SCRIPTWRITER seat (file 31 part D q2) still judges whether a declared turn is
+    REAL — this check only makes the count and spacing un-fudgeable."""
+    import math
+    tl, total = P.timeline()
+    turns = getattr(P, "TURNS", None)
+    if not turns:
+        return add("35 turns", False,
+                   "NO TURNS DECLARED. File 31 rule 3: a turn every 8-12s, and a turn "
+                   "is the situation CHANGING, not a new angle. Declare "
+                   "TURNS = [(t_seconds, 'what changes'), ...] and let the SCRIPTWRITER "
+                   "seat judge each one. A plan whose shots share one situation has no "
+                   "turns and no business generating.")
+    try:
+        ts = sorted(float(t) for t, _ in turns)
+        labels_ok = all(str(w).strip() for _, w in turns)
+    except Exception as e:
+        return add("35 turns", False, f"TURNS malformed: {str(e)[:80]} "
+                   "(want [(t_seconds, 'what changes'), ...])")
+    need = max(1, math.ceil(total / 12.0))
+    bad = []
+    if len(ts) < need:
+        bad.append(f"{len(ts)} turns over {total:.1f}s - floor is {need} (<=12s each)")
+    gaps = [b - a for a, b in zip([0.0] + ts, ts + [total])]
+    worst = max(gaps) if gaps else total
+    if worst > 12.0:
+        bad.append(f"longest stretch with no turn: {worst:.1f}s (cap 12s)")
+    if not labels_ok:
+        bad.append("every turn must NAME what changes")
+    out = [t for t in ts if t < 0 or t > total]
+    if out:
+        bad.append(f"turn timestamps outside 0..{total:.1f}s: {out}")
+    if bad:
+        return add("35 turns", False, " | ".join(bad))
+    return add("35 turns", True,
+               f"{len(ts)} declared turns over {total:.1f}s, worst gap {worst:.1f}s "
+               f"(cap 12) - seat still judges each turn is a real situation change")
+
+
+def check_twist_timing(P):
+    """36 TWIST TIMING — file 31 rule 4 made mechanical (his call, same session).
+    K-shorts put the reversal early because exits cost nothing; the twist must be
+    named AND timestamped at or before the 40% mark. CONTENT['twist_at'] carries
+    the number (seconds). A twist without a timestamp is a twist that will be
+    discovered missing at the cut - the LC300 class of failure, one layer up."""
+    c = getattr(P, "CONTENT", None) or {}
+    if not c.get("twist"):
+        return add("36 twist timing", False,
+                   "CONTENT.twist absent (check 18 will have said so too)")
+    at = c.get("twist_at", None)
+    if at is None:
+        return add("36 twist timing", False,
+                   "CONTENT['twist_at'] missing - file 31 rule 4: the twist is named "
+                   "AND timestamped, <= 40% of runtime. Add twist_at (seconds).")
+    tl, total = P.timeline()
+    try:
+        at = float(at)
+    except Exception:
+        return add("36 twist timing", False, f"twist_at={at!r} is not a number")
+    cap = 0.40 * total
+    if not (0 <= at <= cap):
+        return add("36 twist timing", False,
+                   f"twist_at={at:.1f}s but the 40% mark of a {total:.1f}s film is "
+                   f"{cap:.1f}s - a late reversal is a scroll already gone")
+    return add("36 twist timing", True,
+               f"twist lands at {at:.1f}s = {100*at/total:.0f}% of {total:.1f}s (cap 40%)")
+
+
+def check_transition_variety(P):
+    """37 TRANSITION VARIETY — his catch 2026-08-12 session 11: "all i see is only
+    whoosh, mostly whoosh - there are more suitable transitions according to the scene."
+    Root cause was structural: BLEND_KIND is ONE string for the whole film (check 34),
+    so per-scene selection was not even expressible, and the whip's whoosh became the
+    only transition sound ever planned.
+
+    NEW PLAN FIELD (music-led pillars):
+      TRANSITIONS_PLAN = { after_shot_index: {"kind": <bank kind>,
+                           "why": "<the SCENE reason - what changes here>"}, ... }
+    The check verifies against assets/transitions/TRANSITIONS.json:
+      - every kind exists in the bank; per-kind max_per_film caps respected
+      - every boundary carries a WHY naming the scene change (the mastermind's
+        motivation, judged by the seat - this check only refuses empty ones)
+      - each transition sits within 1.5s of a declared TURN (35) - transitions are
+        punctuation for story turns, not decoration between angles
+      - VARIETY: >1 non-hard transition means >1 distinct kind - the whoosh
+        monoculture, refused mechanically
+      - SFX comes from the kind's own pairs_with_sfx bucket; a plan hardcoding the
+        whip's whoosh onto a non-whip kind fails
+    Absent field = pass-with-note when the plan uses legacy BLEND_KIND (check 34
+    still owns that path); a plan with NEITHER declares an all-hard cut, fine."""
+    tp = getattr(P, "TRANSITIONS_PLAN", None)
+    if not tp:
+        return add("37 transition variety", True,
+                   "no TRANSITIONS_PLAN - all-hard cut or legacy BLEND_KIND (check 34). "
+                   "Per-scene kinds are now available: declare TRANSITIONS_PLAN "
+                   "{after_shot: {kind, why}} against the bank's when_scene guidance.")
+    try:
+        import json as _j
+        bank = {t["kind"]: t for t in _j.load(open(
+            _first("assets/transitions/TRANSITIONS.json",
+                   "../assets/transitions/TRANSITIONS.json")))["transitions"]}
+    except Exception as e:
+        return add("37 transition variety", False,
+                   f"TRANSITIONS.json unreadable: {str(e)[:70]}")
+    tl, total = P.timeline()
+    turns = [float(t) for t, _ in (getattr(P, "TURNS", None) or [])]
+    bad, kinds_used = [], {}
+    for idx, spec in sorted(tp.items()):
+        kind = str(spec.get("kind", "")).strip()
+        why = str(spec.get("why", "")).strip()
+        if kind not in bank:
+            bad.append(f"shot {idx}: '{kind}' not in bank ({', '.join(sorted(bank))})")
+            continue
+        if bank[kind].get("status") == "needs_poc":
+            bad.append(f"shot {idx}: '{kind}' has NO PROVEN EXECUTOR yet "
+                       f"(executed_by={bank[kind].get('executed_by')}, status=needs_poc) - "
+                       f"an option without an executor is fiction (L140 inverse). "
+                       f"Land the PoC, flip status to 'live', then plan it.")
+            continue
+        kinds_used[kind] = kinds_used.get(kind, 0) + 1
+        if not why:
+            bad.append(f"shot {idx}: '{kind}' has no WHY - name the scene change it punctuates")
+        try:
+            t_at = sum(e[1] for e in tl[:int(idx)+1])
+        except Exception:
+            t_at = None
+        if turns and t_at is not None and min(abs(t_at - t) for t in turns) > 1.5:
+            bad.append(f"shot {idx}: '{kind}' at {t_at:.1f}s is >1.5s from every declared "
+                       f"TURN - a transition with no story turn is decoration")
+        sfx = spec.get("sfx")
+        pair = bank[kind].get("pairs_with_sfx")
+        if sfx and not pair:
+            bad.append(f"shot {idx}: '{kind}' pairs with NO sfx by bank design, plan declares {sfx!r}")
+        if sfx and pair and "whoosh" in str(sfx).lower() and kind != "whip":
+            bad.append(f"shot {idx}: the whip's whoosh hardcoded onto '{kind}' - use its own "
+                       f"bucket query {pair.get('bucket')!r} (the monoculture, refused)")
+    for kind, n in kinds_used.items():
+        cap = bank[kind].get("max_per_film")
+        if cap and n > cap:
+            bad.append(f"{n}x '{kind}' but the bank caps it at {cap}")
+    nonhard = {k: v for k, v in kinds_used.items() if k != "hard"}
+    if sum(nonhard.values()) > 1 and len(nonhard) < 2:
+        bad.append(f"{sum(nonhard.values())} transitions, all '{next(iter(nonhard))}' - "
+                   "one kind repeated is a tic, not a language. Vary by scene "
+                   "(bank when_scene) or cut hard.")
+    if bad:
+        return add("37 transition variety", False, " | ".join(bad[:5]))
+    return add("37 transition variety", True,
+               f"{sum(kinds_used.values())} planned transitions, kinds {sorted(kinds_used)} - "
+               f"each on a turn, each with a scene WHY, sound from each kind's own bucket")
+
+
 def check_relationships(P):
     """32 RELATIONSHIPS - the check that exists because of how the others failed.
 
@@ -1387,6 +1890,19 @@ def check_cost(P, balance):
     c = P.cost()
     d = (f"{c['clips']} clips x {c['per_clip']}cr = {c['generation']}cr "
          f"+ {c['plates']}cr plates = {c['total']}cr")
+    # THE CLIP PACKAGE (web research 2026-08-12): the field's advice is to name the
+    # standalone moments BEFORE generating - "the editor gets a map instead of a
+    # pile of footage". For us it is also the cost model: one paid batch can carry
+    # more than one post. A plan may declare
+    #     CLIP_PACKAGE = {"post name": [shot indices], ...}
+    # and the real number becomes credits PER POST, not per film. Declaring nothing
+    # is allowed and simply means one post.
+    pkg = getattr(P, "CLIP_PACKAGE", None) or {}
+    if pkg:
+        n = len(pkg)
+        d += (f"  |  CLIP PACKAGE: {n} post(s) from one batch = "
+              f"{c['total']/max(1,n):.1f}cr per post ({', '.join(list(pkg)[:3])}"
+              f"{'…' if n > 3 else ''})")
     if balance is None:
         return warn("17 cost", d + " - balance NOT MEASURED, measure before spending")
     pct = 100.0 * c["total"] / balance
@@ -1595,7 +2111,10 @@ def main():
                     help="MEASURED balance. Never pass an estimate.")
     ap.add_argument("--doc", default=None)
     ap.add_argument("--json")
+    ap.add_argument("--selftest", help="inject known defects and prove each check can FAIL")
     args = ap.parse_args()
+    if args.selftest:
+        return selftest(args.selftest)
 
     name = args.plan
     for cand in (f"plans.{name}", name, f"{name}_plan"):
@@ -1654,7 +2173,7 @@ def main():
     check_crop(P)
     check_crop_distribution(P)
     check_repeat_framing(P)
-    check_event(P)
+    check_event(P, pf)
     check_hold_placement(P)
     check_blends(P, pf)
     check_captions(P, pf)
@@ -1680,6 +2199,13 @@ def main():
     check_relationships(P)
     check_threshold_provenance(P)
     check_transition_contract(P)
+    check_triple_link(P)
+    check_layers(P)
+    check_journey(P)
+    check_whole_clip(P)
+    check_turns(P)
+    check_twist_timing(P)
+    check_transition_variety(P)
     check_cost(P, args.balance)
 
     print()
@@ -1705,6 +2231,102 @@ def main():
         json.dump([{"check": n, "ok": o, "detail": d, "blocking": b}
                    for n, o, d, b in R], open(args.json, "w"), indent=1)
     return 1 if fails else 0
+
+
+
+# ---------------------------------------------------------------- SELF-TEST
+# HIS ASK 2026-08-12: "there are still problems that slip through the QC. I want to
+# make it bulletproof."
+#
+# THE HONEST DIAGNOSIS: adding checks reactively always lags reality, and worse -
+# THREE gates written this session were VACUOUS and passed injected defects until
+# they were tested (an RMS detector blind to a limited master; a persona check
+# reading base64 as a filename; a transition count that counted its own summary
+# line). A check that has never been PROVEN TO FAIL is not a check, it is a comment
+# with a green tick.
+#
+# So: every gate ships with a NEGATIVE CONTROL. This harness takes a passing plan,
+# injects one known defect at a time, and asserts the named check goes red. It
+# reports which checks are PROVEN and - more importantly - which are UNPROVEN, so
+# the untested surface is visible instead of assumed.
+#
+#   python3 planqc.py --selftest kariayam
+DEFECTS = [
+    # (name, mutation, the check id that MUST fail)
+    ("cards overlap",       lambda P: setattr(P, "CARDS", [(t, 0, 6, k) for t, _s, _n, k in P.CARDS]), "12"),
+    ("non-ascii card",      lambda P: setattr(P, "CARDS", [("TOFU • RISK", 0, 1, "cap")] + list(P.CARDS)), "25"),
+    ("stale lessons ack",   lambda P: P.LESSONS_ACK.__setitem__("general craft", 3), "23"),
+    ("no content block",    lambda P: setattr(P, "CONTENT", {}), "18"),
+    ("twist too late",      lambda P: P.CONTENT.__setitem__("twist_at", 999.0), "36"),
+    ("turns removed",       lambda P: setattr(P, "TURNS", []), "35"),
+    ("links removed",       lambda P: setattr(P, "LINKS", {}), "40"),
+    ("layers undeclared",   lambda P: setattr(P, "PILLAR_FIT", ""), "41"),
+    ("sfx undeclared",      lambda P: (setattr(P, "SFX_OVERLAYS", []), setattr(P, "IMPACT_AT", []),
+                                       setattr(P, "SFX_WAIVED", "")), "41"),
+    ("transition off-turn", lambda P: setattr(P, "TRANSITIONS_PLAN",
+                                              {0: {"kind": "dip", "why": "x"},
+                                               1: {"kind": "dip", "why": "y"}}), "37"),
+    ("unknown transition",  lambda P: setattr(P, "TRANSITIONS_PLAN",
+                                              {1: {"kind": "teleport", "why": "z"}}), "37"),
+    ("premortem emptied",   lambda P: setattr(P, "PREMORTEM", []), "22"),
+    ("foley hole",          lambda P: setattr(P, "FOLEY", {0: -6.0}), "41"),
+    # EXPECTATION CORRECTED BY THE HARNESS ITSELF, 2026-08-12: this defect is caught
+    # by 27b (scene refs) and 41 (layers), NOT by 27 (which counts identity-carrying
+    # sources and is right to stay green - the sources ARE human, they just have no
+    # per-scene refs). The harness's first run flagged "check 27 UNPROVEN" and the
+    # investigation showed the EXPECTATION was wrong, not the gate. That is the
+    # harness working: it forces you to look instead of assume.
+    ("identity unresolved", lambda P: (setattr(P, "SOURCE_REFS", {}), setattr(P, "FACE_OPTOUT", {})), "27b"),
+    ("shots cut short",     lambda P: setattr(P, "BEATS", {k: 1 for k in P.BEATS}), "38"),
+]
+
+
+def selftest(name):
+    import importlib, copy as _copy
+    proven, unproven, errors = [], [], []
+    ids_seen = set()
+    for label, mutate, want in DEFECTS:
+        sys.modules.pop(f"plans.{name}", None)
+        P = importlib.import_module(f"plans.{name}")
+        R.clear()
+        try:
+            mutate(P)
+        except Exception as e:
+            errors.append(f"{label}: could not inject ({str(e)[:40]})"); continue
+        pf = profile(getattr(P, "PILLAR", "")) or {}
+        for fn, args in ((check_structure, (P,)), (check_captions, (P, pf)),
+                         (check_content, (P,)), (check_lessons_ack, (P,)),
+                         (check_twist_timing, (P,)), (check_turns, (P,)),
+                         (check_triple_link, (P,)), (check_layers, (P,)),
+                         (check_transition_variety, (P,)), (check_premortem, (P,)),
+                         (check_identity_coverage, (P,)), (check_scene_refs, (P,)),
+                         (check_whole_clip, (P,)),
+                         (check_field_sanity, (P,))):
+            try:
+                fn(*args)
+            except Exception:
+                pass
+        # MATCH THE ID AS WRITTEN, not a stripped version: rstrip("ab") turned "27b"
+        # into "27" and made a 27b expectation impossible to satisfy - the harness
+        # reporting its OWN bug as an unproven gate (2026-08-12).
+        red = [nm for nm, ok, _d, _b in R if not ok and nm.split()[0] == want]
+        ids_seen.add(want)
+        (proven if red else unproven).append((label, want))
+    print("\n" + "=" * 68)
+    print(f"  GATE SELF-TEST — {name}: can each check actually FAIL?")
+    print("=" * 68)
+    for label, want in proven:
+        print(f"  PROVEN     check {want:<3} fires on: {label}")
+    for label, want in unproven:
+        print(f"  UNPROVEN   check {want:<3} did NOT fire on: {label}   <-- a check that "
+              f"cannot fail is not a check")
+    for e in errors:
+        print(f"  SKIPPED    {e}")
+    total = len([n for n, *_ in (r for r in R)]) if R else 0
+    print(f"\n  {len(proven)} proven · {len(unproven)} unproven · {len(errors)} not injectable")
+    print("  UNTESTED SURFACE: every check with no negative control above is "
+          "unproven by definition.")
+    return 1 if unproven else 0
 
 
 if __name__ == "__main__":

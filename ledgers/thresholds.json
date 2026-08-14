@@ -61,9 +61,11 @@
    "status": "provisional",
    "pillars": [
     "car_cinematic",
-    "travel_vlog"
+    "travel_vlog",
+    "daily_vlog",
+    "car_advice"
    ],
-   "note": "THE ORIGINAL SIN OF THIS FILE. Carried into travel_vlog, which spans golden hour to night by design, and quietly stopped working. Do not let it out of car_cinematic without re-deriving. || 2026-08-11: travel_vlog ADDED with a derivation, not by drift: PILLAR-PROFILES.travel_vlog.style sets shot_match_max_move=0.0 (RETIRED TO ZERO 2026-08-07 on his instruction after the mahua contact sheet - 'the lighting master can retire'), which makes this clamp INERT for travel_vlog: the stage cannot move source luma at all, so the clamp never binds. The number travels; its authority does not."
+   "note": "THE ORIGINAL SIN OF THIS FILE. Carried into travel_vlog, which spans golden hour to night by design, and quietly stopped working. Do not let it out of car_cinematic without re-deriving. || 2026-08-11: travel_vlog ADDED with a derivation, not by drift: PILLAR-PROFILES.travel_vlog.style sets shot_match_max_move=0.0 (RETIRED TO ZERO 2026-08-07 on his instruction after the mahua contact sheet - 'the lighting master can retire'), which makes this clamp INERT for travel_vlog: the stage cannot move source luma at all, so the clamp never binds. The number travels; its authority does not. || 2026-08-12: daily_vlog ADDED on the same derivation as travel_vlog, not by drift - daily_vlog inherits style.shot_match_max_move=0.0 from its parent profile, so the clamp is INERT there too: the stage cannot move source luma, so the clamp never binds. The number travels; its authority does not. || 2026-08-12: car_advice added on creation, inheriting car_review's profile. Recorded rather than allowed to travel silently (planqc 33)."
   },
   {
    "id": "travel_vlog.median_shot",
@@ -73,9 +75,11 @@
    "samples": null,
    "status": "guess",
    "pillars": [
-    "travel_vlog"
+    "travel_vlog",
+    "daily_vlog",
+    "car_advice"
    ],
-   "note": "DIRECTLY CONTESTED 2026-08-08. Published short-form guidance says a visual change every 1.5-2.0s and that under 1.2s 'reads as noise'. Our films cut at 1.23s. One of these is wrong and neither is grounded in Malaysian car content. THIS IS THE FIRST NUMBER THE SCANNING AGENT SHOULD REPLACE."
+   "note": "DIRECTLY CONTESTED 2026-08-08. Published short-form guidance says a visual change every 1.5-2.0s and that under 1.2s 'reads as noise'. Our films cut at 1.23s. One of these is wrong and neither is grounded in Malaysian car content. THIS IS THE FIRST NUMBER THE SCANNING AGENT SHOULD REPLACE. || 2026-08-12: daily_vlog inherits this number because the pillar was created with travel_vlog's profile and NO daily/food reference films exist yet. It is still a GUESS and it is now guessed for two pillars - which makes replacing it more urgent, not less. A whole-clip film ignores it anyway (planqc 2 reports instead of blocking under hard rule 0), so it does not gate this build; it gates the honesty of the profile. || 2026-08-12: car_advice added on creation, inheriting car_review's profile. Recorded rather than allowed to travel silently (planqc 33)."
   },
   {
    "id": "travel_vlog.target_length",

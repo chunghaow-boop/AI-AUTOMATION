@@ -31,6 +31,99 @@ Fully-AI short-form video for a Malaysian recond-car audience. Three formats —
 review · industry value** — all generated, fronted by a consistent AI KOL persona (Nev).
 Platforms: Facebook · TikTok · Instagram.
 
+## THE QC IS THE FINAL BOSS. HIS EYE IS THE FINAL FINAL BOSS.
+### His correction, 2026-08-12, and it sets the target for every gate in this repo:
+```
+"my eye is not the final check. The QC is the final check. If possible you don't
+ need my eye to have the check. So the QC is the final boss, my eye is the FINAL
+ FINAL boss."
+```
+The goal is NOT that his eye catches things. The goal is that his eye finds NOTHING,
+because everything it would have caught was caught upstream. **EVERY DEFECT THAT
+REACHES HIS EYE IS A QC FAILURE.** When one does, the fix is always the same shape:
+name the layer that was never decided or never shown, add the check, calibrate it
+against the defect, and ledger it. Never "I will look more carefully next time."
+
+BULLETPROOFING IS NOT MORE CHECKS - IT IS PROVEN CHECKS (L169). Three gates written
+in one session were VACUOUS and passed injected defects until they were tested. So:
+```
+python3 planqc.py --selftest <plan>     # injects known defects, proves each check FAILS
+```
+It prints PROVEN / UNPROVEN per defect, and the UNPROVEN list IS the untested surface.
+A NEW GATE SHIPS WITH ITS NEGATIVE CONTROL IN planqc.DEFECTS, OR IT IS NOT SHIPPED.
+Its own first run found two bugs inside the harness - that is the mechanism working.
+
+THE LAYERS A PLAN MUST DECIDE (planqc 41, file 31 PART I):
+  PILLAR_FIT · TRANSITIONS_PLAN or ALL_HARD_CUTS · CARD_REGISTER · FOLEY ·
+  SFX_OVERLAYS or SFX_WAIVED · SOURCE_REFS/FACE_OPTOUT · LINKS
+A waiver is a sentence, never a silence. And when a pillar is INHERITED, diff EVERY
+style key against the film you are actually making — numbers inherit, style inherits,
+and SOUND POLICY inherits (a talking-head format's edit_sfx='none' reached a workshop
+film and left it with no sound effects at all).
+
+## THREE ADJUSTMENTS HE MADE TO THE PIPELINE — 2026-08-12, binding
+```
+1 THE TITLE IS AN INTENT BRIEF, NOT A SUBJECT LINE
+  Do not stop at what the video is ABOUT. Analyse what HE WANTS OUT OF IT.
+  The title carries a wanted OUTCOME - what the viewer should feel, what the
+  video is for, what it must achieve - and that reading goes in the readback
+  and into the plan's CONTENT block. A plan that nails the subject and misses
+  the intent has failed the title. ("nev daily vlog... hiking, exploring the
+  cave" wanted THE PROCESS - and the first build gave the destination.)
+
+2 JUDGE EVERY CLIP, NOT JUST THE PROBE
+  The probe still goes first and alone (it protects the batch). But after the
+  batch lands, EVERY clip is QC'd on its own merits - measured and LOOKED at -
+  and each one passes or fails individually. A clip that fails is named, and
+  the decision to regenerate or work around it is made before assembly, never
+  discovered in the cut.
+
+3 THE EDIT LOOP, AND THE THREE QC TIERS
+  Automation runs ffmpeg rough cut -> sound -> polish -> EDIT QC GATE.
+    · FAIL  -> the gate hands its ADJUSTMENTS back to step 1 (ffmpeg), then
+               sound, then polish, then the gate again. Loop until it passes.
+    · PASS  -> the file goes to MASTERMIND FINAL BOSS QC (file 27).
+    · MASTERMIND FAIL -> back to step 1 again, same loop.
+    · MASTERMIND PASS -> and only then -> HIM. THE FINAL FINAL BOSS QC, his eye.
+               Then WAIT for his feedback, and feed it into the next adjustment.
+  SCOPE, HIS WORDS: "this is only applicable for the video editing automation
+  part." The loop re-EDITS. It never regenerates. If a defect cannot be fixed
+  by editing, sound or polish, the loop STOPS and says so - regeneration costs
+  credits and belongs back at the plan and his gate, not inside an automatic
+  loop. Hard rule 5 still binds: five failed attempts on one problem -> stop
+  and ask, never spin.
+```
+
+## THE PLANNING PHASE PLANS EVERYTHING — his statement, 2026-08-12, verbatim intent
+```
+1 RESEARCH   the relevant content, ANALYSE it, and say how it implements into OUR video
+             (two scans: SUBJECT and FORM · the reference library is read, not just
+              measured · assets/refs/<pillar>/refsense.json READ slots + PILLAR-PROFILES
+              measured_spread carry open_grammar and text_register per pillar)
+2 PLAN EVERY  prompts · the edit · effects · transitions · foley · BGM · captions and
+  SINGLE      their REGISTER · the triple link at every boundary · the journey beats ·
+  THING       the spine (three-act or kishotenketsu) · the promise and its payoff ·
+              the clip package (which shots also stand alone as their own posts)
+3 STORYBOARD  tools/storyboard.py → **BOARD QC runs automatically on the render**
+              (his idea, 2026-08-12): deep-analyses the board itself - order,
+              timing continuity, panel provenance, prompt fidelity against the
+              plan, refs actually shown vs refs the plan names, pillar sanity,
+              cards, triple links, cost arithmetic. A FAILING BOARD IS NEVER
+              SHOWN TO HIM: it redirects to REPLAN → fix → planqc → regenerate
+              the board → BOARD QC again. Only a passing board reaches his eye.
+              WHY: both defects he caught on the kariayam board (a borrowed
+              pillar name, a persona plate showing the wrong wardrobe) were
+              found BY HIM, after all 45 PLAN checks passed - planqc reads the
+              plan as DATA and nothing inspected the ARTEFACT he reads.
+4 HE APPROVES the single gate
+5 EVERYTHING  generation, editing, sound, polish, gates — they EXECUTE the plan.
+  DOWNSTREAM  They never decide. If a downstream stage has to make a choice, that
+              choice was missing from the plan and the plan is what gets fixed.
+```
+**Consequence, and it is architectural:** a decision belongs in `plans/<name>.py`, not
+in a tool. CARD_REGISTER is the worked example — the plan names the caption register,
+`tools/capcards.py` merely obeys. Any tool that decides something is a bug.
+
 ## THE CONTRACT (the one rule)
 ```
 User gives a TITLE. Derive everything else.
@@ -41,6 +134,18 @@ PHASE 2  paid + autonomous  → generate, edit, gate, deliver. No further stops.
 Use the `/talyx-shotlist` skill for Phase 1.
 
 ## HARD RULES
+0. **WHOLE CLIPS. THE EDIT IS THE ORDER.** His words, 2026-08-12: *"do not simply
+   cut unless analyzed fully then cut. If not, just piece all the scene together
+   fully and just add a simple transition."* The generated footage is GOOD; the
+   editor is what breaks it. So: every scene plays whole, in an order that tells
+   the story, joined by simple declared transitions. A cut is EARNED by written
+   per-window analysis naming what the discarded seconds contain — never assumed,
+   never to hit a runtime. **The title's duration is a REQUEST; this is an ORDER —
+   when they conflict the film gets LONGER, not choppier.** Enforced by planqc 38
+   (CUT_JUSTIFICATION / REUSE_JUSTIFICATION); profile-conformance checks 2 and 9
+   report instead of block on a whole-clip film. Broken once on NIAH_V1 (5.04s
+   sources chopped to 1.23s bursts, every source used twice) — he caught it, V2
+   rebuilt whole-clip and the reorder fixed the ending defect for free.
 1. **Evidence before claims.** Every audio/pacing claim cites a measurement. "Sounds good" with
    no number is fabrication. Tools exist for exactly this — use them.
 2. **MEASURE the credit balance, never estimate.** A past estimate was off by 352cr.
@@ -177,8 +282,18 @@ sequence, mandatory, all steps before any credit:
 
 ```
 1 TITLE          "car cinematic of toyota supra with nev inside it"
-2 REFERENCE SCAN web-search the title's genre: what do the top edits for this exact
-                 subject actually do — opening move, hero feature, event vocabulary?
+2 REFERENCE SCAN **TWO scans, both mandatory — SUBJECT and FORM.**
+                 (a) SUBJECT: what do the top edits for this exact subject do —
+                     opening move, hero feature, event vocabulary?
+                 (b) FORM: what does this CONTENT TYPE structurally owe its
+                     audience? Added 2026-08-12 after NIAH_V2: the subject scan
+                     was done (Niah facts, cave shorts) and the form scan was
+                     NOT, so a VLOG shipped with no journey — it cold-opened
+                     inside the destination and never showed how he got there.
+                     His words: *"people like to see videos that have process in
+                     it."* A vlog's content IS the process: pack → travel →
+                     arrive → the thing → the return. Skipping it deletes the
+                     format's reason to exist. planqc 39 now blocks it.
                  PLUS reverse.py on assets/refs/ for the measured cutting DNA.
                  Scraped references are for UNDERSTANDING, never for generation input.
                  The job is: see the field standard, then IMPROVISE ABOVE it — name
@@ -218,13 +333,21 @@ LLM reception gate - kills boring, which no mechanical check can) -> Gavril. Pla
 GEN_MODE = "coverage" (beat-cut phonk pillar) or "multishot" (file 17, 67.5cr dissolve film).
 Persona = references only; product = describe the geometry.
 
-### STORYBOARD RULE — added 2026-08-04, his standing order
-"I want the storyboard to be full and detailed with images as reference." Every gate
-presentation ships the FULL PRODUCTION.md, generated from the plan (never typed beside
-it), containing: previz image sheet (identity-ref'd) + timeline board + every verbatim
-generation prompt + the complete edit treatment (cut grid, blends, SFX map, cards,
-grade, mix) with computed times + cost. The timeline board upgrades itself to REAL
-frames as clips arrive.
+### STORYBOARD RULE — added 2026-08-04; RESTATED AND HARDENED 2026-08-12 (L141)
+"I want the storyboard to be full and detailed with images as reference." / "Every
+time after the planning phase, I want to see the storyboard."
+
+**THE STORYBOARD IS `tools/storyboard.py`. Run it at EVERY gate. No substitutes.**
+```
+python3 tools/storyboard.py <plan>   →  projects/<plan>/analysis/STORYBOARD.html
+```
+Per-shot cards with timing/foley/camera/card + verbatim prompts + edit flow + cost.
+Its honesty rule is binding: every image is a REAL FRAME, a PLATE on disk, or a red
+MISSING panel — **an AI-sketch previz is NOT a storyboard and never ships at a gate**
+(session 11 burned 2cr learning this; the tool already existed, built to his
+2026-08-06 spec, verbatim in its header). Re-run after plates and after every clip
+batch — panels upgrade themselves to real frames. The gate also ships PRODUCTION.md
+(planqc-generated) beside it. Search the repo's tools BEFORE building anything new.
 
 ### PREVIZ RULE — added 2026-08-04
 Storyboard previz (the cheap 1cr nine-panel sheet) is sketch-grade and NEVER enters

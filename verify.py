@@ -52,7 +52,25 @@ sys.path.insert(0, TOOLS)
 
 # Project layout: projects/<name>/{clips,output,audio,analysis}. One folder per video, so
 # adding video N+1 does not add a script. Falls back to the old flat layout.
-PROJECT = os.environ.get("TALYX_PROJECT", "lc300")
+# PROJECT DEFAULT REMOVED 2026-08-12 (his catch: "why are the QC running against the
+# lc300 cinematic plan?"). It used to fall back to "lc300" — the first film this
+# system ever made — so ANY film verified without --project was silently judged
+# against an early, flawed build's plan and profile. Judging new work against our own
+# past work grandfathers its defects in as normal; 11 of 16 failures in the run he
+# saw were artefacts of that mismatch. There is now NO fallback: the project is taken
+# from the environment, from --project, or inferred from the video's own path, and if
+# none of those resolve, check 5b fails LOUDLY instead of guessing.
+def _project_from_path(p):
+    """projects/<name>/… anywhere in the path → <name>"""
+    try:
+        parts = os.path.abspath(p).replace("\\", "/").split("/")
+        i = parts.index("projects")
+        return parts[i + 1] if i + 1 < len(parts) else None
+    except Exception:
+        return None
+
+
+PROJECT = os.environ.get("TALYX_PROJECT") or ""
 PDIR = os.path.join(HERE, "projects", PROJECT)
 
 
@@ -766,6 +784,160 @@ def check_action(cuts):
 
 
 # ---------------------------------------------------------------- 8 AUDIO
+def check_reference_baseline(video):
+    """20 REFERENCE BASELINE — PICTURE ONLY. His instruction 2026-08-12: "the QC
+    should run based on the reference video I have provided… that is the baseline",
+    scoped by him to "the planning phase and the rough cut phase before Remotion".
+
+    WHY IT EXISTS: this file used to fall back to judging every film against
+    plans/lc300.py — our own first build. Measuring new work against old work
+    grandfathers our defects in as the standard. The reference films are the
+    standard instead, and the numbers below are derived from them
+    (assets/refs/<pillar>/*.mp4 → PILLAR-PROFILES.json.measured_spread.picture_baseline).
+
+    AUDIO IS DELIBERATELY NOT JUDGED HERE. The reference files are platform
+    re-encodes — two of the six travel_vlog refs peak above 0 dBFS — so baselining
+    loudness on them would bless clipping. His mix tuning stands; checks 8/16 and
+    bedcheck own audio.
+
+    ONE-SIDED WHERE ONLY ONE DIRECTION IS A DEFECT (caught in test: PANBORNEO_V5,
+    the film his ear approved, carries MORE palette across its cuts than the
+    references — 0.83 vs a 0.66-0.80 range — and a two-sided bound called that a
+    failure. Too much continuity is a different defect and check 13 owns it.)
+
+    PACING METRICS REPORT, NEVER BLOCK, ON A WHOLE-CLIP FILM (hard rule 0): such a
+    film is longer and slower by his standing order. Palette carry always counts —
+    that is LINKAGE, and nothing he has asked for wants less of it."""
+    pil = meta_pillar() or PILLAR
+    try:
+        prof = json.load(open(os.path.join(HERE, "assets", "pillars",
+                                           "PILLAR-PROFILES.json"), encoding="utf-8"))
+        base = prof[pil]["measured_spread"]["picture_baseline"]
+    except Exception:
+        return add("20 reference baseline", True,
+                   f"no picture_baseline for '{pil}' - run tools/refsense.py --pillar "
+                   f"{pil} --scan and derive it from that pillar's references", False)
+    # MEASURE EXACTLY AS THE BASELINE WAS DERIVED (L136): the picture_baseline in
+    # PILLAR-PROFILES came from ffmpeg fps=15, scale=64x114 on each reference film.
+    # Sampling this film any other way (frames_gray uses a stride) changes the cut
+    # count and makes the comparison meaningless - measured 2026-08-12: the same
+    # file read 17.8 cuts/min one way and 32.8 the other.
+    try:
+        dur = float(json.loads(sh(f'ffprobe -v quiet -print_format json -show_format '
+                                  f'"{video}"')[1])["format"]["duration"])
+    except Exception:
+        dur = None
+    raw = subprocess.run(f'ffmpeg -v quiet -i "{video}" -vf fps=15,scale=64:114 '
+                         f'-f rawvideo -pix_fmt gray -', shell=True,
+                         capture_output=True).stdout
+    if not raw or dur is None:
+        return add("20 reference baseline", True, "could not sample the film", False)
+    F = np.frombuffer(raw, np.uint8).reshape(-1, 114, 64).astype(float)
+    if len(F) < 8:
+        return add("20 reference baseline", True, "too few frames to measure", False)
+    FPS_S = 15.0
+    d = np.array([np.abs(F[i + 1] - F[i]).mean() for i in range(len(F) - 1)])
+    thr = max(18, d.mean() + 2.2 * d.std())
+    cuts_m = sorted(set((np.where(d > thr)[0] / FPS_S).tolist()))
+    total = dur
+    shots = len(cuts_m) + 1
+    def hist(fr):
+        h = np.histogram(fr, bins=16, range=(0, 255))[0].astype(float)
+        return h / (h.sum() + 1e-9)
+    inters = []
+    for c in cuts_m:
+        i = int(c * FPS_S)
+        if 1 <= i < len(F) - 1:
+            inters.append(float(np.minimum(hist(F[i - 1]), hist(F[i + 1])).sum()))
+    mine = {"cpm": shots / total * 60.0, "med": total / shots,
+            "first_cut": (cuts_m[0] if cuts_m else total)}
+    if inters:
+        mine["palette_continuity"] = float(np.median(inters))
+    # whole-clip detection straight from the plan (hard rule 0)
+    clip_s = 0.0
+    try:
+        import importlib.util as _il
+        _s = _il.spec_from_file_location("_p", os.path.join(HERE, "plans", PROJECT + ".py"))
+        _m = _il.module_from_spec(_s); _s.loader.exec_module(_m)
+        clip_s = float(getattr(_m, "CLIP_S", 0) or 0)
+    except Exception:
+        pass
+    # WHOLE-CLIP: DECLARED BY THE PLAN **AND** MEASURED IN THE OUTPUT (his catch,
+    # 2026-08-12: "the whole clip needs to be measured from the plan AND measured
+    # from the output video as well"). Reading the plan alone repeats L145 exactly -
+    # a DECLARED property is not a MEASURED one, and a build that quietly chopped a
+    # scene would still be granted the whole-clip waiver. So the waiver now requires
+    # BOTH, and a disagreement is a FAILURE, not a shrug: the plan said play the
+    # scene whole and the file on disk did something else.
+    #   plan side   : every shot's declared duration >= 90% of CLIP_S
+    #   output side : NO hard cut inside any declared shot span. A hard cut is a big
+    #                 luma jump AND a palette break - the same discriminator check 20
+    #                 uses at boundaries, which is what separates a real cut from a
+    #                 motion spike inside a long take (the thing that made the naive
+    #                 detector read 20 segments in a 10-shot film).
+    # the auto cut-detector over-segments a whole-clip film - it found 20 segments
+    # in a 10-shot NIAH because motion spikes inside a long shot look like cuts -
+    # so a measured median can never prove whole-clip. The plan knows: a shot whose
+    # declared duration is >= 90% of CLIP_S is the whole scene (hard rule 0).
+    whole_plan, whole_out, betrayed = False, None, []
+    try:
+        _b = getattr(_m, "BEATS", {}) or {}
+        _beat = float(getattr(_m, "BEAT", 0) or 0)
+        _sh = list(getattr(_m, "SHOTS", []) or [])
+        if clip_s and _b and _beat and _sh:
+            whole_plan = all(_b.get(s[2], 0) * _beat >= 0.9 * clip_s for s in _sh)
+            if whole_plan:
+                # MEASURE THE OUTPUT: walk each declared span, look for an interior
+                # hard cut (luma jump AND palette break).
+                spans, t0 = [], 0.0
+                for s in _sh:
+                    d_ = _b.get(s[2], 0) * _beat
+                    spans.append((t0, t0 + d_)); t0 += d_
+                whole_out = True
+                for si, (a_, b_) in enumerate(spans):
+                    # 0.4s guard band each side: a 2-frame margin at 15fps let the
+                    # shot BOUNDARY itself read as an interior cut (false positive
+                    # caught in test 2026-08-12 - shot 7 'cut' at 34.53s was the
+                    # 34.46s boundary plus sampling jitter).
+                    GUARD = 6
+                    i0 = int(a_ * FPS_S) + GUARD
+                    i1 = min(len(F) - 2, int(b_ * FPS_S) - GUARD)
+                    for i in range(i0, i1):
+                        if abs(float(F[i + 1].mean()) - float(F[i].mean())) > 28 and \
+                           float(np.minimum(hist(F[i]), hist(F[i + 1])).sum()) < 0.45:
+                            betrayed.append(f"shot {si} cut at {i / FPS_S:.2f}s")
+                            whole_out = False
+                            break
+    except Exception:
+        pass
+    whole = bool(whole_plan and whole_out)
+    lines, fails = [], []
+    for k, b in base.get("metrics", {}).items():
+        if k not in mine:
+            continue
+        lo, hi = b["p10"], b["p90"]
+        v = mine[k]
+        if k == "palette_continuity":
+            ok = v >= lo
+        else:
+            ok = lo <= v <= hi
+            if not ok and whole:
+                lines.append(f"{k} {v:.2f} (refs {lo:.2f}-{hi:.2f}) REPORT-whole-clip")
+                continue
+        lines.append(f"{k} {v:.2f} (refs {lo:.2f}-{hi:.2f}) {'ok' if ok else 'FAIL'}")
+        if not ok:
+            fails.append(k)
+    if whole_plan and whole_out is False:
+        fails.append("whole_clip_betrayed")
+        lines.append("PLAN SAYS WHOLE CLIPS BUT THE OUTPUT IS CUT: " +
+                     "; ".join(betrayed[:3]) + "  <- the build did not honour the plan")
+    elif whole_plan and whole_out:
+        lines.append("whole-clip CONFIRMED in the output (no interior cuts) - pacing waived")
+    return add("20 reference baseline", not fails,
+               f"vs {base.get('refs','?')} {pil} references · " + " · ".join(lines) +
+               "  [PICTURE ONLY - audio is not baselined on re-encoded refs]")
+
+
 def check_audio(video):
     try:
         import mastermind as m
@@ -935,9 +1107,19 @@ def main():
     # --project was parsed but NEVER USED (2026-08-05 red-team find: --project wrx
     # still verified against the lc300 defaults computed at import). Recompute every
     # project-derived path here, where the argument actually exists.
-    global PROJECT, PDIR, CUTS_JSON
+    global PROJECT, PDIR, CUTS_JSON, PILLAR, PILLAR_FROM_PLAN
+    # 2026-08-12: infer the project from the video's own path when not told, and
+    # RECOMPUTE the pillar — it is read at import time, before --project exists.
+    if not a.project:
+        guess = _project_from_path(a.video)
+        if guess and os.path.exists(os.path.join(HERE, "plans", guess + ".py")):
+            a.project = guess
+            print(f"  (project inferred from the video path: {guess})")
     if a.project:
         PROJECT = a.project
+        _p = _plan_pillar()
+        if _p:
+            PILLAR, PILLAR_FROM_PLAN = _p, True
         PDIR = os.path.join(HERE, "projects", PROJECT)
         CUTS_JSON = _newest(os.path.join(PDIR, "audio"), "*_cuts.json") or ""
         if a.video == DEFAULT_VIDEO:
@@ -965,6 +1147,7 @@ def main():
         check_caption_zone(video)
         check_action(cuts)
         check_audio(video)
+        check_reference_baseline(video)
         check_blank(video)
         check_far_repeats(video, cuts)
         check_transitions(video, meta)

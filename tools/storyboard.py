@@ -131,6 +131,17 @@ def find_plate(P, plate_key):
         os.path.join(HERE, "assets", "plates", f"{plate_key}.jpg"),
     ]
     if plate_key == "nev":                       # the persona set, and ONLY for key 'nev'
+        # 2026-08-12, HIS CATCH on the kariayam board: "why I saw some other
+        # character in here? Are you proposing a new girlfriend for nev?"
+        # It WAS Nev - but NEV_PLATE_SOURCE.jpeg shows him in a TAN SWEATER with
+        # legible text across the chest, while that plan declares navy check over a
+        # black tee and BANS legible clothing text. The board was showing a generic
+        # persona photo where the plan had named specific references, so the page
+        # that decides a spend did not show what will actually be sent.
+        # THE PLAN'S OWN REFS COME FIRST. The generic plate is the last resort.
+        for key in ("wardrobe_refs", "identity_refs"):
+            for r in (meta.get(key) or []):
+                cands.append(r if os.path.isabs(r) else os.path.join(HERE, r))
         cands += [os.path.join(HERE, "assets", "nev", "NEV_PLATE_SOURCE.jpeg"),
                   os.path.join(HERE, "assets", "nev", "NEV_PLATE_ALT.jpeg")]
     for cand in cands:
@@ -189,6 +200,27 @@ def build(name, out=None):
                     "token": e[1] if len(e) > 1 else "",
                     "why": e[2] if len(e) > 2 else ""}
         return {"kind": "", "token": "", "why": str(e)}
+
+    links3 = getattr(P, "LINKS", None)
+
+    def triple_at(i):
+        """Boundary i -> i+1 as {picture, sound, story}. Returns None when the plan
+        declares no LINKS block at all (older plans render exactly as before)."""
+        if not links3:
+            return None
+        try:
+            e = links3.get(i) if hasattr(links3, "get") else links3[i]
+        except Exception:
+            return None
+        if e is None:
+            return {"picture": "", "sound": "", "story": ""}
+        if isinstance(e, dict):
+            return {"picture": e.get("picture", ""), "sound": e.get("sound", ""),
+                    "story": e.get("story", "")}
+        if isinstance(e, (list, tuple)):
+            e = list(e) + ["", "", ""]
+            return {"picture": e[0], "sound": e[1], "story": e[2]}
+        return {"picture": "", "sound": "", "story": str(e)}
 
     def card_for(i):
         out_ = []
@@ -264,8 +296,10 @@ def build(name, out=None):
             if img:
                 badge, imnote = "REAL FRAME", os.path.basename(clip)
                 n_real += 1
+        img_path = clip if clip else ""
         if img is None and plates:
             pp, exists = find_plate(P, plates[0])
+            img_path = pp
             if exists:
                 img = b64_of(pp)
                 if img:
@@ -293,12 +327,21 @@ def build(name, out=None):
         rows.append({
             "i": i, "src": src, "act": act, "crop": crop, "kind": kind, "note": note,
             "start": start, "dur": dur, "delivered": delivered, "img": img,
+            "img_path": img_path,   # the RESOLVED source of the panel picture, so
+                                    # BOARD QC can check provenance instead of base64
             "badge": badge, "imnote": imnote,
             "label": meta[0] if meta else src,
             "time": (shot_time[i] if isinstance(shot_time, (list, tuple))
                      and i < len(shot_time) else
                      (shot_time.get(i) if isinstance(shot_time, dict) else "")),
             "foley": foley.get(i), "sfx": sfx, "cards": card_for(i),
+            # SOUND ON THE PAGE (his catch 2026-08-12: "I don't see there's any sound
+            # effect in this storyboard"). The AUDIO line was buried mid-prompt and the
+            # foley was a bare number, so the sound design was invisible on the page
+            # that decides the spend. Now it is its own row.
+            "audio": (lambda _t: (_t.split("AUDIO:")[1].split(" - no music")[0].strip()
+                                  if "AUDIO:" in _t else ""))(meta[4] if len(meta) > 4 else ""),
+            "sweet": [ov for ov in (getattr(P, "SFX_OVERLAYS", []) or []) if ov[0] == src],
             "blend_after": i in blends, "link": link_at(i),
             # HIS ASK 2026-08-06, all four in one pass:
             "framing": framing.get(src, ""),                 # camera movement / position
@@ -342,6 +385,16 @@ def build(name, out=None):
     .link{margin:0 0 10px 216px;padding:7px 12px;border-left:3px solid #2E5A7A;
       background:#101821;border-radius:0 7px 7px 0;font-size:12px;color:#9FB6C9}
     .link b{color:#7FC4F0;text-transform:uppercase;font-size:10px;letter-spacing:.6px}
+    .snd{margin:0 0 8px 216px;padding:6px 12px;border-left:3px solid #4E7A5E;
+         background:#111713;border-radius:0 6px 6px 0;font-size:12px;color:#BFD3C6}
+    .snd b{color:#8FC7A3}
+    .triple{margin:0 0 10px 216px;padding:8px 12px;border-left:3px solid #3E6B8A;
+            background:#12181D;border-radius:0 6px 6px 0;font-size:12px}
+    .tl-h{color:#7FB2D4;font-weight:700;letter-spacing:.04em;margin-bottom:4px}
+    .tl-ok{color:#C7D4DC;margin:2px 0}
+    .tl-ok b{color:#7FB2D4;margin-right:6px}
+    .tl-gap{color:#8A5A5A;margin:2px 0}
+    .tl-gap b{color:#C46A6A;margin-right:6px}
     .blend{margin:0 0 10px 216px;padding:7px 12px;border-left:3px solid #7A5A2E;
       background:#1C1710;border-radius:0 7px 7px 0;font-size:12px;color:#E0C48A}
     h2{font-size:15px;margin:30px 0 10px;color:#fff;border-bottom:1px solid #222733;padding-bottom:6px}
@@ -457,7 +510,34 @@ def build(name, out=None):
                      f"<pre>{esc(r['prompt'])}</pre></details>")
         o.append("</div></div>")
 
-        if r["blend_after"]:
+        # PER-SCENE TRANSITIONS (planqc 37 field), 2026-08-12 HIS CATCH: "I saw
+        # there is no transition here inside this video. Is it supposed to not have
+        # any?" The plan DID declare one - a dip at the workshop/road chapter change -
+        # but this page only ever read the legacy BLEND_AFTER list, so every boundary
+        # printed "hard cut" and the board misrepresented the edit. Same family as the
+        # persona-plate fault: the page that decides the spend must show what will
+        # actually happen.
+        _fo = r.get("foley")
+        _au = r.get("audio") or ""
+        _sw = r.get("sweet") or []
+        if _au or _fo is not None or _sw:
+            _bits = []
+            if _fo is not None:
+                _bits.append(f"<b>FOLEY {_fo:+.1f} dB</b>")
+            if _au:
+                _bits.append(esc(_au[:150]))
+            for ov in _sw:
+                _bits.append(f"<b>+SFX</b> {esc(str(ov[0]))} {float(ov[2]):.2f}s "
+                             f"at {float(ov[3]):.2f}s")
+            o.append("<div class='snd'>SOUND &middot; " + " &middot; ".join(_bits) + "</div>")
+
+        tp_all = getattr(P, "TRANSITIONS_PLAN", {}) or {}
+        tp = tp_all.get(r["i"])
+        if tp:
+            _k = str(tp.get("kind", "?")); _w = str(tp.get("why", ""))
+            o.append(f"<div class='blend'>TRANSITION · <b>{esc(_k.upper())}</b> "
+                     f"&mdash; {esc(_w)}</div>")
+        elif r["blend_after"]:
             o.append(f"<div class='blend'>BLEND · {esc(getattr(P,'BLEND_KIND','?'))} "
                      f"{bw*1000:.0f}ms — the timeline shortens by {bw:.2f}s here</div>")
         elif r["i"] < len(P.SHOTS) - 1:
@@ -473,13 +553,39 @@ def build(name, out=None):
             tok = f" &middot; token <b>{esc(lk['token'])}</b>" if lk['token'] else ""
             o.append(f"<div class='link'><b>{esc(kd)}</b>{tok} &mdash; {esc(lk['why'])}</div>")
 
+        # THE TRIPLE LINK (file 31 PART F, his order 2026-08-12: "the link between
+        # scenes seen beforehand, before video generation... I need there to be
+        # like three link"). Additive: renders only when the plan declares LINKS.
+        # One link = a transition; three = a story beat. Missing channels are shown
+        # as a red gap on purpose - the board never hides what was not decided.
+        tl = triple_at(r["i"])
+        if tl is not None and r["i"] < len(P.SHOTS) - 1:
+            cells = []
+            for ch, lbl in (("picture", "PICTURE"), ("sound", "SOUND"), ("story", "STORY")):
+                v = str(tl.get(ch, "") or "").strip()
+                if v:
+                    cells.append(f"<div class='tl-ok'><b>{lbl}</b> {esc(v)}</div>")
+                else:
+                    cells.append(f"<div class='tl-gap'><b>{lbl}</b> not declared</div>")
+            got = sum(1 for ch in ("picture","sound","story") if str(tl.get(ch,"") or "").strip())
+            badge = ("STORY BEAT" if got == 3 else
+                     f"TRANSITION ONLY &mdash; {got}/3 links")
+            o.append(f"<div class='triple'><div class='tl-h'>TRIPLE LINK &middot; "
+                     f"{badge}</div>{''.join(cells)}</div>")
+
     o.append("<h2>EDIT FLOW — what the engine will do</h2><table>")
     o.append("<tr><th>layer</th><th>declared</th></tr>")
     sn = getattr(P, "SOUND", {}) or {}
     bpm_band = pf.get("bpm") or []
     o.append(f"<tr><td>cuts</td><td>{len(P.SHOTS)-1} boundaries on the "
              f"{getattr(P,'BPM','?')} BPM grid ({getattr(P,'BEAT',0):.3f}s), frame-exact</td></tr>")
-    o.append(f"<tr><td>transitions</td><td>{len(blends)} × {esc(getattr(P,'BLEND_KIND','?'))} "
+    _tpa = getattr(P, "TRANSITIONS_PLAN", {}) or {}
+    if _tpa:
+        _lst = ", ".join(f"after shot {k}: {str(v.get('kind','?')).upper()}"
+                         for k, v in sorted(_tpa.items()))
+        o.append(f"<tr><td>transitions</td><td>{len(_tpa)} declared &mdash; {esc(_lst)}"
+                 f" &middot; every other boundary is a hard cut by doctrine</td></tr>")
+    o.append(f"<tr><td>transitions (legacy)</td><td>{len(blends)} × {esc(getattr(P,'BLEND_KIND','?'))} "
              f"at {bw*1000:.0f}ms, after shots {blends} — "
              f"{100*len(blends)//max(1,len(P.SHOTS)-1)}% blended</td></tr>")
     o.append(f"<tr><td>edit sfx</td><td><b>{esc(policy)}</b> — " +
@@ -538,6 +644,188 @@ def build(name, out=None):
           f"{len(missing)} MISSING")
     if missing:
         print(f"  MISSING images are red panels in the page — they are not hidden.")
+
+    # ---------------------------------------------------------------- BOARD QC
+    rc = board_qc(P, name, rows, tl, total, pf, out)
+    return rc
+
+
+def blends_of(P):
+    return sorted(set(getattr(P, 'BLEND_AFTER', []) or []))
+
+
+def board_qc(P, name, rows, tl, total, pf, out):
+    """BOARD QC — his idea, 2026-08-12: "after the storyboard is generated I want
+    the QC to DEEP ANALYSE the storyboard, check the whole flow, make sure
+    everything is correct and in order and nothing is messed up. If it finds
+    something messed up it redirects BACK to the planning session to replan and
+    regenerate a new storyboard, go through the QC again, and only then let me
+    see the final storyboard."
+
+    WHY IT EXISTS, and it is the strongest argument for any gate in this repo:
+    BOTH defects he caught on the kariayam board - the borrowed pillar name and a
+    persona plate showing the wrong wardrobe with legible text - were found BY HIM,
+    ON THE BOARD, AFTER ALL 45 PLAN CHECKS PASSED. planqc reads the plan as DATA.
+    Nothing ever inspected the ARTEFACT he actually reads. This does.
+
+    It checks the RENDER, not the plan: what is on the page, in what order, with
+    which images, against what the plan says should be there. A failure here means
+    REPLAN - the board is regenerated and re-QC'd before he ever sees it."""
+    F, W = [], []
+    def fail(m): F.append(m)
+    def warn(m): W.append(m)
+
+    # 1 ORDER AND TIMING — the board must be the plan, in sequence, with no gaps
+    for i, r in enumerate(rows):
+        if r["i"] != i:
+            fail(f"panel {i} carries shot index {r['i']} - the board is out of order")
+    if abs(total - float(getattr(P, "TARGET_S", total))) > 0.05:
+        fail(f"board totals {total:.2f}s but the plan declares TARGET_S "
+             f"{getattr(P,'TARGET_S',0):.2f}s")
+    edges = [(r["start"], r["start"] + r["dur"]) for r in rows]
+    for (a1, b1), (a2, b2) in zip(edges, edges[1:]):
+        if abs(a2 - b1) > 0.002:
+            fail(f"timeline gap/overlap at {b1:.3f}s -> {a2:.3f}s")
+
+    # 2 EVERY PANEL IS HONEST — real frame, plate on disk, or a red MISSING panel
+    for r in rows:
+        if not r.get("badge"):
+            fail(f"shot {r['i']} panel has no provenance badge - a silent stand-in")
+
+    # 3 THE IMAGE SHOWN IS THE IMAGE THAT WILL BE SENT (L160, his catch)
+    #   For any shot whose source declares scene refs, the panel's refs strip must
+    #   be non-empty, and no panel may show the generic persona plate when the plan
+    #   named specific ones.
+    srefs = getattr(P, "SOURCE_REFS", {}) or {}
+    for r in rows:
+        if r["src"] in srefs and not r.get("refs"):
+            fail(f"shot {r['i']} ({r['src']}) declares SOURCE_REFS but the board shows "
+                 f"none - the page is not showing what will be generated")
+        shown = [str(r.get("img_path", ""))] + [str(x[2]) for x in (r.get("refs") or [])
+                                                if isinstance(x, (list, tuple)) and len(x) > 2]
+        for s_ in shown:
+            if "NEV_PLATE" in s_.upper():
+                fail(f"shot {r['i']} shows the generic persona plate ({os.path.basename(s_)}) "
+                     f"- the plan names specific refs and the board must show THOSE (L160)")
+        # every picture on the page must be one the PLAN NAMED. An image the plan
+        # never mentioned is a stand-in, and this page forbids stand-ins.
+        named = set()
+        for grp in (getattr(P, "SOURCE_REFS", {}) or {}).values():
+            named.update(os.path.normpath(x) for x in grp)
+        for spec in (getattr(P, "PLATES", {}) or {}).values():
+            if isinstance(spec, dict):
+                for k_ in ("identity_refs", "wardrobe_refs"):
+                    named.update(os.path.normpath(x) for x in (spec.get(k_) or []))
+        for s_ in shown[1:]:
+            if s_ and os.path.normpath(s_) not in named:
+                fail(f"shot {r['i']} shows {os.path.basename(s_)}, which the plan never "
+                     f"names - a stand-in on the page that decides the spend")
+
+    # 4 PROMPT FIDELITY — the board's prompt must be the plan's prompt, verbatim
+    for r in rows:
+        src_meta = (getattr(P, "SOURCES", {}) or {}).get(r["src"])
+        want = src_meta[4] if src_meta and len(src_meta) > 4 else ""
+        if want and r.get("prompt", "") != want:
+            fail(f"shot {r['i']} prompt on the board differs from the plan's prompt")
+
+    # 5 PILLAR SANITY (L159, his catch) — a borrowed pillar is a mislabelled film
+    pil = getattr(P, "PILLAR", "")
+    if not pil:
+        fail("the plan declares no PILLAR - the board is judged against nothing")
+    elif not pf:
+        fail(f"PILLAR '{pil}' has no profile - the board's numbers come from nowhere")
+    else:
+        inherited = (pf.get("_inherited_from") or "")
+        if inherited:
+            warn(f"pillar '{pil}' INHERITS its numbers from '{inherited}' and they are "
+                 f"not measured for it yet - stated, not hidden")
+
+    # 6 THE FLOW READS — cards, links and the spine actually present on the page
+    ncards = sum(1 for r in rows if r.get("cards"))
+    if (getattr(P, "CARDS", []) or []) and ncards == 0:
+        fail("the plan declares CARDS but no panel shows one")
+    links3 = getattr(P, "LINKS", None)
+    if links3:
+        for i in range(len(rows) - 1):
+            e = links3.get(i) if hasattr(links3, "get") else None
+            if not e or not str((e or {}).get("story", "")).strip():
+                fail(f"boundary {i} has no STORY link on the board (file 31 PART F)")
+    else:
+        warn("no LINKS block - the board cannot show the triple link at any boundary")
+
+    # 6b TRANSITIONS ON THE PAGE (his catch 2026-08-12). Every transition the plan
+    #    declares must be VISIBLE on the board, and a boundary the board calls a hard
+    #    cut must actually be one. The board reading a legacy field while the plan
+    #    used the modern one is exactly how a declared dip became five "hard cut"
+    #    lines and he had to ask whether the film had any transitions at all.
+    tpa = getattr(P, "TRANSITIONS_PLAN", {}) or {}
+    try:
+        page = open(out, encoding="utf-8").read()
+        import re as _re
+        flat = _re.sub(r"<[^>]+>", " ", page)
+        for i, spec in sorted(tpa.items()):
+            kind = str(spec.get("kind", "")).upper()
+            if kind and kind not in flat.upper():
+                fail(f"the plan declares a {kind} transition after shot {i} and the "
+                     f"board never shows it - the page misrepresents the edit")
+        # count the per-boundary ELEMENTS, not the words: my own edit-flow summary
+        # line contains the phrase "hard cut" and was counted, failing a correct
+        # board (caught in test 2026-08-12 - the L162 family again: know exactly
+        # what the thing you are counting is).
+        n_hard = page.count("class='cut'")
+        expected_hard = max(0, len(rows) - 1 - len(tpa) - len(blends_of(P)))
+        if tpa and n_hard > expected_hard:
+            fail(f"the board prints 'hard cut' {n_hard} times but only "
+                 f"{expected_hard} boundaries are hard cuts")
+    except Exception as e:
+        warn(f"transition rendering not verifiable: {str(e)[:60]}")
+
+    # 6c SOUND ON THE PAGE (his catch). A shot whose sound is not visible on the
+    #    board cannot be reviewed, and this film's credibility lives in the ratchet,
+    #    the torque click and the engine.
+    for r in rows:
+        if r.get("foley") is None and not r.get("audio"):
+            fail(f"shot {r['i']} shows no sound design on the board - no foley level "
+                 f"and no AUDIO line")
+    _decl = getattr(P, "SFX_OVERLAYS", []) or []
+    if _decl:
+        try:
+            _pg = open(out, encoding="utf-8").read()
+            if _pg.count("+SFX") < len(_decl):
+                fail(f"the plan declares {len(_decl)} SFX sweetener(s) and the board "
+                     f"shows {_pg.count('+SFX')}")
+        except Exception:
+            pass
+
+    # 7 NO PANEL IS A DUPLICATE OF ITS NEIGHBOUR (the board's own dupe smell)
+    for a, b in zip(rows, rows[1:]):
+        if a["src"] == b["src"]:
+            warn(f"shots {a['i']} and {b['i']} share source {a['src']} back to back")
+
+    # 8 COST ON THE PAGE MATCHES THE PLAN'S OWN ARITHMETIC
+    try:
+        c = P.cost()
+        if abs(c["total"] - (c["generation"] + c["plates"])) > 0.01:
+            fail("the cost line does not add up")
+    except Exception as e:
+        warn(f"cost not verifiable: {str(e)[:60]}")
+
+    print()
+    print("  " + "=" * 62)
+    print("  BOARD QC — deep analysis of the storyboard itself")
+    print("  " + "=" * 62)
+    for m in W:
+        print(f"    warn  {m}")
+    if F:
+        for m in F:
+            print(f"    FAIL  {m}")
+        print(f"\n  BOARD QC FAILED ({len(F)} defect(s)) — DO NOT SHOW THIS BOARD.")
+        print("  REPLAN: fix the plan, re-run planqc, regenerate the board, re-QC.")
+        print("  Only a board that passes reaches him (his rule, 2026-08-12).")
+        return 1
+    print(f"    {len(rows)} panels · order, timing, provenance, prompts, refs, "
+          f"pillar, cards, links and cost all agree with the plan")
+    print("  BOARD QC PASSED — safe to show him.")
     return 0
 
 

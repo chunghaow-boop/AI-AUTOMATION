@@ -1,7 +1,7 @@
 {
  "_source": "23 reference videos he selected, measured 2026-07-30",
  "_expires": "2026-09-28",
- "_read_first": "assets/pillars/PILLAR-PROFILES.md",
+ "_read_first": "assets/pillars/PILLAR-PROFILES.md  || 2026-08-12: every pillar now carries measured_spread - read open_grammar and text_register BEFORE writing a shot list (file 31 PART H). The hook ceiling in planqc 9 is now per-pillar from first_cut_median_s, not a global 2.0s.",
  "car_cinematic": {
   "family": "short_music_led",
   "duration_s": [
@@ -68,6 +68,53 @@
    "shot_match_clamp_note": "Second belt only. The BINDING limit is now shot_match_max_move, stated in luma. The old note claiming widening this to 0.26 'made exposure worse' is SUPERSEDED: that test ran on a gain formula miscalibrated 2.2x, so a wider clamp simply overshot further. Re-derive if needed.",
    "exposure_max_swing": 18.0,
    "_exposure_max_swing_why": "Was hard-coded as `if d > 18` inside verify.py check 5 with no provenance. Lifted here 2026-08-08 UNCHANGED so behaviour is identical - the point of this move is that the number is now visible and per-pillar, not that it is right. travel_vlog runs golden hour to night by design and almost certainly needs a wider budget; car_cinematic is one light state and may need less. Neither has been derived. See ledgers/thresholds.json."
+  },
+  "measured_spread": {
+   "_what": "MEASURED 2026-08-12 from this pillar's own reference files. The single cuts_per_min figure above is a CENTRE OF MASS - these references disagree with each other by ~3x. A plan outside the band owes a reason, not an apology (planqc 2 reports, does not block, on whole-clip films).",
+   "refs_measured": 5,
+   "cuts_per_min_range": [
+    23.0,
+    58.2
+   ],
+   "shot_median_range_measured": [
+    1.03,
+    2.61
+   ],
+   "first_cut_median_s": 4.07,
+   "open_grammar": "a STILL, HELD. These films breathe 3-6s before the first cut; opening motion measures 0.08-0.88x the film's own mean.",
+   "text_register": "huge display type filling the frame, letters cropped by the frame edge - a design element, never a subtitle",
+   "picture_baseline": {
+    "_what": "PICTURE + STRUCTURE baseline derived from this pillar's own reference films (assets/refs/<pillar>/*.mp4). His instruction 2026-08-12: the references are the baseline for the PLANNING and ROUGH-CUT phases. Judging new work against our own past films (the old verify default was hardcoded to lc300) grandfathers our defects in as normal.",
+    "_scope_excludes_audio": "AUDIO IS NOT BASELINED HERE. The reference files are platform re-encodes (2 of 6 peak above 0 dBFS), so they would bless clipping. Loudness/true-peak stay on platform spec and on his own tuning, which he has already dialled in - do not re-derive them.",
+    "refs": 5,
+    "derived": "2026-08-12",
+    "metrics": {
+     "cpm": {
+      "p10": 29.785,
+      "med": 42.746,
+      "p90": 52.805,
+      "n": 5
+     },
+     "med": {
+      "p10": 1.155,
+      "med": 1.404,
+      "p90": 2.166,
+      "n": 5
+     },
+     "first_cut": {
+      "p10": 2.867,
+      "med": 4.067,
+      "p90": 5.6,
+      "n": 5
+     },
+     "palette_continuity": {
+      "p10": 0.491,
+      "med": 0.621,
+      "p90": 0.649,
+      "n": 5
+     }
+    }
+   }
   }
  },
  "car_cinematic_chill": {
@@ -198,7 +245,54 @@
   "designed_kinds": [
    "whip"
   ],
-  "blend_max_count": 2
+  "blend_max_count": 2,
+  "measured_spread": {
+   "_what": "MEASURED 2026-08-12 from this pillar's own reference files. The single cuts_per_min figure above is a CENTRE OF MASS - these references disagree with each other by ~3x. A plan outside the band owes a reason, not an apology (planqc 2 reports, does not block, on whole-clip films).",
+   "refs_measured": 6,
+   "cuts_per_min_range": [
+    22.2,
+    59.6
+   ],
+   "shot_median_range_measured": [
+    1.01,
+    2.71
+   ],
+   "first_cut_median_s": 1.86,
+   "open_grammar": "a small human action - sitting up, a curtain, a phone picked up. NOT an event.",
+   "text_register": "whispered: tiny lowercase, lower-mid frame, plus TIMESTAMPS advancing (7:00 -> 8:00)",
+   "picture_baseline": {
+    "_what": "PICTURE + STRUCTURE baseline derived from this pillar's own reference films (assets/refs/<pillar>/*.mp4). His instruction 2026-08-12: the references are the baseline for the PLANNING and ROUGH-CUT phases. Judging new work against our own past films (the old verify default was hardcoded to lc300) grandfathers our defects in as normal.",
+    "_scope_excludes_audio": "AUDIO IS NOT BASELINED HERE. The reference files are platform re-encodes (2 of 6 peak above 0 dBFS), so they would bless clipping. Loudness/true-peak stay on platform spec and on his own tuning, which he has already dialled in - do not re-derive them.",
+    "refs": 6,
+    "derived": "2026-08-12",
+    "metrics": {
+     "cpm": {
+      "p10": 27.333,
+      "med": 41.307,
+      "p90": 52.873,
+      "n": 6
+     },
+     "med": {
+      "p10": 1.153,
+      "med": 1.453,
+      "p90": 2.276,
+      "n": 6
+     },
+     "first_cut": {
+      "p10": 0.067,
+      "med": 1.867,
+      "p90": 2.667,
+      "n": 6
+     },
+     "palette_continuity": {
+      "p10": 0.657,
+      "med": 0.79,
+      "p90": 0.799,
+      "n": 6
+     }
+    }
+   }
+  }
  },
  "car_review": {
   "family": "long_speech_led",
@@ -264,6 +358,21 @@
    "shot_match_clamp_note": "Second belt only. The BINDING limit is now shot_match_max_move, stated in luma. The old note claiming widening this to 0.26 'made exposure worse' is SUPERSEDED: that test ran on a gain formula miscalibrated 2.2x, so a wider clamp simply overshot further. Re-derive if needed.",
    "exposure_max_swing": 18.0,
    "_exposure_max_swing_why": "Was hard-coded as `if d > 18` inside verify.py check 5 with no provenance. Lifted here 2026-08-08 UNCHANGED so behaviour is identical - the point of this move is that the number is now visible and per-pillar, not that it is right. travel_vlog runs golden hour to night by design and almost certainly needs a wider budget; car_cinematic is one light state and may need less. Neither has been derived. See ledgers/thresholds.json."
+  },
+  "measured_spread": {
+   "_what": "MEASURED 2026-08-12 from this pillar's own reference files. The single cuts_per_min figure above is a CENTRE OF MASS - these references disagree with each other by ~3x. A plan outside the band owes a reason, not an apology (planqc 2 reports, does not block, on whole-clip films).",
+   "refs_measured": 7,
+   "cuts_per_min_range": [
+    5.7,
+    43.4
+   ],
+   "shot_median_range_measured": [
+    1.38,
+    10.47
+   ],
+   "first_cut_median_s": 2.27,
+   "open_grammar": "a CLAIM stated as a graphic in frame 1 (subject + price on a white rounded card, top-left)",
+   "text_register": "white rounded card, top-left, frame 1: subject + price"
   }
  },
  "industry": {
@@ -329,6 +438,21 @@
    "shot_match_clamp_note": "Second belt only. The BINDING limit is now shot_match_max_move, stated in luma. The old note claiming widening this to 0.26 'made exposure worse' is SUPERSEDED: that test ran on a gain formula miscalibrated 2.2x, so a wider clamp simply overshot further. Re-derive if needed.",
    "exposure_max_swing": 18.0,
    "_exposure_max_swing_why": "Was hard-coded as `if d > 18` inside verify.py check 5 with no provenance. Lifted here 2026-08-08 UNCHANGED so behaviour is identical - the point of this move is that the number is now visible and per-pillar, not that it is right. travel_vlog runs golden hour to night by design and almost certainly needs a wider budget; car_cinematic is one light state and may need less. Neither has been derived. See ledgers/thresholds.json."
+  },
+  "measured_spread": {
+   "_what": "MEASURED 2026-08-12 from this pillar's own reference files. The single cuts_per_min figure above is a CENTRE OF MASS - these references disagree with each other by ~3x. A plan outside the band owes a reason, not an apology (planqc 2 reports, does not block, on whole-clip films).",
+   "refs_measured": 5,
+   "cuts_per_min_range": [
+    5.3,
+    42.5
+   ],
+   "shot_median_range_measured": [
+    1.41,
+    11.33
+   ],
+   "first_cut_median_s": 2.47,
+   "open_grammar": "a question or claim to camera, captioned word-by-word from frame 1",
+   "text_register": "word-by-word karaoke, ONE word highlighted yellow per line, plus big yellow number blocks"
   }
  },
  "_our_gaps": {
@@ -359,5 +483,201 @@
   "shot_match_mode": "neighbour|median - neighbour never pulls to a global level",
   "shot_match_max_move": "max luma a single shot may be relit (the binding limit)",
   "shot_match_tol": "cut-boundary swing tolerated before a shot is touched"
+ },
+ "daily_vlog": {
+  "family": "short_music_led",
+  "duration_s": [
+   16,
+   29
+  ],
+  "shot_median_s": 1.13,
+  "shot_median_range": [
+   0.6,
+   2.51
+  ],
+  "cuts_per_min": 40.3,
+  "blended_pct": 0,
+  "bpm": [
+   95,
+   115
+  ],
+  "black_point": 10.0,
+  "saturation": 74.5,
+  "captions": "sentence fragments",
+  "note": "ASMR-CAPABLE: cooking/craft content in this pillar is carried by DIEGETIC sound (sizzle, chop, bubble), which inverts travel_vlog's L128 bed-over-foley rule. A plan here declares its own sound direction and bedcheck is read accordingly.",
+  "style": {
+   "brightness_band": [
+    35,
+    200
+   ],
+   "brightness_source": "PROVISIONAL \u2014 NO vlog footage has ever been generated or measured. The profile's black_point 10.0 / saturation 74.5 are DIFFERENT metrics from mean luma; deriving a luma band from them would be inventing a number. Widened from [55,200] to [35,200] on 2026-08-05 after a golden-hour/dusk frame measured 51.3 and would have been wrongly rejected. Asymmetric cost drives the width: a wrong REJECT burns 22.5cr, a wrong ACCEPT costs one eye pass. RE-DERIVE from the first 9 real vlog clips at ingest.",
+   "card_max_words": 6,
+   "card_style": "fragment",
+   "cut_spine": "beat_grid",
+   "edit_sfx": "hero_only",
+   "event_motion_floor": 2.5,
+   "max_visits_per_place": 2,
+   "motion_floor": 0.6,
+   "motion_source": "PROVISIONAL \u2014 derived from SYNTHETIC camera-move tests, not real vlog footage (slow landscape drift 1.18, serene push-in 3.38, slow pan 4.74, locked-off 0.00). 0.6 still catches a genuinely FROZEN clip while allowing a legitimate calm shot \u2014 a serene hold is content in this genre, not a dead clip. RE-DERIVE at first ingest.",
+   "shot_match_clamp": 0.14,
+   "sound_gate": "ambience",
+   "shot_match_mode": "neighbour",
+   "shot_match_max_move": 0.0,
+   "shot_match_tol": 12.0,
+   "shot_match_source": "MEASURED 2026-08-05 on KK v14 + his three raw Higgsfield clips: he called clips at 45.1, 89.7 and 92.9 mean luma 'close to perfect' - a 47-luma spread INSIDE his approval band. RETIRED TO ZERO 2026-08-07 on his instruction after LOOKING at a 20-panel contact sheet of the first real travel_vlog footage: 'the lighting is already close to perfect... the lighting master can retire already because the lighting in the raw footages are already good, and then our video automation lighting master edits and made it worst'. He said the same thing on 2026-08-05 (quoted in verify.py check 15) and it was only half-actioned. The mahua preview is the control experiment: it applied NO grade and NO shot-match at all - pure crop/scale - and he approves the light. max_move 0.0 means the stage cannot move source luma AT ALL. SOURCE LIGHTING IS TRUSTED. Restore to 12.0 only if his eye asks for it at a specific boundary.",
+   "shot_match_clamp_note": "Second belt only. The BINDING limit is now shot_match_max_move, stated in luma. The old note claiming widening this to 0.26 'made exposure worse' is SUPERSEDED: that test ran on a gain formula miscalibrated 2.2x, so a wider clamp simply overshot further. Re-derive if needed.",
+   "mix_foley_fg_target_db": -8.0,
+   "mix_sfx_target_db": -6.0,
+   "mix_duck_threshold": 0.1,
+   "mix_duck_ratio": 3.0,
+   "mix_duck_release": 180.0,
+   "mix_source": "SET 2026-08-06 after his catch 'the sfx and foley are too loud it covers the whole bgm'. MEASURED first: on the delivered files, during the loudest 10% of broadband moments the bed's 40-160Hz band drops -4.9dB on KK v15 (travel_vlog) but -31.1dB on WRX v9 (car_cinematic, edit_sfx=full). The vlog was NOT the offender - but bed-2 for foreground foley is still too hot for a pillar whose bed IS the emotion, so this pillar declares -8 and a gentler 3:1 duck. car_cinematic keeps the old defaults until he decides - changing it would change the approved WRX look.",
+   "exposure_max_swing": 18.0,
+   "_exposure_max_swing_why": "Was hard-coded as `if d > 18` inside verify.py check 5 with no provenance. Lifted here 2026-08-08 UNCHANGED so behaviour is identical - the point of this move is that the number is now visible and per-pillar, not that it is right. travel_vlog runs golden hour to night by design and almost certainly needs a wider budget; car_cinematic is one light state and may need less. Neither has been derived. See ledgers/thresholds.json.",
+   "exposure_gate": "report",
+   "_exposure_gate_why": "2026-08-11, closes RESUME-08-07 open item: verify check 5 was a BLOCKING gate with a budget (18) lifted unchanged from car footage shot in ONE light state. A travel vlog runs golden hour to night BY DESIGN - a legitimate six-light-state arc FAILS a blocking gate for having a day in it. REPORT-ONLY for this pillar until a real budget is derived from measured winning references (PENDING 2.1). The measurement still prints in full; check 15 (relight audit) remains the harder limit. car_cinematic stays blocking, unchanged."
+  },
+  "blended_pct_source": "MEASURED 0% by a frame-difference heuristic that its own analysis (travel_vlog_ANALYSIS.md line 86) admits 'a very fast whip can read as a hard cut'. RE-MEASURED 2026-08-06 with tools/blendsense.py, which separates a WHIP (a sharpness trench of 2-6 frames WITH a scene change across it) from a hard cut (no trench) and a dissolve (sustained mid correlation). Result across the same 6 references: 3 WHIPS and 1 dissolve in 42 total cuts = 9.5% POOLED designed transitions, and 3 of 6 references use at least one. The old 0% was an UNDERCOUNT. Note the per-file medians are unusable here - two references have only 1 and 2 cuts - so the pooled figure is the honest one.",
+  "designed_pct": 9.5,
+  "designed_kinds": [
+   "whip"
+  ],
+  "blend_max_count": 2,
+  "measured_spread": {
+   "_what": "MEASURED 2026-08-12 from this pillar's own reference files. The single cuts_per_min figure above is a CENTRE OF MASS - these references disagree with each other by ~3x. A plan outside the band owes a reason, not an apology (planqc 2 reports, does not block, on whole-clip films).",
+   "refs_measured": 6,
+   "cuts_per_min_range": [
+    22.2,
+    59.6
+   ],
+   "shot_median_range_measured": [
+    1.01,
+    2.71
+   ],
+   "first_cut_median_s": 1.86,
+   "open_grammar": "a small human action - sitting up, a curtain, a phone picked up. NOT an event.",
+   "text_register": "whispered: tiny lowercase, lower-mid frame, plus TIMESTAMPS advancing (7:00 -> 8:00)",
+   "picture_baseline": {
+    "_what": "PICTURE + STRUCTURE baseline derived from this pillar's own reference films (assets/refs/<pillar>/*.mp4). His instruction 2026-08-12: the references are the baseline for the PLANNING and ROUGH-CUT phases. Judging new work against our own past films (the old verify default was hardcoded to lc300) grandfathers our defects in as normal.",
+    "_scope_excludes_audio": "AUDIO IS NOT BASELINED HERE. The reference files are platform re-encodes (2 of 6 peak above 0 dBFS), so they would bless clipping. Loudness/true-peak stay on platform spec and on his own tuning, which he has already dialled in - do not re-derive them.",
+    "refs": 6,
+    "derived": "2026-08-12",
+    "metrics": {
+     "cpm": {
+      "p10": 27.333,
+      "med": 41.307,
+      "p90": 52.873,
+      "n": 6
+     },
+     "med": {
+      "p10": 1.153,
+      "med": 1.453,
+      "p90": 2.276,
+      "n": 6
+     },
+     "first_cut": {
+      "p10": 0.067,
+      "med": 1.867,
+      "p90": 2.667,
+      "n": 6
+     },
+     "palette_continuity": {
+      "p10": 0.657,
+      "med": 0.79,
+      "p90": 0.799,
+      "n": 6
+     }
+    },
+    "_warning": "INHERITED from travel_vlog references (road-trip films). Valid as a placeholder, NOT as a standard for a kitchen film. Replace with measured daily-vlog references."
+   }
+  },
+  "_what": "DAILY VLOG \u2014 the everyday-life pillar (kitchen, home, routine). Added 2026-08-12 on his catch: 'why is this under the travel vlog category? This is a normal vlog.' He is right - mislabelling means every check judges a kitchen against road-trip references.",
+  "_provenance": "NUMBERS INHERITED FROM travel_vlog AND NOT YET MEASURED FOR THIS PILLAR. There are no daily/food reference films in assets/refs/ yet. Inherited so the pillar exists honestly rather than borrowing another pillar's NAME; re-derive from real daily-vlog references before trusting the picture_baseline, and mark it MEASURED when you do.",
+  "_inherited_from": "travel_vlog"
+ },
+ "car_advice": {
+  "family": "long_speech_led",
+  "duration_s": [
+   58,
+   107
+  ],
+  "speech_pct": [
+   81,
+   99
+  ],
+  "body_band_pct": [
+   72,
+   97
+  ],
+  "sub_bass_pct": [
+   0,
+   12
+  ],
+  "transients_per_min": [
+   184,
+   292
+  ],
+  "note": "cut to sentence boundaries, not a beat grid",
+  "n": 7,
+  "shot_median_s": 3.6,
+  "shot_median_range": [
+   2.35,
+   7.3
+  ],
+  "cuts_per_min": 14.3,
+  "cuts_per_min_range": [
+   5.0,
+   22.5
+  ],
+  "blended_pct": 16,
+  "blended_range": [
+   0,
+   70
+  ],
+  "black_point": 8.0,
+  "saturation": 52.9,
+  "style": {
+   "brightness_band": [
+    40,
+    190
+   ],
+   "brightness_source": "PROVISIONAL \u2014 no measured source set. Re-derive at first ingest.",
+   "card_max_words": 8,
+   "card_style": "fragment",
+   "cut_spine": "sentence",
+   "edit_sfx": "hero_only",
+   "event_motion_floor": 2.0,
+   "max_visits_per_place": 3,
+   "motion_floor": 0.4,
+   "motion_source": "PROVISIONAL \u2014 speech-led; the picture serves the sentence, long calm shots are normal. Re-derive at first ingest.",
+   "shot_match_clamp": 0.14,
+   "sound_gate": "diegetic",
+   "shot_match_mode": "neighbour",
+   "shot_match_max_move": 14.0,
+   "shot_match_tol": 12.0,
+   "shot_match_source": "MEASURED 2026-08-05 on KK v14 + his three raw Higgsfield clips. He called clips measuring 45.1, 89.7 and 92.9 mean luma 'close to perfect' - a 47-luma spread INSIDE his approval band. A global median pull therefore destroys the look he approves: kk_I arrived at 45.1 and the old stage rendered it at 116.9. Source lighting is TRUSTED; the stage now only shaves excess CUT-BOUNDARY swing.",
+   "shot_match_clamp_note": "Second belt only. The BINDING limit is now shot_match_max_move, stated in luma. The old note claiming widening this to 0.26 'made exposure worse' is SUPERSEDED: that test ran on a gain formula miscalibrated 2.2x, so a wider clamp simply overshot further. Re-derive if needed.",
+   "exposure_max_swing": 18.0,
+   "_exposure_max_swing_why": "Was hard-coded as `if d > 18` inside verify.py check 5 with no provenance. Lifted here 2026-08-08 UNCHANGED so behaviour is identical - the point of this move is that the number is now visible and per-pillar, not that it is right. travel_vlog runs golden hour to night by design and almost certainly needs a wider budget; car_cinematic is one light state and may need less. Neither has been derived. See ledgers/thresholds.json.",
+   "_edit_sfx_note": "CHANGED FROM INHERITED 'none' 2026-08-12, his catch: 'are you sure there is no sound effects in this video? When Nev is fixing the car, shouldn't there be a sound effect? And the car driving?' car_review is a PRESENTER format where a voice carries everything, so 'none' is right there. In a WORKSHOP film the ratchet, the torque click and the engine ARE the content, and relying entirely on generated clip audio to produce a crisp click is a bet, not a plan. hero_only: bank sweeteners on the sound-critical moments, layered ON the diegetic audio, never a whoosh-on-every-cut layer."
+  },
+  "measured_spread": {
+   "_what": "MEASURED 2026-08-12 from this pillar's own reference files. The single cuts_per_min figure above is a CENTRE OF MASS - these references disagree with each other by ~3x. A plan outside the band owes a reason, not an apology (planqc 2 reports, does not block, on whole-clip films).",
+   "refs_measured": 7,
+   "cuts_per_min_range": [
+    5.7,
+    43.4
+   ],
+   "shot_median_range_measured": [
+    1.38,
+    10.47
+   ],
+   "first_cut_median_s": 2.27,
+   "open_grammar": "a CLAIM stated as a graphic in frame 1 (subject + price on a white rounded card, top-left)",
+   "text_register": "white rounded card, top-left, frame 1: subject + price"
+  },
+  "_what": "CAR ADVICE \u2014 workshop / ownership films that TEACH, carried by MUSIC AND CARDS rather than a presenter's voice. Created 2026-08-12 rather than renting car_review's name: car_review is SPEECH-LED (sound_gate=underscore, its references are presenters to camera with karaoke captions) and he chose cards + music for this film. L159: create the pillar honestly.",
+  "_inherited_from": "car_review",
+  "_provenance": "NUMBERS INHERITED FROM car_review AND NOT MEASURED FOR THIS PILLAR. Its references are presenter-led long-form (58-107s); a 30s music-led workshop film sits outside that band by design and checks 2/9 report it. Re-derive when music-led advice references exist."
  }
 }

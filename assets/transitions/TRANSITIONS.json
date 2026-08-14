@@ -1,14 +1,9 @@
 {
   "_what": "The transition bank. DEFINITIONS, not clips.",
-
   "_why": "He asked for a transition bank so 'the video editor can analyse which one is suitable and watch the transition'. It cannot watch - it is code. And a folder of transition footage would not have caught the failure that made this file necessary.\n\nThe 240ms whip in DESAFARM_CINEMATIC_v2 did not fail because it was the wrong whoosh. It failed because it SHORTENED shot 8 by 197ms instead of OVERLAPPING it. Internal spacing between every other shot stayed perfect, so no per-shot check could see it - the back 60% of the film simply sat ~170ms early against the music. That is a property of the transition's DEFINITION (does it consume time or overlap it), and nothing else in the pipeline stated it.",
-
   "_the_field_that_matters": "timing. 'overlap' means the transition borrows frames from BOTH neighbours and the shot keeps its full length - the engine must RESERVE duration_ms of extra source. 'consume' means the transition eats duration_ms out of the outgoing shot and the timeline shortens. Get this wrong and every cut after it drifts, silently, forever.",
-
   "_how_the_engine_uses_this": "engine.py reads BLEND_KIND per index in BLEND_AFTER. For timing='overlap' it adds duration_ms to that shot's render length (already patched 2026-08-07). For timing='consume' it does not. planqc check 34 refuses a plan whose declared transition contradicts what the footage or the shot lengths can support.",
-
   "_sfx_pairing": "pairs_with_sfx is a literal query into assets/bank/bank_index.json via bank.py. It is not a filename, because a filename rots and a query does not. 126 files currently satisfy cut_safe=True.",
-
   "transitions": [
     {
       "kind": "hard",
@@ -19,7 +14,10 @@
       "min_shot_len_s": 0.0,
       "max_per_film": null,
       "pairs_with_sfx": null,
-      "why": "The default. Costs nothing, drifts nothing, and is correct far more often than the alternatives. Every other entry in this file has to earn its place against this one."
+      "why": "The default. Costs nothing, drifts nothing, and is correct far more often than the alternatives. Every other entry in this file has to earn its place against this one.",
+      "when_scene": "the default everywhere; energy, rhythm, honesty. Every other kind must beat it.",
+      "executed_by": "engine",
+      "status": "live"
     },
     {
       "kind": "whip",
@@ -36,7 +34,10 @@
         "max_tail_ms": 600,
         "clean_only": true
       },
-      "why": "THE ONE THAT BROKE DESAFARM. Declared 240ms and delivered -197ms on shot 8 because the engine shortened instead of overlapping. timing='overlap' is the whole point of this entry. It also needs real motion on BOTH sides - a whip out of a static frame reads as a glitch, and the laplacian collapsed 463 -> 9 at the boundary, which verify flagged as a smear."
+      "why": "THE ONE THAT BROKE DESAFARM. Declared 240ms and delivered -197ms on shot 8 because the engine shortened instead of overlapping. timing='overlap' is the whole point of this entry. It also needs real motion on BOTH sides - a whip out of a static frame reads as a glitch, and the laplacian collapsed 463 -> 9 at the boundary, which verify flagged as a smear.",
+      "when_scene": "speed/motion carries across the cut - driving, launch, chase. Needs real motion BOTH sides.",
+      "executed_by": "engine",
+      "status": "live"
     },
     {
       "kind": "flash",
@@ -52,7 +53,10 @@
         "max_tail_ms": 400,
         "clean_only": true
       },
-      "why": "Works from a static frame, which whip does not - that is its only reason to exist. Capped at 2 because a third flash stops reading as emphasis and starts reading as a broken file. Interacts with check 5: a flash IS a luma spike, so it must be excluded from the exposure swing count or it fails a gate for doing its job."
+      "why": "Works from a static frame, which whip does not - that is its only reason to exist. Capped at 2 because a third flash stops reading as emphasis and starts reading as a broken file. Interacts with check 5: a flash IS a luma spike, so it must be excluded from the exposure swing count or it fails a gate for doing its job.",
+      "when_scene": "time jump, rewind, memory, camera-flash moment - works from static frames.",
+      "executed_by": "engine|polish",
+      "status": "live"
     },
     {
       "kind": "dip",
@@ -68,25 +72,169 @@
         "band": "low",
         "clean_only": true
       },
-      "why": "The only 'consume' transition with real duration, so it is the only one that legitimately shortens the timeline - the plan's TARGET_S must already account for it. Reads as a scene break, so at most one, and never inside the hook."
+      "why": "The only 'consume' transition with real duration, so it is the only one that legitimately shortens the timeline - the plan's TARGET_S must already account for it. Reads as a scene break, so at most one, and never inside the hook.",
+      "when_scene": "geography or chapter change - state line, day boundary, arrival. A breath, not a blink.",
+      "executed_by": "engine|polish",
+      "status": "live"
     },
     {
       "kind": "match_cut",
       "duration_ms": 0,
       "timing": "consume",
-      "requires_motion_out": 0.20,
-      "requires_motion_in": 0.20,
+      "requires_motion_out": 0.2,
+      "requires_motion_in": 0.2,
       "min_shot_len_s": 0.8,
       "max_per_film": 2,
       "pairs_with_sfx": null,
-      "requires_composition_similarity": [0.72, 0.88],
-      "why": "The only entry with a similarity WINDOW rather than a ceiling. Below 0.72 the shapes do not rhyme and it reads as a normal cut; above 0.88 verify 13 correctly calls it a duplicate. This is the one transition that gets HARDER as it gets better, and it is why the duplicate check needed two axes - a match cut and a true duplicate look identical on composition alone."
+      "requires_composition_similarity": [
+        0.72,
+        0.88
+      ],
+      "why": "The only entry with a similarity WINDOW rather than a ceiling. Below 0.72 the shapes do not rhyme and it reads as a normal cut; above 0.88 verify 13 correctly calls it a duplicate. This is the one transition that gets HARDER as it gets better, and it is why the duplicate check needed two axes - a match cut and a true duplicate look identical on composition alone.",
+      "when_scene": "visual rhyme - wheel to sun, tunnel to tunnel. The most premium cut in the bank.",
+      "executed_by": "engine",
+      "status": "live"
+    },
+    {
+      "kind": "wipe",
+      "duration_ms": 280,
+      "timing": "overlap",
+      "requires_motion_out": 0.2,
+      "requires_motion_in": 0.0,
+      "min_shot_len_s": 0.9,
+      "max_per_film": 2,
+      "pairs_with_sfx": {
+        "bucket": "sfx/transition",
+        "cut_safe": true,
+        "band": "mid",
+        "max_tail_ms": 500,
+        "clean_only": true
+      },
+      "when_scene": "direction of travel continues across the cut - the road itself pushes the frame out.",
+      "executed_by": "polish",
+      "why": "POLISH-LAYER ONLY (his ruling 2026-08-12): an alpha mask swipe over the finished cut - the overlay never touches the timeline, so timing='overlap' here means the mask spans the boundary, not that the engine reserves frames. Zero drift by construction.",
+      "status": "needs_poc"
+    },
+    {
+      "kind": "light_leak",
+      "duration_ms": 400,
+      "timing": "overlap",
+      "requires_motion_out": 0.0,
+      "requires_motion_in": 0.0,
+      "min_shot_len_s": 1.5,
+      "max_per_film": 1,
+      "pairs_with_sfx": null,
+      "when_scene": "golden-hour, nostalgia, emotional peak - warmth as punctuation, never on action.",
+      "executed_by": "polish",
+      "why": "POLISH-LAYER ONLY. Warm flare overlay across the boundary. max 1 - two leaks is an Instagram filter, not a film. NO SFX pairing on purpose: a leak with a whoosh is decoration.",
+      "status": "needs_poc"
+    },
+    {
+      "kind": "speed_ramp",
+      "duration_ms": 300,
+      "timing": "consume",
+      "requires_motion_out": 0.4,
+      "requires_motion_in": 0.0,
+      "min_shot_len_s": 1.2,
+      "max_per_film": 2,
+      "pairs_with_sfx": {
+        "bucket": "sfx/transition",
+        "cut_safe": true,
+        "band": "rise",
+        "max_tail_ms": 700,
+        "clean_only": true
+      },
+      "when_scene": "acceleration INTO an event - launch, overtake, drop. The outgoing shot's last ~300ms speeds up so the cut lands like a hit. Car pillars mostly.",
+      "executed_by": "engine",
+      "status": "needs_poc",
+      "why": "NEEDS ENGINE POC (setpts ramp on the tail, frame-exact accounting) before any plan may declare it. timing=consume: the ramp eats real duration - TARGET_S must include it."
+    },
+    {
+      "kind": "zoom_punch",
+      "duration_ms": 200,
+      "timing": "consume",
+      "requires_motion_out": 0.0,
+      "requires_motion_in": 0.0,
+      "min_shot_len_s": 0.9,
+      "max_per_film": 2,
+      "pairs_with_sfx": {
+        "bucket": "sfx/impact",
+        "cut_safe": true,
+        "band": "low",
+        "max_tail_ms": 400,
+        "clean_only": true
+      },
+      "when_scene": "a REVEAL lands - badge, price card, destination sign. Crash-zoom the last frames into the cut. HOUSE CAP APPLIES: punch <=1.4x (the 1.9x sharpness lesson).",
+      "executed_by": "engine",
+      "status": "needs_poc",
+      "why": "NEEDS ENGINE POC. zoompan on the tail frames, capped 1.4x - 1.9x measured an 82% sharpness loss, the cap is not taste."
+    },
+    {
+      "kind": "glitch",
+      "duration_ms": 160,
+      "timing": "overlap",
+      "requires_motion_out": 0.0,
+      "requires_motion_in": 0.0,
+      "min_shot_len_s": 0.6,
+      "max_per_film": 2,
+      "pairs_with_sfx": {
+        "bucket": "sfx/impact",
+        "cut_safe": true,
+        "band": "high",
+        "max_tail_ms": 300,
+        "clean_only": true
+      },
+      "when_scene": "phonk/drift energy - RGB split + frame stutter on the beat. car_cinematic ONLY; on a travel vlog it reads as an error.",
+      "executed_by": "polish",
+      "status": "needs_poc",
+      "why": "POLISH LAYER, blocked until the Remotion PoC passes. Overlay-only = zero drift by construction."
+    },
+    {
+      "kind": "object_wipe",
+      "duration_ms": 260,
+      "timing": "overlap",
+      "requires_motion_out": 0.3,
+      "requires_motion_in": 0.0,
+      "min_shot_len_s": 1.0,
+      "max_per_film": 1,
+      "pairs_with_sfx": {
+        "bucket": "sfx/transition",
+        "cut_safe": true,
+        "band": "mid",
+        "max_tail_ms": 500,
+        "clean_only": true
+      },
+      "when_scene": "something in the FRAME crosses the lens - a passing truck, a pillar, the car itself - and the world is different behind it. The most cinematic wipe there is.",
+      "executed_by": "polish+generation",
+      "status": "needs_poc",
+      "why": "TWO executors: the PLAN must stage the crossing object (generation-side - prompt the foreground pass, planqc 24 linkage intent) and the polish layer masks the swap. Blocked until both exist. This is the transition that must be PLANNED, never found."
+    },
+    {
+      "kind": "shake_impact",
+      "duration_ms": 180,
+      "timing": "overlap",
+      "requires_motion_out": 0.0,
+      "requires_motion_in": 0.0,
+      "min_shot_len_s": 0.6,
+      "max_per_film": 3,
+      "pairs_with_sfx": {
+        "bucket": "sfx/impact",
+        "cut_safe": true,
+        "band": "low",
+        "max_tail_ms": 400,
+        "clean_only": true
+      },
+      "when_scene": "a HIT on the beat - door slam, gear engage, bass drop. Camera-shake burst on the incoming shot's first frames.",
+      "executed_by": "polish",
+      "status": "needs_poc",
+      "why": "POLISH LAYER, blocked until Remotion PoC. Pairs with sfx/impact low band - the shake IS the visual of the hit."
     }
   ],
-
   "_still_open": [
     "duration_ms values are conventions carried from the desafarm plan, not derived from anything that measurably held attention.",
     "requires_motion_out/in reuse the pillar's motion_floor scale but were never fitted for transitions specifically.",
     "max_per_film numbers are taste, written down so they can be argued with. They are not measurements and must not be defended as such."
-  ]
+  ],
+  "_session11_note": "2026-08-12: when_scene + executed_by added, wipe/light_leak added (polish layer, docs/REMOTION-MOGRAPH-SPEC.md). His catch: 'mostly whoosh' - the plan now picks per-boundary kinds by scene (planqc 37) and each kind brings ITS OWN sound from pairs_with_sfx, not the whip's.",
+  "_status_field": "status: 'live' = an executor exists and is proven; 'needs_poc' = planqc 37 BLOCKS any plan declaring it until the executor lands (engine patch or Remotion PoC). An option without an executor is fiction - L140's inverse."
 }

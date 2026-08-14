@@ -2,41 +2,95 @@ PASTE THIS INTO A NEW CHAT
 ==========================
 
 Read these in order, then tell me where we are in ONE line and wait:
-    1. CLAUDE.md
+    1. CLAUDE.md                      <- HARD RULE 0 is new. Read it twice.
     2. SYSTEM-MAP.md
-    3. RESUME-2026-08-12b.md          <- session 10 FINAL. THE newest. Read ALL of it,
-                                         especially "END-OF-SESSION STATE".
-    4. 31-shortdrama-scriptwriter.md  <- SCRIPTWRITER seat (before any planning)
+    3. RESUME-2026-08-12c.md          <- session 11 FINAL. THE newest. Read ALL of it.
+    4. 31-shortdrama-scriptwriter.md  <- SCRIPTWRITER seat, now 227 lines:
+                                         PART E story spines (kishotenketsu),
+                                         PART F the triple link, PART G K/J craft.
+                                         READ BEFORE ANY PLANNING.
 
 FIRST TWO THINGS, ALWAYS:
-  1. MEASURE the credit balance (was 3,977.57 team, 2026-08-12, zero spent session 10).
+  1. MEASURE the credit balance (3,364.61 team at session-11 close; 233.00cr spent
+     on niah, exactly the gated figure. NOTE: ~378cr left the account today OUTSIDE
+     our sessions in three bursts - ask him if that was him).
   2. git -C <repo> --no-optional-locks log --oneline -1
-     Expect 076f4d7 OR NEWER. Older = his pushes failed, STOP and tell him.
+     Expect bba204f OR NEWER. Older = his pushes failed, STOP and tell him.
      Bridge git is read-only + --no-optional-locks ALWAYS (L133).
 
-WHERE WE ARE (2026-08-12 session close):
-  - PANBORNEO_V5.mp4 in repo root: built remotely, bedcheck PASS (+3.5dB bed over
-    foley), loudness I -11.0 / TP -1.0, HIS EAR APPROVED THE AUDIO (APV-4).
-  - UNPOSTED. Publishing = the single highest-value act available. At upload:
-    (1) AI-content label, (2) compression caption (Brunei transit 168km, 1,000+km,
-    multi-day), (3) LiQWYD credit verbatim (in HANDOVER-PASTE / archive).
-  - Card font deviation DECLARED: V5 cards are CapCutSansText-Bold (container had
-    no Montserrat). His eye has NOT ruled on the cards. Ask if he wants the
-    Montserrat re-render (one command on his box).
-  - REORG.bat v2 may or may not have run - if old RESUMEs still at root, remind him
-    (REORG.bat then PUSH.bat, git mv only, nothing deleted).
-  - ACE STUDIO MCP is the next build: setup steps + first-job plan in the RESUME.
-  - Ledgers: craft 135 / travel vlog 8 / approvals 4. Stale-acked plans are
-    correctly BLOCKED until they read + re-ack (lessonize --brief).
+WHERE WE ARE (2026-08-12, session 11 close)
+-------------------------------------------
+TWO FINISHED FILMS, BOTH UNPOSTED. STILL ZERO POSTS EVER.
+  - PANBORNEO_V5.mp4 (projects/panborneo/) - his ear APPROVED the audio (APV-4).
+  - NIAH_V2.mp4 (repo root) - whole-clip, 49.23s, all gates pass. He watched it.
+    HIS TWO NOTES: (1) the cut was too aggressive in V1 -> FIXED in V2 whole-clip.
+    (2) IT HAS NO JOURNEY - "it just suddenly jumps inside, it does not show the
+    audience how do I get there. People like to see videos that have process in
+    it." NOT YET FIXED. planqc 39 now BLOCKS plans/niah.py until V3 adds
+    DEPART / TRANSIT / ARRIVE. V3 is costed at 90cr (4 clips) in the RESUME,
+    WAITING ON HIS GATE.
 
-SESSION-10 HARD-WON RULES (full text L128-L136 in knowledge.json):
-  - L130 re-measure every "done" - scripts lie, humans repeat them.
-  - L132 ONE truth channel per session (no bundles anymore - PULL.bat/PUSH.bat only).
-  - L135 exactly TWO sync scripts; FINISH* are retired/parked.
-  - L128 travel_vlog is BGM-LED (bed over foley) - bedcheck.py gates it.
-  - L136 calibrate any new gate against its reference signal solo, and prefer
-    projecting the actual reference over spectral proxies.
-  - L125 whole clips, reorder only (his standing edit rule).
+THE FOUR RULES THIS SESSION BURNED IN (all mechanical now, not just written)
+---------------------------------------------------------------------------
+  HARD RULE 0  WHOLE CLIPS, THE EDIT IS THE ORDER. A cut is EARNED by written
+               analysis naming what the discarded seconds contain. The title's
+               duration is a REQUEST; this is an ORDER - when they conflict the
+               film gets LONGER, not choppier.  -> planqc 38
+  STORYBOARD   THE storyboard is tools/storyboard.py -> projects/<p>/analysis/
+               STORYBOARD.html, at EVERY gate, for him to go through. An AI-sketch
+               previz is NOT a storyboard (2cr learned that).  -> L141
+  THE JOURNEY  A vlog's content IS the process: pack -> travel -> arrive -> the
+               thing. Reference-scan the FORM, not just the SUBJECT. -> planqc 39
+  TRIPLE LINK  Every boundary owes PICTURE + SOUND + STORY, declared BEFORE
+               generation and rendered in the storyboard. One link is a
+               transition; three is a story beat.  -> planqc 40, plan field LINKS
 
-STANDING GAP, UNCHANGED: ZERO POSTS EVER. V5 is approved and sitting there.
-One real 24-hour retention curve outranks everything else in this repo.
+
+THE THREE ADJUSTMENTS HE MADE TO THE PIPELINE (2026-08-12, binding - full text
+in CLAUDE.md above the planning section, and L158 in the ledger)
+-----------------------------------------------------------------------------
+  1 THE TITLE IS AN INTENT BRIEF. Read what he WANTS OUT of the video, not just
+    what it is about. That reading goes in the readback AND the CONTENT block.
+    A plan that nails the subject and misses the intent has FAILED the title.
+  2 JUDGE EVERY CLIP. The probe still goes first and alone, but after the batch
+    EVERY clip is measured and LOOKED at and passes/fails on its own - a bad clip
+    is named BEFORE assembly, never discovered in the cut.
+  3 THE EDIT LOOP + THREE QC TIERS:
+      ffmpeg -> sound -> polish -> EDIT QC GATE
+        FAIL -> adjustments go BACK to ffmpeg, round again, until PASS
+        PASS -> MASTERMIND FINAL BOSS QC (file 27); its FAIL also reverts to step 1
+        MASTERMIND PASS -> HIM, the FINAL FINAL BOSS QC (his eye) -> WAIT for
+        his feedback and feed it into the next adjustment.
+    SCOPE, HIS WORDS: "only applicable for the video editing automation part."
+    The loop RE-EDITS, never regenerates. A defect editing cannot fix STOPS the
+    loop and says so. Hard rule 5 binds: 5 attempts on one problem -> ask.
+
+PLANNING KNOWLEDGE HE ORDERED ADDED (file 31 - keep growing it, never trim it)
+-----------------------------------------------------------------------------
+  - KISHOTENKETSU is this channel's native spine: a cave, a road and a car have
+    NO antagonist, so three-act conflict manufactures fake stakes. Discovery, not
+    clash. The TEN re-frames everything before it. NIAH maps to it exactly.
+  - Pick the spine by asking whether the film has an antagonist. Name it in the plan.
+  - The READ-ALOUD TEST: story links in order must read as one paragraph to
+    someone who has not seen the footage, or the ORDER is wrong - and reordering
+    is free before generation, expensive after.
+
+SESSION-11 INFRASTRUCTURE (use it, do not rebuild it)
+-----------------------------------------------------
+  L142 THE CHROME BRIDGE - the container cannot reach the hf CDN, but
+       Claude-in-Chrome runs on HIS network: navigate to each asset URL (ONE per
+       page), fetch->blob->download lands it in C:\Users\User\Downloads, which
+       mounts on request. This is how footage reaches the pipeline. It closed the
+       phase-2/phase-3 gap: niah went title -> plan -> generate -> build -> mix ->
+       gates -> delivered in ONE session.
+  Remote QC uses Higgsfield sandbox_exec (ffmpeg/numpy/OCR server-side).
+  tools/capcheck.py (caption contrast) · tools/capcards.py (pill + keyword cards)
+  · tools/bedcheck.py (BGM-led) · tools/build_niah.py (whole-clip builder).
+  PIPELINE ORDER, his design: ffmpeg rough cut -> SOUND (finalmix, L128 flags) ->
+  PICTURE POLISH (Remotion, LAST - PoC still pending on his box) -> gates.
+
+LEDGER: general craft 148 · travel vlog 9 · approvals 4.
+  planqc 23 will BLOCK any plan acking fewer - that is correct, re-ack after reading.
+
+STANDING GAP, UNCHANGED AND NOW LOUDER: ZERO POSTS. Two finished films are sitting
+on the desktop. One real 24-hour retention curve outranks everything in this repo.
