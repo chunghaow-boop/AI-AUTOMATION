@@ -86,7 +86,13 @@ MAX_CROP  = 1.40
 TARGET_S  = 29.5385                  # 48 beats = 6 whole clips x 8 beats
 
 LESSONS_ACK = {
-    "general craft": 168,            # incl. L167 QC is the final boss (his eye is the
+    "general craft": 169,            # incl. L170 THE GENERATOR DOES NOT ALWAYS RETURN
+                                     # ONE TAKE — this batch produced it: 2 of 6 clips
+                                     # came back two-shot, and the far side of C's cut
+                                     # held a floating torque wrench. clipgate now
+                                     # detects internal cuts (full-rate, never
+                                     # subsampled — the subsample missed a real cut)
+                                     # · L167 QC is the final boss (his eye is the
                                      # final FINAL boss) · L168 every layer owes a
                                      # decision or a written waiver · L169 a gate ships
                                      # with its negative control · L165 a pillar sound

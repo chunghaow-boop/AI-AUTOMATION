@@ -4,7 +4,7 @@ PASTE THIS INTO A NEW CHAT
 Read these in order, then tell me where we are in ONE line and wait:
     1. CLAUDE.md                      <- HARD RULE 0 is new. Read it twice.
     2. SYSTEM-MAP.md
-    3. RESUME-2026-08-12c.md          <- session 11 FINAL. THE newest. Read ALL of it.
+    3. RESUME-2026-08-14.md          <- session 11 FINAL. THE newest. Read ALL of it.
     4. 31-shortdrama-scriptwriter.md  <- SCRIPTWRITER seat, now 227 lines:
                                          PART E story spines (kishotenketsu),
                                          PART F the triple link, PART G K/J craft.
