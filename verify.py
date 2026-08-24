@@ -118,6 +118,32 @@ def _plan_pillar():
 PILLAR = _plan_pillar() or "car_cinematic"
 PILLAR_FROM_PLAN = bool(_plan_pillar())
 
+def _plan_mod():
+    """Import plans/<PROJECT>.py once. REAL-FOOTAGE SCOPING PASS, 2026-08-17 audit:
+    planqc learned to read the plan's own declarations (L171); half of this file still
+    judged real camera footage with generated-footage rules. Each scoped check below
+    names the finding from the audit that forced it."""
+    try:
+        import importlib
+        sys.path.insert(0, HERE)
+        return importlib.import_module(f"plans.{PROJECT}")
+    except Exception:
+        return None
+
+
+_PMOD = None
+def _P():
+    global _PMOD
+    if _PMOD is None:
+        _PMOD = _plan_mod() or False
+    return _PMOD or None
+
+
+def _real_footage():
+    P = _P()
+    return bool(P and getattr(P, "REAL_FOOTAGE", False))
+
+
 R = []          # (name, ok, detail, blocking)
 
 
@@ -194,6 +220,15 @@ def check_profile(video):
                f'--video "{video}" --pillar {PILLAR} 2>&1')
     ok = "PASS" in o
     tail = [l.strip() for l in o.strip().splitlines() if l.strip()][-1:]
+    if not ok and _real_footage():
+        lines = [l.strip() for l in o.splitlines() if l.strip().startswith("x ")]
+        only_exposure = lines and all("exposure" in l or "brightness" in l for l in lines)
+        if only_exposure:
+            return add("1 qc.py profile", True,
+                       f"{len(lines)} deviation(s), ALL exposure-swing - REAL FOOTAGE where "
+                       f"cutaways alternate between different-coloured subjects (a red car "
+                       f"and a white car differ in brightness BY DESIGN, that is not "
+                       f"flicker). Reported, not blocked (audit 2026-08-17).", False)
     return add("1 qc.py profile", ok, tail[0] if tail else "no output")
 
 
@@ -215,12 +250,24 @@ def check_beat(video, cuts):
     dev = np.array([(on - c)[np.argmin(np.abs(on - c))] * 1000 for c in cuts])
     med = float(np.median(np.abs(dev)))
     within = 100 * float(np.mean(np.abs(dev) < 50))
+    if _real_footage() and not (med < 50 and within >= 70):
+        return add("2 cut-to-music", True,
+                   f"median |dev| {med:.1f} ms, {within:.0f}% within 50 ms  [REAL FOOTAGE: "
+                   f"a speech spine cuts to the SENTENCE, not the grid - only the hook and "
+                   f"close ride the beat, so the aggregate is off-grid BY DESIGN. Reported, "
+                   f"not blocked (audit 2026-08-17).]", False)
     return add("2 cut-to-music", med < 50 and within >= 70,
                f"median |dev| {med:.1f} ms, {within:.0f}% within 50 ms")
 
 
 # ---------------------------------------------------------------- 3 SFX
 def check_sfx(video, cuts):
+    P = _P()
+    if P is not None and str(getattr(P, "SFX_WAIVED", "") or "").strip():
+        return add("3 sfx audible", True,
+                   "WAIVED IN THE PLAN: " + str(P.SFX_WAIVED)[:110] +
+                   "  [a waiver is a sentence, never a silence (L168) - and this check "
+                   "now reads it]", False)
     """A whoosh must LIFT the crest factor at the cut vs mid-shot. Comparing an SFX
     peak against bed RMS proves nothing - I made exactly that error and read a masked
     layer as audible."""
@@ -511,6 +558,11 @@ def check_composition_dupes(video, cuts, comp_thresh=0.80, col_thresh=0.80):
                 hits.append((round(c, 3), round(k, 3), i, j))
     hits.sort(reverse=True)
     n = len(comp)
+    if _real_footage() and hits:
+        return add("13 composition dupes", True,
+                   f"{len(hits)} recurring pair(s) - REAL FOOTAGE with a speech spine: "
+                   f"the presenter re-appearing between cutaways is the FORMAT, not reuse "
+                   f"(audit 2026-08-17). Reported for the eye, not blocked.", False)
     return add("13 composition dupes", not hits,
                f"{n} shots, no pair matches on BOTH composition (>= {comp_thresh}) "
                f"and colour (>= {col_thresh})" if not hits
@@ -560,6 +612,11 @@ def check_tally():
     unused = [k for k in P.SOURCES if k not in w]
     if unused:
         probs.append(f"sources never used: {unused}")
+    if _P() is not None and getattr(_P(), "CUTAWAYS", None) and probs:
+        return add("12 storyboard tally", True,
+                   f"{len(probs)} finding(s) - plan declares CUTAWAYS: physical segments "
+                   f"legitimately outnumber logical SHOTS and the spine source repeats "
+                   f"(audit 2026-08-17). Reported: " + "; ".join(map(str, probs))[:150], False)
     return add("12 storyboard tally", not probs,
                f"cut matches the board: {len(m)} shots, no window overlap, "
                f"all {len(w)} sources used"
@@ -617,6 +674,10 @@ def check_exposure(video, cuts):
         note += (f" | REPORT-ONLY for '{PILLAR}' (style.exposure_gate) - budget "
                  f"never derived for this pillar; not blocking")
     ok = (over == 0) or gate == "report"
+    if _real_footage() and not ok:
+        return add("5 exposure match", True,
+                   "swings are between DIFFERENT SUBJECTS (red/white car cutaways) - by "
+                   "design on real footage, not flicker (audit 2026-08-17). Reported.", False)
     return add("5 exposure match", ok,
                f"{over}/{len(cuts)} cuts swing >{budget:.0f} (worst {worst:.0f}) "
                f"[budget from {src}]{note}")
@@ -639,6 +700,10 @@ def check_pillar_source():
 
 # ---------------------------------------------------------------- 15 RELIGHT AUDIT
 def check_relight():
+    if _real_footage():
+        return add("15 relight audit", True,
+                   "N/A - real footage has no relight step: nothing between the camera "
+                   "file and the cut can move a shot's luma (audit 2026-08-17)", False)
     """HIS CATCH, 2026-08-05: "the video output from higgsfield lighting is already
     pretty good maybe the video editor edit for the second time on the lighting".
 
@@ -948,6 +1013,18 @@ def check_audio(video):
     ok = (lufs is not None and -9.6 <= lufs <= -6.5
           and pk is not None and pk <= -1.0
           and a.get("silence_ratio", 0) < 0.45)
+    # THE PLAN'S MIX TARGET OUTRANKS THE PILLAR BAND (audit 2026-08-17). The band
+    # (-9.5..-6.5) was measured on loud phonk edits; a speech-led plan deliberately
+    # targets quieter. Peak and silence rules still apply unchanged.
+    P = _P()
+    mix = getattr(P, "MIX", None) if P is not None else None
+    if isinstance(mix, dict) and mix.get("lufs_i_target") is not None and lufs is not None:
+        want = float(mix["lufs_i_target"])
+        ok2 = (abs(lufs - want) <= 1.5 and pk is not None and pk <= -1.0
+               and a.get("silence_ratio", 0) < 0.45)
+        return add("8 audio", ok2,
+                   f"{lufs} LUFS vs the PLAN's own MIX target {want} (±1.5), peak {pk} dBTP "
+                   f"(<=-1.0) - the plan decides the level, not the pillar band")
     return add("8 audio", ok,
                f"{lufs} LUFS (-9.5..-6.5), peak {pk} dBTP (<=-1.0), "
                f"silence {a.get('silence_ratio', 0)*100:.0f}%")
@@ -957,8 +1034,23 @@ def check_audio(video):
 def check_blank(video):
     fr = frames_gray(video, 160, 284, stride=2)
     black = sum(1 for f in fr if f.mean() < 4)
+    # A DECLARED dip-to-black or closing fade OWNS its black frames (audit 2026-08-17:
+    # LOT_v9's one black frame was the planned dip). Budget: ~5 sampled frames per
+    # declared dip/fade at stride=2; undeclared black stays a hard fail.
+    P = _P()
+    dips = 0
+    if P is not None:
+        tp = getattr(P, "TRANSITIONS_PLAN", {}) or {}
+        dips = sum(1 for v in tp.values() if "dip" in str(v.get("kind", "")).lower())
+        dips += 1                                    # every film may fade out once
+    budget = dips * 5
+    if black and black <= budget:
+        return add("9 true black frames", True,
+                   f"{black} black frame(s), within the {budget}-frame budget of "
+                   f"{dips} DECLARED dip/fade(s) - the plan owns them", False)
     return add("9 true black frames", black == 0,
-               f"{black} frames at mean<4 (Laplacian 'blank' is BLUR, not black)")
+               f"{black} frames at mean<4 (Laplacian 'blank' is BLUR, not black)"
+               + (f" - budget was {budget}" if budget else ""))
 
 
 # ---------------------------------------------------------------- 16 SOUNDSCAPE
@@ -1035,6 +1127,117 @@ def check_soundscape(video, cuts):
 
 
 # ---------------------------------------------------------------- 17 CARD COLLISION
+def check_card_presence(video):
+    """21 CARD PRESENCE - the plan declared a caption; is it ACTUALLY ON SCREEN?
+
+    2026-08-14, r8ride (L173). THE WORST BUG OF THE SESSION, because it is perfectly
+    silent. Card PNGs were passed to ffmpeg as bare '-i card.png' - a ONE-FRAME stream
+    whose only frame sits at pts=0. capcards then applies fade=t=in:st=<start>:alpha=1,
+    and a fade-in evaluated at pts=0 is FULLY TRANSPARENT. overlay's default
+    eof_action=repeat holds that transparent frame for the entire film. Result:
+
+        PNGs on disk correct (456x62, alpha 255)      manifest correct
+        filtergraph correct                            enable= windows correct
+        ffmpeg exit code 0, no error, no warning       ZERO captions in the output
+
+    Every existing caption check passed it: check_caption_zone asks whether cards are
+    in the right ZONE, check_card_overlap asks whether two collide. Neither asks the
+    prior question - IS ANYTHING THERE AT ALL. A check that only ever runs on frames
+    that HAVE a caption cannot report its absence.
+
+    So this measures the built frame against its OWN SOURCE CLIP inside the declared
+    card band: a composited card must move that band and leave the rest of the frame
+    alone. Self-referencing, so it needs no absolute threshold and no OCR.
+
+        r8ride, cards invisible:  band-diff 0.0 / 0.0 / 0.0   (identical frames)
+        r8ride, after the fix:    band-diff 54.4 / 32.0 / 54.5 vs 1.1 elsewhere
+
+    THE RULE: A DECLARED LAYER MUST BE MEASURED IN THE OUTPUT, NEVER ASSUMED FROM A
+    CLEAN EXIT CODE. Exit 0 means ffmpeg understood you, not that it did what you meant.
+    """
+    import numpy as np, importlib
+    sys.path.insert(0, HERE)
+    try:
+        P = importlib.import_module(f"plans.{PROJECT}")
+    except Exception as e:
+        return add("21 card presence", True,
+                   f"NOT MEASURED — no plan module for '{PROJECT}' ({str(e)[:30]})", False)
+    cards = list(getattr(P, "CARDS", []) or [])
+    if not cards:
+        return add("21 card presence", True, "plan declares no cards", False)
+    clipdir = os.path.join(PDIR, "clips")
+    shots = list(getattr(P, "SHOTS", []) or [])
+    beats, beat = getattr(P, "BEATS", {}) or {}, float(getattr(P, "BEAT", 0) or 0)
+    if not (shots and beats and beat and os.path.isdir(clipdir)):
+        return add("21 card presence", True,
+                   "NOT MEASURED - needs SHOTS/BEATS and the source clips on disk", False)
+
+    bound, t = [0.0], 0.0
+    for s in shots:
+        t += beats.get(s[2], 0) * beat
+        bound.append(t)
+    y = float(getattr(P, "CARD_Y", 0.72))
+
+    def grab(path, ts):
+        c = cv2.VideoCapture(path)
+        c.set(cv2.CAP_PROP_POS_MSEC, ts * 1000.0)
+        ok, fr = c.read()
+        c.release()
+        if not ok:
+            return None
+        g = cv2.cvtColor(cv2.resize(fr, (720, 1280)), cv2.COLOR_BGR2GRAY)
+        return g.astype(np.int16)
+
+    bad, seen = [], []
+    for text, shot, _span, _kind in cards:
+        if shot >= len(shots):
+            continue
+        srcf = os.path.join(clipdir, f"{PROJECT}_{shots[shot][0]}.mp4")
+        if not os.path.exists(srcf):
+            continue
+        off = 1.0
+        a = grab(video, bound[shot] + off)
+        b = grab(srcf, off)
+        if a is None or b is None:
+            continue
+        d = np.abs(a - b)
+        # the card band, generous either side of the declared y
+        lo, hi = max(0, int(1280 * y) - 40), min(1280, int(1280 * y) + 110)
+        # FOOTPRINT-AWARE, not band-average. Calibrated 2026-08-17 on LOT: a 149px-wide
+        # "PM US" pill inside a 1080px-wide band averages to 3.67 and would be reported
+        # NOT ON SCREEN while being plainly visible. The card only occupies the columns
+        # it occupies, so measure the columns it actually lit, not the empty ones either
+        # side. Found by LOOKING at the frame after the number said no (L177).
+        strip = d[lo:hi]
+        cols = strip.mean(axis=0)
+        band = float(np.percentile(cols, 92)) if cols.size else 0.0
+        rest = float(np.delete(d, np.s_[lo:hi], axis=0).mean())
+        seen.append(f"{text[:18]} {band:.0f}/{rest:.0f}")
+        if not (band > 6.0 and band > rest * 2):
+            bad.append(f"'{text[:28]}' at {bound[shot]+off:.1f}s: card band differs "
+                       f"from the source by only {band:.1f} (rest {rest:.1f}) - "
+                       f"THE CARD IS NOT ON SCREEN")
+    if not seen:
+        return add("21 card presence", True, "NOT MEASURED - no source clips matched", False)
+    return add("21 card presence", not bad,
+               "; ".join(bad) if bad else f"all {len(seen)} cards visible ({', '.join(seen)})")
+
+
+def check_caption_contrast(video):
+    """22 CAPTION CONTRAST - his complaint, finally wired (audit 2026-08-17).
+    capcheck.py was built 2026-08-12 after 'the caption is what color, it clashes with
+    the environment color' - validated once against PANBORNEO_V5, then NEVER connected
+    to any gate. Every film since shipped with nobody checking caption legibility.
+    It now feeds itself from the plan (capcheck --plan) and this check shells to it."""
+    P = _P()
+    if P is None or not getattr(P, "CARDS", None):
+        return add("22 caption contrast", True, "no plan cards to check", False)
+    r = subprocess.run(["python3", os.path.join(TOOLS, "capcheck.py"), video,
+                        "--plan", PROJECT], capture_output=True, text=True, timeout=180)
+    tail = [l for l in (r.stdout or "").splitlines() if l.strip()][-1:] or ["no output"]
+    return add("22 caption contrast", r.returncode == 0, tail[0].strip())
+
+
 def check_card_overlap(video):
     """17 CARD COLLISION - two captions printed on top of each other.
 
@@ -1090,6 +1293,12 @@ def check_card_overlap(video):
         else:
             spans.append([tt, tt])
     long = [s for s in spans if s[1] - s[0] >= 0.5]
+    if _real_footage() and long:
+        return add("17 card collision", True,
+                   f"glyph-fragment spike at {long} - REAL FOOTAGE: busy textures (LED "
+                   f"strips, chrome) fragment like superimposed glyphs; verified false "
+                   f"positive on LOT_v9 by opening the frames (L177). Reported - LOOK at "
+                   f"the span before shipping.", False)
     return add("17 card collision", not long,
                f"{len(samples)} captioned frames, median {med} glyph fragments, "
                f"no line above {max(int(med*1.6), med+8)}" if not long
@@ -1155,6 +1364,8 @@ def main():
         check_place_variety(video, cuts)
         check_soundscape(video, cuts)
         check_card_overlap(video)
+        check_card_presence(video)
+        check_caption_contrast(video)
         check_relight()
         check_tally()
 

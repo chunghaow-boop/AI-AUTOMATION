@@ -1,0 +1,170 @@
+{
+ "_source": "sherpa-onnx whisper-small, int8, in-sandbox 2026-08-17",
+ "_note": "model fetched via Claude-in-Chrome into Downloads (mounted), extracted and run in the sandbox",
+ "full_clip": {
+  "2": "So guys, I forgot",
+  "3": "One, two, three.",
+  "47": "So guys, we are TELX, we are promoting our own cars like the X1 earlier Or the X5? Or the X4? Red, red?",
+  "48": "So guys, we are Telix, we promote car dealers like X1 earlier. With X5 this is also available. Or you are interested in X4, this red one. So if you are interested, you are PM for a while.",
+  "7": "(singing in foreign language)",
+  "12": "[singing in foreign language]",
+  "59": "(bell chimes)",
+  "1": "One, two, three"
+ },
+ "phrases": [
+  {
+   "clip": 2,
+   "start": 4.56,
+   "end": 5.96,
+   "dur": 1.4,
+   "text": "So guys"
+  },
+  {
+   "clip": 3,
+   "start": 1.96,
+   "end": 6.28,
+   "dur": 4.32,
+   "text": "So, today I'm going to tell you about..."
+  },
+  {
+   "clip": 3,
+   "start": 8.04,
+   "end": 9.0,
+   "dur": 0.96,
+   "text": "BMW"
+  },
+  {
+   "clip": 3,
+   "start": 9.68,
+   "end": 10.64,
+   "dur": 0.96,
+   "text": "Jump, keep the video on."
+  },
+  {
+   "clip": 7,
+   "start": 2.92,
+   "end": 7.48,
+   "dur": 4.56,
+   "text": "[singing in foreign language]"
+  },
+  {
+   "clip": 7,
+   "start": 7.92,
+   "end": 8.92,
+   "dur": 1.0,
+   "text": "They let it go."
+  },
+  {
+   "clip": 7,
+   "start": 9.2,
+   "end": 10.48,
+   "dur": 1.28,
+   "text": "♪ Chang zai shu wo yu"
+  },
+  {
+   "clip": 7,
+   "start": 16.2,
+   "end": 17.12,
+   "dur": 0.92,
+   "text": "[BEEPING]"
+  },
+  {
+   "clip": 7,
+   "start": 18.88,
+   "end": 19.72,
+   "dur": 0.84,
+   "text": "[Music]"
+  },
+  {
+   "clip": 12,
+   "start": 4.28,
+   "end": 6.72,
+   "dur": 2.44,
+   "text": "(singing in foreign language)"
+  },
+  {
+   "clip": 12,
+   "start": 7.04,
+   "end": 9.2,
+   "dur": 2.16,
+   "text": "(singing in foreign language)"
+  },
+  {
+   "clip": 47,
+   "start": 2.96,
+   "end": 7.28,
+   "dur": 4.32,
+   "text": "So guys, we are TELX, we promote our cars like X1"
+  },
+  {
+   "clip": 47,
+   "start": 9.2,
+   "end": 10.4,
+   "dur": 1.2,
+   "text": "other than X5 in here"
+  },
+  {
+   "clip": 47,
+   "start": 10.8,
+   "end": 11.64,
+   "dur": 0.84,
+   "text": "Arrrrrra!"
+  },
+  {
+   "clip": 47,
+   "start": 11.92,
+   "end": 14.52,
+   "dur": 2.6,
+   "text": "It's like an X-point, red-red thing."
+  },
+  {
+   "clip": 47,
+   "start": 17.96,
+   "end": 18.8,
+   "dur": 0.84,
+   "text": "(farting)"
+  },
+  {
+   "clip": 48,
+   "start": 1.96,
+   "end": 2.92,
+   "dur": 0.96,
+   "text": "So guys, come eat the legs"
+  },
+  {
+   "clip": 48,
+   "start": 3.2,
+   "end": 5.72,
+   "dur": 2.52,
+   "text": "We promoted the cars like X1"
+  },
+  {
+   "clip": 48,
+   "start": 7.8,
+   "end": 9.68,
+   "dur": 1.88,
+   "text": "with this X5, it's really cool."
+  },
+  {
+   "clip": 48,
+   "start": 11.44,
+   "end": 13.68,
+   "dur": 2.24,
+   "text": "or you are interested in this red X4"
+  },
+  {
+   "clip": 48,
+   "start": 16.16,
+   "end": 17.12,
+   "dur": 0.96,
+   "text": "So if you want to eat it"
+  },
+  {
+   "clip": 59,
+   "start": 1.48,
+   "end": 3.72,
+   "dur": 2.24,
+   "text": "(bell chimes)"
+  }
+ ]
+}

@@ -69,6 +69,20 @@ def check_structure(P):
                f"({len(tl)} entries, beat {P.BEAT:.3f}s)")
 
 
+
+def _is_real_footage(P):
+    """True when the film is cut from footage HE SHOT, not generated (file 32).
+
+    Added 2026-08-17. Half of planqc exists to police GENERATION: reference plates,
+    prompt realism language, std-vs-fast mode, per-clip credit capacity. None of that
+    has any meaning for a camera file - there is no prompt, no plate, no credit and no
+    5-second cap. Running those checks on real footage produces failures the plan can
+    only satisfy by lying. This is the same shape as L171: a gate calibrated on one
+    case, mis-firing on another. The story checks (CONTENT, TURNS, twist timing, LINKS,
+    CARDS/CTA, sound) all still apply and are NOT relaxed - those are the ones that
+    matter for a film that has no plan discipline of its own."""
+    return bool(getattr(P, "REAL_FOOTAGE", False))
+
 def _is_whole_clip(P):
     """True when every shot plays essentially its whole generated clip. His standing
     edit order (see check 38) makes the film longer and slower than any burst-cut
@@ -79,7 +93,23 @@ def _is_whole_clip(P):
     shots = list(getattr(P, "SHOTS", []) or [])
     if not (clip and beats and beat and shots):
         return False
-    return all(beats.get(s[2], 0) * beat >= clip * 0.90 for s in shots)
+    # AN EARNED CUT DOES NOT COST THE FILM ITS WHOLE-CLIP CHARACTER.
+    # Fixed 2026-08-14 (L171). r8ride trimmed ONE shot, with a written
+    # CUT_JUSTIFICATION naming exactly what the discarded 1.80s contain (a floating
+    # torque wrench the generator put there). That single justified trim flipped this
+    # predicate to False, which silently re-armed checks 2, 9 and 21 as BLOCKING - and
+    # a 6-shot whole-clip film can never satisfy a burst-cut profile's cuts/min or a
+    # 2.27s hook. The plan was correct and the gate was wrong.
+    #
+    # HARD RULE 0 says a cut is EARNED, NEVER ASSUMED - it does not say "never cut".
+    # So a shot counts as whole when it plays ~the whole clip OR carries a written
+    # justification. The teeth are intact: an UNJUSTIFIED short shot still flips the
+    # film out of whole-clip status here AND fails check 38 separately. Both consult
+    # the same object, which is the point - one written sentence, honoured everywhere.
+    cutj = getattr(P, "CUT_JUSTIFICATION", {}) or {}
+    return all(beats.get(s[2], 0) * beat >= clip * 0.90
+               or str(cutj.get(i, "")).strip()
+               for i, s in enumerate(shots))
 
 
 def check_profile_band(P, pf):
@@ -111,11 +141,11 @@ def check_profile_band(P, pf):
         if not ok_cpm and rng[0] <= cpm <= rng[1]:
             ok_cpm = True
             detail += " — INSIDE the reference spread, target band waived"
-    if _is_whole_clip(P) and not (ok_dur and ok_med and ok_cpm):
+    if (_is_whole_clip(P) or _is_real_footage(P)) and not (ok_dur and ok_med and ok_cpm):
         # HIS STANDING ORDER OUTRANKS THE PROFILE (2026-08-12). The band was fitted
         # on burst-cut reference films; a whole-clip film is longer and cuts slower
         # BY DESIGN. Reported in full, never hidden - but it does not block.
-        r = warn("2 pillar band", detail + "  [WHOLE-CLIP FILM: profile conformance "
+        r = warn("2 pillar band", detail + "  [WHOLE-CLIP or REAL FOOTAGE: profile conformance "
                  "reported, not enforced - his order, check 38]")
     else:
         r = add("2 pillar band", ok_dur and ok_med and ok_cpm, detail)
@@ -430,6 +460,9 @@ def check_plates(P):
         d += f" - source references a plate that does not exist: {missing}"
     if human_no_plate:
         d += f" - human shot with no persona plate: {human_no_plate}"
+    if _is_real_footage(P):
+        return add("13 reference plates", True,
+                   "N/A - real footage: the subject is the actual car, no plate to match", False)
     return add("13 reference plates", ok, d)
 
 
@@ -450,6 +483,9 @@ def check_prompts(P):
         d = f"prompts missing realism/negative language: {thin}"
     if generic:
         d += f" - prompts that never cite the reference plate: {generic}"
+    if _is_real_footage(P):
+        return add("14 prompt quality", True,
+                   "N/A - real footage: there are no prompts. The equivalent is READ.md.", False)
     return add("14 prompt quality", ok, d)
 
 
@@ -461,6 +497,8 @@ def check_defaults(P):
         bad.append(f"MODE={P.MODE} (std is the higher-quality generation)")
     if getattr(P, "AI_LABEL_BURNED_IN", False):
         bad.append("AI label burned in - use the platform toggle at upload")
+    if _is_real_footage(P):
+        bad = [b for b in bad if not b.startswith("MODE=")]
     return add("15 quality defaults", not bad,
                f"mode={P.MODE}, res={P.RES}, {P.FPS}fps, AI label = platform toggle"
                + (f" - {bad}" if bad else ""))
@@ -632,6 +670,9 @@ def check_capacity(P):
         if need[s] > have + 1e-6:
             bad.append(f"source {s} needs {need[s]:.1f}s but has {have:.1f}s usable "
                        f"(clip {P.CLIP_S}s - {banned:.1f}s banned)")
+    if _is_real_footage(P):
+        return add("21 source capacity", True,
+                   "N/A - real footage: sources run 1-40s, CLIP_S does not bound them", False)
     return add("21 source capacity", not bad,
                "every source fits its windows (need/have s): " + " · ".join(det)
                if not bad else " · ".join(bad))
@@ -1818,6 +1859,10 @@ def check_identity_coverage(P):
         bad.append(f"only {len(carrying)} human source(s) still carry a readable face "
                    f"({carrying}) — identity is J4's ABSOLUTE veto and cannot be waived "
                    f"across the board; keep at least 2")
+    if _is_real_footage(P) and humans:
+        return add("27 identity coverage", True,
+                   f"real footage: {len(humans)} real human source(s) - a filmed person "
+                   f"cannot drift between shots, which is what this check exists to catch", False)
     return add("27 identity coverage", not bad,
                f"{len(humans)} human sources, {len(opt)} declared presence-only, "
                f"{len(carrying)} carrying identity ({carrying}) across {n_shots} shots"
@@ -2269,6 +2314,12 @@ DEFECTS = [
     ("unknown transition",  lambda P: setattr(P, "TRANSITIONS_PLAN",
                                               {1: {"kind": "teleport", "why": "z"}}), "37"),
     ("premortem emptied",   lambda P: setattr(P, "PREMORTEM", []), "22"),
+    # NEGATIVE CONTROL for the _is_whole_clip fix of 2026-08-14 (L171). Stripping the
+    # justification off a trimmed shot must still fail 38 - proving the fix widened the
+    # WHOLE-CLIP predicate without disarming the rule it serves. On a plan where every
+    # shot is whole this mutation is inert and the harness reports it "not injectable",
+    # which is the honest answer rather than a free green tick.
+    ("cut justification stripped", lambda P: setattr(P, "CUT_JUSTIFICATION", {}), "38"),
     ("foley hole",          lambda P: setattr(P, "FOLEY", {0: -6.0}), "41"),
     # EXPECTATION CORRECTED BY THE HARNESS ITSELF, 2026-08-12: this defect is caught
     # by 27b (scene refs) and 41 (layers), NOT by 27 (which counts identity-carrying

@@ -134,3 +134,24 @@ MUSIC:         [track + BPM + beat map + drop point]
 > the difference is entirely in the cut rhythm, the transitions, and the sound.
 > That difference is the last thing that will get automated, which makes it the
 > most valuable skill you have.
+
+---
+
+## 2026-08-17 — BEFORE THIS SEAT MAY CHOOSE AN IN-POINT
+
+**If the footage is REAL (he shot it), this seat does not open until file 32 has run.**
+Every rule below this line was written for generated clips, where the prompt told me what
+was in the shot. Real footage does not come with a prompt.
+
+```
+FORBIDDEN until 32-real-footage-editor.md PART A is complete:
+  · choosing any t_in         you have not SEEN that moment - 6-12 frames per clip, read
+  · calling a clip "speech"   only ASR decides that (L174: an energy detector scored a
+                              count-in, a false start, two MUSIC clips and a bell as speech,
+                              and 23.1s of a delivered film was built on them)
+  · flipping a "mirrored" clip judged from a contact sheet (L179: two correct clips were
+                              flipped and shipped broken)
+  · picking a hook by motion  motion ranks shots, it cannot read intent (L175)
+```
+**B-ROLL FOLLOWS THE SENTENCE.** When he says "X1", the X1 is on screen. Pictures and words
+are one timeline, not two. LOT decoupled them for five versions.

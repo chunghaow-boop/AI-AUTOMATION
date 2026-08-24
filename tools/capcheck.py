@@ -51,12 +51,42 @@ def rel_lum(rgb):
     s = [(v/12.92 if v <= 0.03928 else ((v+0.055)/1.055)**2.4) for v in s]
     return 0.2126*s[0] + 0.7152*s[1] + 0.0722*s[2]
 
+def cards_from_plan(project):
+    """WIRED 2026-08-17 (pipeline audit): this gate existed since 2026-08-12 - built after
+    HIS complaint about caption colour clashing - and NEVER FIRED on a delivered film,
+    because nothing could feed it a cards.json. Now it feeds itself from the plan, the
+    same way the builders do. For a pill register (white card, dark text) the measured
+    colour is the PILL, because the pill is what must survive against the environment;
+    the text sits on the pill at a fixed, always-passing contrast."""
+    import os, sys as _s
+    HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    _s.path.insert(0, HERE); _s.path.insert(0, os.path.join(HERE, "tools"))
+    import importlib, capcards
+    P = importlib.import_module(f"plans.{project}")
+    tl, _tot = P.timeline()
+    b = [t[0] for t in tl] + [round(sum(t[1] for t in tl), 3)]
+    reg = capcards.REGISTERS.get(getattr(P, "CARD_REGISTER", "") or "", {})
+    pill = reg.get("pill"); fill = reg.get("fill", [255, 255, 255, 255])
+    colour = list(pill[:3]) if pill else list(fill[:3])
+    scrim = 0.0 if pill else 0.45
+    y = float(getattr(P, "CARD_Y", 0.72))
+    return [dict(text=t, start=b[s0], end=b[min(s0 + c, len(tl))], y=y, h=0.055,
+                 color=colour, scrim=scrim)
+            for t, s0, c, _k in getattr(P, "CARDS", [])]
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("video"); ap.add_argument("--cards"); ap.add_argument("--v5", action="store_true")
+    ap.add_argument("--plan", help="derive the card table from plans/<name>.py")
     ap.add_argument("--floor", type=float, default=FLOOR)
     a = ap.parse_args()
-    cards = V5_CARDS if a.v5 else json.load(open(a.cards))
+    if a.v5:        cards = V5_CARDS
+    elif a.plan:    cards = cards_from_plan(a.plan)
+    elif a.cards:   cards = json.load(open(a.cards))
+    else:           ap.error("need --cards FILE, --plan PROJECT, or --v5 "
+                             "(a bare run used to crash with a TypeError - L184)")
+    if not cards:
+        print("CAPCHECK PASS — plan declares no cards"); sys.exit(0)
     probe = subprocess.run(["ffprobe","-v","error","-select_streams","v:0",
         "-show_entries","stream=width,height","-of","json",a.video],
         capture_output=True, text=True)

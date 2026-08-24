@@ -1,0 +1,130 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TALYX — Pipeline Health Check (simple version)</title><style>
+:root{--bg:#0d0e10;--card:#16181c;--line:#24272d;--ink:#e9eaec;--dim:#9aa0a8;
+--red:#d64550;--amber:#e0a341;--green:#4bb87a;--blue:#5b9dd9}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);
+font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:820px;margin:0 auto;padding:28px 18px 90px}
+h1{font-size:28px;margin:0 0 6px}
+.sub{color:var(--dim);margin:0 0 24px;font-size:15px}
+h2{font-size:13px;letter-spacing:1.6px;text-transform:uppercase;color:var(--dim);
+margin:36px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:0 0 14px}
+.step{display:flex;gap:14px;align-items:flex-start;margin:0 0 4px}
+.n{min-width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+font-weight:700;font-size:15px;color:#0d0e10;flex-shrink:0}
+.arrow{margin-left:16px;color:#3a3f47;font-size:18px;line-height:1;padding:2px 0 6px}
+.step b{font-size:16px}
+.step p{margin:2px 0 0;color:var(--dim);font-size:14px}
+.ok{background:rgba(75,184,122,.12);border:1px solid rgba(75,184,122,.35)}
+.warn{background:rgba(224,163,65,.10);border:1px solid rgba(224,163,65,.35)}
+.bad{background:rgba(214,69,80,.10);border:1px solid rgba(214,69,80,.4)}
+.tag{display:inline-block;padding:3px 12px;border-radius:99px;font-size:12px;font-weight:700;letter-spacing:.5px;margin-bottom:8px}
+.t-ok{background:rgba(75,184,122,.18);color:var(--green)}
+.t-warn{background:rgba(224,163,65,.18);color:var(--amber)}
+.t-bad{background:rgba(214,69,80,.18);color:var(--red)}
+.big{font-size:17px}
+ul{margin:8px 0 0;padding-left:20px}li{margin:7px 0}
+.q{border-left:3px solid var(--blue);padding:8px 0 8px 14px;margin:10px 0;color:#dfe3e7}
+.decide{background:linear-gradient(180deg,rgba(91,157,217,.12),rgba(91,157,217,.03));
+border:1px solid rgba(91,157,217,.45)}
+.decide h3{margin:0 0 8px;font-size:18px;color:var(--blue)}
+</style></head><body><div class="wrap">
+
+<h1>Pipeline Health Check</h1>
+<p class="sub">I tested every part of your video factory today. Here is what I found — in plain words.</p>
+
+<h2>Think of it like a factory with 5 security guards</h2>
+<div class="card">
+<p style="margin:0 0 16px">Every video passes through the same line. Each guard can stop a bad video
+from moving forward. The last guard stops anything from reaching <b>you</b>.</p>
+
+<div class="step"><div class="n" style="background:#4bb87a">1</div>
+<div><b>The Plan</b><p>Before anything is made, everything is decided on paper: the hook, the twist,
+the CTA, the music, the captions. <b>No plan = the video cannot start.</b> (This is what saved us —
+the old bad videos had no plan at all.)</p></div></div>
+<div class="arrow">&darr;</div>
+
+<div class="step"><div class="n" style="background:#4bb87a">2</div>
+<div><b>Guard 1 — Plan Checker (planqc)</b><p>Reads the plan and asks 49 questions.
+"Where is the hook? Where is the CTA? Did you learn from past mistakes?" If any answer is missing,
+it refuses to let the video be made.</p></div></div>
+<div class="arrow">&darr;</div>
+
+<div class="step"><div class="n" style="background:#4bb87a">3</div>
+<div><b>The Storyboard + Board Checker</b><p>Makes the picture-plan you review, and checks the board
+itself is honest before showing you. Today it correctly refused a board that showed the wrong image.</p></div></div>
+<div class="arrow">&darr;</div>
+
+<div class="step"><div class="n" style="background:#4bb87a">4</div>
+<div><b>The Edit</b><p>The video is cut exactly as the plan says. The builder must also write down
+where every cut is — this is its "receipt" so the guards can check its work later.</p></div></div>
+<div class="arrow">&darr;</div>
+
+<div class="step"><div class="n" style="background:#e0a341">5</div>
+<div><b>Guard 2 — Video Checker (verify)</b><p>Watches the finished video and measures ~21 things:
+loudness, black frames, repeated shots, captions in the right place. <b>This guard works, but some of
+its rules are old</b> — see below.</p></div></div>
+<div class="arrow">&darr;</div>
+
+<div class="step"><div class="n" style="background:#4bb87a">6</div>
+<div><b>Guard 3 — The Final Boss (predeliver)</b><p>The last gate before you. It checks three things:
+(1) did all the work actually happen, (2) did all the other guards pass it, (3) for every warning,
+did I actually LOOK at the frames — I am not allowed to talk my way past a warning anymore.
+<b>Only when this says CLEARED do you see the video.</b></p></div></div>
+<div class="arrow">&darr;</div>
+
+<div class="step"><div class="n" style="background:#5b9dd9">7</div>
+<div><b>YOU</b><p>Your eye is the final-final check. Anything you catch becomes a written lesson
+(we have 183 now) and the next plan must read those lessons before it can pass Guard 1.</p></div></div>
+</div>
+
+<h2>The good news</h2>
+<div class="card ok"><span class="tag t-ok">WORKING</span>
+<p class="big" style="margin:0">The factory line is in the right order and every guard showed up
+for work today. I tested each one with a deliberately broken video — <b>every guard caught it.</b>
+The system that let 5 bad versions reach you cannot happen again, because Guard 3 now refuses any
+video that skipped the planning step.</p></div>
+
+<h2>The 3 problems I found</h2>
+
+<div class="card bad"><span class="tag t-bad">PROBLEM 1 — a sleeping guard</span>
+<p class="big" style="margin:0 0 8px"><b>The caption-colour checker has never worked a single day.</b></p>
+<p style="margin:0;color:var(--dim)">Remember when you complained the caption colour clashed with the
+background? I built a tool to catch that... and then <b>never connected it to the line.</b> It has been
+sitting in a drawer since. It also crashes when you switch it on. Every video since then shipped with
+nobody checking caption contrast.</p>
+<div class="q"><b>Your decision:</b> connect it properly, or throw it away? I recommend connecting it —
+the complaint it answers was yours.</div></div>
+
+<div class="card warn"><span class="tag t-warn">PROBLEM 2 — old rules judging a new kind of video</span>
+<p class="big" style="margin:0 0 8px"><b>Guard 2 still judges your REAL footage with rules made for AI footage.</b></p>
+<p style="margin:0;color:var(--dim)">Examples from today: it complained your talking take doesn't cut
+on the music beat (correct — it cuts on your <i>sentences</i>, on purpose). It counted the fade-to-black
+transition as a "broken black frame" (it was planned). It flagged you appearing 4 times as "duplicate
+shots" (that is just... a person talking). None of these rules should be deleted — they just need to be
+taught the difference between AI footage and your camera footage. The Plan Checker already learned this;
+the Video Checker hasn't yet.</p></div>
+
+<div class="card warn"><span class="tag t-warn">PROBLEM 3 — the builder forgot its receipts</span>
+<p class="big" style="margin:0 0 8px"><b>The LOT edit didn't write down where its cuts were, so 9 of
+Guard 2's checks were blind — and nothing warned us.</b></p>
+<p style="margin:0;color:var(--dim)">I reconstructed the receipts today and 6 checks immediately came
+back to life. Rule going forward: an edit that doesn't write its receipts is not finished. (Also fixed
+today: one of the self-tests had quietly stopped proving anything — it works again and can't break the
+same way twice.)</p></div>
+
+<h2>So what happens next</h2>
+<div class="card decide">
+<h3>One decision for you, three fixes for me</h3>
+<ul>
+<li><b>You decide:</b> caption-colour checker — connect it or delete it?</li>
+<li><b>Me:</b> teach Guard 2 the difference between real footage and AI footage (like Guard 1 already knows).</li>
+<li><b>Me:</b> make every builder write its cut receipts automatically.</li>
+<li><b>Me:</b> merge the two clip-catalogue tools into one.</li>
+</ul>
+<p style="margin:10px 0 0;color:var(--dim)">Everything else measured healthy. The full technical version
+is in <b>PIPELINE-AUDIT-2026-08-17.md</b> if you ever want the details.</p></div>
+
+</div></body></html>

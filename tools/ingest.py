@@ -92,11 +92,57 @@ def audio_info(path):
             "rms_db": round(20 * float(np.log10(np.sqrt(np.mean(x ** 2)))), 1)}
 
 
+def catalogue_raw(rawdir, project):
+    """--raw MODE, merged from the audit (2026-08-17). The organizer assumed generated
+    clips in projects/<n>/clips with plan roles; real footage lives in a raw folder and
+    has no declared roles, so on the LOT build this tool never ran and a hand-rolled
+    script did its job. One catalogue system, both footage types. Measures per clip:
+    duration, motion, luma, sharpness, audio level - and, per file 32, NOTHING here is a
+    speech verdict: ASR is the only speech detector (L174)."""
+    import subprocess, numpy as np
+    files = sorted(f for f in os.listdir(rawdir)
+                   if f.lower().endswith((".mp4", ".mov")))
+    out = []
+    for i, f in enumerate(files, 1):
+        p = os.path.join(rawdir, f)
+        dur = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries",
+            "format=duration", "-of", "csv=p=0", p], capture_output=True, text=True).stdout or 0)
+        frames = []
+        for k in range(1, 7):
+            raw = subprocess.run(["ffmpeg", "-v", "error", "-ss", f"{dur*k/7:.2f}", "-i", p,
+                "-frames:v", "1", "-vf", "scale=96:171,format=gray", "-f", "rawvideo", "-"],
+                capture_output=True).stdout
+            if len(raw) >= 96*171:
+                frames.append(np.frombuffer(raw[:96*171], np.uint8).reshape(171, 96).astype(np.float32))
+        fr = np.array(frames) if frames else np.zeros((1, 171, 96), np.float32)
+        mot = float(np.abs(np.diff(fr, axis=0)).mean()) if len(fr) > 1 else 0.0
+        sharp = float(np.abs(np.diff(fr, axis=1)).mean() + np.abs(np.diff(fr, axis=2)).mean())
+        araw = subprocess.run(["ffmpeg", "-v", "quiet", "-i", p, "-f", "f32le", "-ac", "1",
+                               "-ar", "16000", "-"], capture_output=True).stdout
+        x = np.frombuffer(araw, np.float32)
+        adb = float(20*np.log10(np.sqrt((x**2).mean())+1e-9)) if len(x) > 1600 else -99.0
+        out.append(dict(idx=i, file=f, dur=round(dur, 2), motion=round(mot, 2),
+                        luma=round(float(fr.mean()), 1), sharp=round(sharp, 2),
+                        audio_db=round(adb, 1)))
+        print(f"  {i}/{len(files)} {f}  dur={dur:.1f} mot={mot:.1f}", flush=True)
+    pdir = os.path.join(HERE, "projects", project)
+    os.makedirs(pdir, exist_ok=True)
+    dst = os.path.join(pdir, "raw_catalogue.json")
+    json.dump(out, open(dst, "w"), indent=1)
+    print(f"catalogue -> {dst}  ({len(out)} clips, {sum(o['dur'] for o in out):.0f}s)")
+    print("REMINDER (file 32): this catalogue is PHYSICS ONLY. Transcribe before "
+          "calling anything speech; read strips before choosing any in-point.")
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("plan")
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--raw", help="catalogue a raw-footage dir into projects/<plan>/raw_catalogue.json")
     a = ap.parse_args()
+    if a.raw:
+        catalogue_raw(a.raw, a.plan); return
 
     P = importlib.import_module(f"plans.{a.plan}")
     import clipsense

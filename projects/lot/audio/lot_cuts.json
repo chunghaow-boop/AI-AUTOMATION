@@ -1,0 +1,41 @@
+{
+ "cuts": [
+  1.1045,
+  2.209,
+  3.3135,
+  4.538,
+  5.778,
+  7.078,
+  8.298,
+  10.378,
+  11.378,
+  12.258,
+  14.018,
+  15.178,
+  16.258,
+  21.428,
+  22.5325,
+  23.637
+ ],
+ "planned": [
+  1.1045,
+  2.209,
+  3.3135,
+  4.538,
+  5.778,
+  7.078,
+  8.298,
+  10.378,
+  11.378,
+  12.258,
+  14.018,
+  15.178,
+  16.258,
+  21.428,
+  22.5325,
+  23.637
+ ],
+ "bpm": 101.5,
+ "beat": 0.5911,
+ "_source": "pipeline audit 2026-08-17: reconstructed from plans/lot.py windows (L182 - build_lot.py failed to write manifests at build time; the build knows its own cuts and must hand them to the gate)"
+}

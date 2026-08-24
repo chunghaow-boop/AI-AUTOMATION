@@ -83,10 +83,25 @@ MODE      = "std"
 RES       = "720p"                   # his standing call: 720p IS the cost strategy
 CLIP_S    = 5
 MAX_CROP  = 1.40
-TARGET_S  = 29.5385                  # 48 beats = 6 whole clips x 8 beats
+TARGET_S  = 27.6923                  # 45 beats: 5 whole clips x 8 + C at 5 (see
+                                     # CUT_JUSTIFICATION - C's back half is a floating
+                                     # torque wrench). Was 29.5385 / 48 beats.
 
 LESSONS_ACK = {
-    "general craft": 169,            # incl. L170 THE GENERATOR DOES NOT ALWAYS RETURN
+    "general craft": 180,   # + L180 duration filters amputate the ask · L181 frame
+                                     # geometry is passed, never defaulted · L174-179 (real-footage seat, file 32): ASR is the only
+                                     # speech detector · motion cannot find hook/turn/CTA ·
+                                     # no plan = no gates · LOOK before arguing with a gate ·
+                                     # one frame is a thumbnail · a mirror call from a
+                                     # thumbnail is a coin flip            # incl. L173 A CARD PNG MUST BE LOOPED OR EVERY
+                                     # CAPTION COMPOSITES AT ALPHA 0 AND FFMPEG EXITS 0
+                                     # (this build found it; verify 21 now measures the
+                                     # card band against the source) · L172 CARD_STYLE
+                                     # is a WRITING convention, captionmgr.STYLES is a
+                                     # RENDER vocabulary - one name, two namespaces ·
+                                     # L171 an EARNED cut must not cost a film its
+                                     # whole-clip status (this plan's C trim proved it)
+                                     # · L170 THE GENERATOR DOES NOT ALWAYS RETURN
                                      # ONE TAKE — this batch produced it: 2 of 6 clips
                                      # came back two-shot, and the far side of C's cut
                                      # held a floating torque wrench. clipgate now
@@ -275,21 +290,40 @@ SHOTS = [
  ("A", 1.00, "whole", "KI - the wet damper: the fault shown, not claimed"),
  ("B", 1.00, "whole", "the damper comes out, and he is the one taking it out"),
  ("D", 1.00, "whole", "TEN - the dust sheet comes off: this car had been SITTING"),
- ("C", 1.00, "whole", "the new one torqued in, bone dry against the wet one"),
+ ("C", 1.00, "trimmed", "the new one offered up and threaded, bone dry against the wet one"),
  ("E", 1.00, "whole", "the test drive - the car settled and level at speed"),
  ("F", 1.00, "whole", "KETSU - the nod at the wheel, and the tip that follows"),
 ]
-BEATS = {"whole": 8}
+BEATS = {"whole": 8, "trimmed": 5}
+
+# CUT_JUSTIFICATION — required by planqc 38, and this is the ONLY cut in the film.
+# Added 2026-08-14 after the batch landed and every clip was judged individually.
+CUT_JUSTIFICATION = {
+ 3: ("C came back from the generator as a TWO-SHOT clip with an unrequested hard cut "
+     "at 3.26s (measured: peak/mean frame difference 9.5x, full-rate). MEASURED "
+     "CONTENT OF THE DISCARDED SECONDS, 3.26-5.06s: the torque wrench rotates through "
+     "its arc to the click WITH NO HAND ON IT - the operator's hand is absent from "
+     "frame for the whole of it. That is a floating tool, banned verbatim in this "
+     "clip's own negative prompt, and it is the single defect in the batch. Nothing "
+     "else happens in those 1.80s: no new information about the car, the repair or "
+     "the fault. The beat's MEANING - it is torqued to spec - is not lost, it MOVES "
+     "TO SOUND: the hero torque-click sweetener now fires at clip_time 2.85 while the "
+     "picture still shows the joint being made, and tails across the dip into the "
+     "road. That is the Triple Link doing the job it exists for. Shot plays 5 beats "
+     "(3.077s), which stops 0.18s short of the bad cut and keeps the film on its beat "
+     "grid. Cost of the alternative: 22.5cr to regenerate, with the same generator "
+     "that produced an unrequested internal cut twice in six rolls.")
+}
 
 SHOT_TIME = ["morning", "morning", "morning", "morning", "afternoon", "afternoon"]
 TIME_JUMPS = {}
 
-TURNS = [
+TURNS = [   # re-timed 2026-08-14 to the 45-beat grid (C trimmed to 5 beats)
     (4.92,  "the fault stops being a symptom and becomes a job - the tools come out"),
     (9.85,  "THE SHEET COMES OFF - the cause was never hard driving, it was stillness"),
     (14.77, "the new damper goes in, dry against the wet one"),
-    (19.69, "the car goes back on the road and behaves"),
-    (24.62, "the verdict lands on his face, and the advice follows from it"),
+    (17.85, "the car goes back on the road and behaves"),
+    (22.77, "the verdict lands on his face, and the advice follows from it"),
 ]
 
 TRANSITIONS_PLAN = {
@@ -339,15 +373,21 @@ SUBDROP_AT   = []            # no sub-drops: this is a workshop, not a phonk edi
 # The pillar policy is now hero_only, and these three moments get a bank sweetener
 # LAYERED ON the clip's own diegetic audio - never replacing it.
 #   (source_key, clip_time, duration, video_time)
+# video_time values re-derived 2026-08-14 against the ACTUAL 45-beat cut boundaries
+# (0 / 4.9231 / 9.8462 / 14.7692 / 17.8462 / 22.7692), not the old 48-beat grid.
 SFX_OVERLAYS = [
-    ("B", 1.20, 0.60,  6.10),   # the bolt CRACKING loose - the sound of a seized
+    ("B", 1.20, 0.60,  6.12),   # the bolt CRACKING loose - the sound of a seized
                                 # fastener letting go, the moment a mechanic knows
                                 # the job is real. Bank: sfx/impact, low band, clean.
-    ("C", 2.40, 0.45, 17.20),   # THE TORQUE WRENCH CLICK - the film's hero sound and
-                                # the sound of a job done properly. Bank: sfx/impact,
-                                # short tail, cut_safe. If ONE sweetener survives the
-                                # mix, it is this one.
-    ("E", 0.80, 1.20, 20.30),   # the engine TAKING LOAD as the road opens - lands on
+    ("C", 2.85, 0.45, 17.62),   # THE TORQUE WRENCH CLICK - the film's hero sound and
+                                # the sound of a job done properly. MOVED 2.40 -> 2.85
+                                # 2026-08-14: at 2.40 the picture is still hand-
+                                # threading and a torque click there is premature. At
+                                # 2.85 the joint is made, and its 0.45s tail carries
+                                # 0.23s PAST the cut into the dip - so the click is
+                                # what closes the workshop. Bank: sfx/impact, short
+                                # tail, cut_safe. If ONE sweetener survives, it's this.
+    ("E", 0.80, 1.20, 18.65),   # the engine TAKING LOAD as the road opens - lands on
                                 # the dip transition so the picture and the sound
                                 # change state together. Bank: sfx/transition, rise.
 ]

@@ -1,7 +1,7 @@
 # PRODUCTION DOC — NEV · IT BROKE FROM SITTING · Audi R8 magnetic ride · car review
 ### Generated from `plans/r8ride.py` by `planqc.py`. Do not edit by hand — edit the plan.
 
-**6 shots · 29.54s · 720x1280 @ 30fps · car_advice · 98 BPM · mode `std` 720p**
+**6 shots · 27.69s · 720x1280 @ 30fps · car_advice · 98 BPM · mode `std` 720p**
 
 ---
 
@@ -22,9 +22,9 @@
 | 0 | 0.00 | 4.92 | whole | `A` THE LEAK — proof, not opinion | 1.00x | KI - the wet damper: the fault shown, not claimed |
 | 1 | 4.92 | 4.92 | whole | `B` the damper comes out | 1.00x | the damper comes out, and he is the one taking it out |
 | 2 | 9.85 | 4.92 | whole | `D` THE REASON — the sheet comes off | 1.00x | TEN - the dust sheet comes off: this car had been SITTING |
-| 3 | 14.77 | 4.92 | whole | `C` the new one goes in | 1.00x | the new one torqued in, bone dry against the wet one |
-| 4 | 19.69 | 4.92 | whole | `E` the test drive | 1.00x | the test drive - the car settled and level at speed |
-| 5 | 24.62 | 4.92 | whole | `F` the verdict at the wheel | 1.00x | KETSU - the nod at the wheel, and the tip that follows |
+| 3 | 14.77 | 3.08 | trimmed | `C` the new one goes in | 1.00x | the new one offered up and threaded, bone dry against the wet one |
+| 4 | 17.85 | 4.92 | whole | `E` the test drive | 1.00x | the test drive - the car settled and level at speed |
+| 5 | 22.77 | 4.92 | whole | `F` the verdict at the wheel | 1.00x | KETSU - the nod at the wheel, and the tip that follows |
 
 ◆ = blend after this shot (``, 0ms)
 
@@ -108,9 +108,9 @@ All other cuts HARD (33-67ms). Blends 0/5 = 0% (profile 0-70%).
 |---|---|---|
 | 4.92s | shot 1 · the damper comes out, and he is the one taking it out | — (hero_only) |
 | 9.85s | shot 2 · TEN - the dust sheet comes off: this car had been SITTING | — (hero_only) |
-| 14.77s | shot 3 · the new one torqued in, bone dry against the wet one | **IMPACT (hero)** |
-| 19.69s | shot 4 · the test drive - the car settled and level at speed | — (hero_only) |
-| 24.62s | shot 5 · KETSU - the nod at the wheel, and the tip that follows | — (hero_only) |
+| 14.77s | shot 3 · the new one offered up and threaded, bone dry against the wet one | **IMPACT (hero)** |
+| 17.85s | shot 4 · the test drive - the car settled and level at speed | — (hero_only) |
+| 22.77s | shot 5 · KETSU - the nod at the wheel, and the tip that follows | — (hero_only) |
 
 **Captions** — cards.py PNGs on desktop (drawtext fallback flagged loudly), lower third y=0.72, re-timed to actual duration:
 
@@ -118,7 +118,7 @@ All other cuts HARD (33-67ms). Blends 0/5 = 0% (profile 0-70%).
 |---|---|---|
 | **AUDI R8 MAGNETIC RIDE** (cap) | 0-0 | 0.00-4.92s |
 | **IT LEAKS FROM SITTING** (cap) | 2-2 | 9.85-14.77s |
-| **DRIVE IT EVERY WEEK** (cta) | 5-5 | 24.62-29.54s |
+| **DRIVE IT EVERY WEEK** (cta) | 5-5 | 22.77-27.69s |
 
 **Grade** — saturation 1.0 ONLY (never double-grade; prompts already carry the night look), measured toward black_point 10.0 / saturation 74.5. Mix: engine auto-calibrates the sfx and foley layers against the bed (sfx -> bed-6dB, foley foreground -> bed-2dB, each clamped +/-8dB), then limiter 0.72 level=disabled -> highpass 30Hz -> limiter 0.70. verify.py gates -9.6..-6.5 LUFS and <=-1.0 dBTP. Output written atomically.
 

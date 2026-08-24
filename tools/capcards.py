@@ -137,7 +137,14 @@ def build_cards(cards, outdir, style="punch", register=None, pillar=None):
 
 def overlay_filters(man, chain_in, frame_w=720, frame_h=1280, y=0.70, input_offset=0):
     """ffmpeg filtergraph: overlay each card centred at y with a 120ms alpha fade-in.
-    Card PNGs are inputs input_offset..input_offset+n-1. Returns (filters, last_label)."""
+    Card PNGs are inputs input_offset..input_offset+n-1. Returns (filters, last_label).
+
+    frame_h MUST be the real frame height. L181, found 2026-08-17: the 1280 default is a
+    720p-vertical assumption, and every 1080x1920 film silently placed its cards against
+    1280 instead of 1920. At y=0.13 that shifted a card from 250px to 166px and looked
+    merely "a bit high"; at y=0.72 it put the caption at 921px - 48% of frame, DEAD
+    CENTRE, which CLAUDE.md forbids outright ("never centre - the subject lives there").
+    A default that is right for one format is a silent defect in every other."""
     f, cur = [], chain_in
     for j, m in enumerate(man):
         idx = input_offset + j

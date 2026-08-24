@@ -139,3 +139,24 @@ VERDICT      SHIP to Gavril | FIX first (ranked list, pick named)
 
 > The standing gap, always: every green check still cannot measure whether anything
 > HAPPENS. One posted video with a real 24-hour curve outranks everything in this file.
+
+---
+
+## 2026-08-17 — TIER 0, ADDED BEFORE PART 0
+
+His order: *"make sure the QC double check or triple check before showing the final output."*
+
+**Run `python3 tools/predeliver.py <project> --video <file>` FIRST. If it does not exit 0,
+this procedure does not start and he does not see the file.**
+
+Why a tier had to go *above* the prediction pass: every check in this file inspects a film
+that EXISTS. None of them asks whether the work that should have preceded it happened at
+all. LOT reached him five times with **no plan file** — so CONTENT, TURNS, twist timing,
+CARDS/CTA, LINKS and PILLAR_FIT never ran. They did not fail. They were never invoked, and
+nothing reported their absence (L176).
+
+**And one rule for PART A and PART B both:** when a mechanical gate reports a finding, open
+the frames it names and LOOK before deciding anything. cutsense reported 19.9% repetition on
+LOT_v3; I argued the metric was mis-scoped and moved on; he watched it and saw six
+near-identical shots immediately. **A finding is closed by inspection, never by an
+argument** (L177). Record what you saw — predeliver TIER 3 requires it.

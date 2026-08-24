@@ -23,6 +23,7 @@ if errorlevel 1 (
 REM --- janitor: bridge sessions cannot delete; clear their leftovers ---
 del /f /q ".git\*.lock" 2>nul
 del /f /q ".git\refs\heads\*.lock" 2>nul
+del /f /q ".git\objects\*.lock" 2>nul
 del /f /q ".git\objects\*\tmp_obj_*" 2>nul
 if exist "_to_delete" rmdir /s /q "_to_delete" 2>nul
 

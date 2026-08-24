@@ -9,6 +9,10 @@ Local Claude Code loads this automatically.
 >                           bug classes, the seats, the cost model.
 >                           WRITTEN SO A NEW SESSION NEVER STARTS FROM ZERO.
 > 3. the NEWEST RESUME-*.md where we actually are right now
+> 4. 32-real-footage-editor.md   IF the job involves footage HE shot rather than
+>                           generated clips. Every other seat assumes I wrote the
+>                           prompt and therefore know the content. Real footage
+>                           inverts that and breaks them silently.
 > ```
 > Then state where we are in ONE line and wait.
 >
@@ -43,6 +47,49 @@ because everything it would have caught was caught upstream. **EVERY DEFECT THAT
 REACHES HIS EYE IS A QC FAILURE.** When one does, the fix is always the same shape:
 name the layer that was never decided or never shown, add the check, calibrate it
 against the defect, and ledger it. Never "I will look more carefully next time."
+
+### NOTHING REACHES HIS EYE UNTIL PREDELIVER EXITS 0 — his order, 2026-08-17
+```
+python3 tools/predeliver.py <project> --video <file>     # three tiers, all must pass
+python3 tools/predeliver.py --selftest                   # proves it blocks LOT_v5
+```
+His words: *"make sure the QC double check or triple check before showing the final output."*
+```
+TIER 1 EXISTENCE    did the work happen AT ALL? plan file · hook/turn/CTA named ·
+                    transcript (if speech) · READ.md (if real footage). THIS is the tier
+                    that catches the LOT failure - 5 versions shipped with NO plan file,
+                    so 8 story gates were never invoked and nothing reported it (L176).
+TIER 2 MECHANICAL   planqc · cutsense · verify · bedcheck.
+TIER 3 INSPECTION   every tier-2 finding must be LOOKED AT and the look RECORDED.
+                    An unexamined finding BLOCKS. Explaining a number away without
+                    opening the frames it named is how six duplicate shots reached him
+                    after cutsense had already reported them (L177).
+```
+
+## REAL FOOTAGE IS READ, NOT MEASURED — file 32, added 2026-08-17
+Every other seat in this repo assumes GENERATED footage, where I wrote the prompt so I
+already know what is in the clip. **Real footage inverts that**: the camera recorded
+whatever happened, nobody declared it, and the clip is evidence that must be READ.
+```
+1 TRANSCRIBE FIRST     ASR IS THE ONLY SPEECH DETECTOR (L174). An energy detector called
+                       a count-in, a false start, TWO MUSIC CLIPS and a bell "speech" -
+                       23.1s of a delivered film. Model via Chrome -> Downloads (mounted)
+                       -> sherpa-onnx in-sandbox. He runs nothing.
+2 READ EVERY CLIP      6-12 frames as a time-ordered strip. ONE FRAME IS A THUMBNAIL, NOT
+                       ANALYSIS (L178). An in-point chosen from a moment never seen is
+                       invented, and HARD RULE 0 forbids it.
+3 TEXT AT FULL RES     badges/plates/screens, one clip at a time. NEVER call a mirror from
+                       a contact sheet - flipping a correct clip is a NEW defect and it
+                       shipped twice (L179).
+4 THEN NAME            hook · turn · CTA · flow - ALL FOUR COME FROM THE TRANSCRIPT in a
+                       speech-led format. Motion metrics rank shots; they cannot read
+                       intent (L175). B-ROLL FOLLOWS THE SENTENCE: when he says "X1", the
+                       X1 is on screen.
+5 THEN plans/<n>.py    with REAL_FOOTAGE = True, then planqc, then the board, then cut.
+```
+> His verdict on the version that skipped all five: *"you cannot see the meaning behind
+> the motion."* He was right. Duration, motion, luma and dBFS describe a clip's PHYSICS.
+> A count-in and a sentence have identical physics.
 
 BULLETPROOFING IS NOT MORE CHECKS - IT IS PROVEN CHECKS (L169). Three gates written
 in one session were VACUOUS and passed injected defects until they were tested. So:
