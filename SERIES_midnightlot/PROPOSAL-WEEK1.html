@@ -1,0 +1,357 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MIDNIGHT LOT — 1-Week AI Drama Proposal · TALYX</title><style>
+:root{--bg:#0c0d10;--card:#15171b;--line:#25282e;--ink:#eaebee;--dim:#9aa0a8;
+--red:#d64550;--amber:#e0a341;--green:#4bb87a;--blue:#5b9dd9;--vio:#9b7ed9;
+--mono:ui-monospace,Menlo,monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);
+font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:960px;margin:0 auto;padding:30px 18px 100px}
+h1{font-size:34px;margin:0;letter-spacing:-.5px}
+.sub{color:var(--dim);margin:6px 0 8px;font-size:15px}
+h2{font-size:12px;letter-spacing:1.8px;text-transform:uppercase;color:var(--dim);
+margin:38px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:0 0 14px}
+.hero{background:linear-gradient(160deg,#171a22,#12131a);border:1px solid #2b3140}
+.kv{display:grid;grid-template-columns:160px 1fr;gap:7px 16px;font-size:14.5px}
+.kv dt{color:var(--dim)}.kv dd{margin:0}
+.mono{font-family:var(--mono);font-size:13px}
+.pill{display:inline-block;padding:2px 10px;border-radius:99px;font-size:11px;font-weight:700;letter-spacing:.6px;margin-right:6px}
+.p-hook{background:rgba(214,69,80,.16);color:var(--red)}
+.p-turn{background:rgba(224,163,65,.16);color:var(--amber)}
+.p-cta{background:rgba(75,184,122,.16);color:var(--green)}
+.p-cliff{background:rgba(155,126,217,.16);color:var(--vio)}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;color:var(--dim);font-weight:600;font-size:10.5px;letter-spacing:1.1px;
+text-transform:uppercase;padding:8px 10px;border-bottom:1px solid var(--line)}
+td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:none}
+.day{border-left:4px solid var(--blue);border-radius:12px;background:var(--card);
+border-top:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);
+margin:0 0 22px;overflow:hidden}
+.dhead{padding:14px 18px;background:#121419;border-bottom:1px solid var(--line);
+display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.dnum{font-size:12px;font-weight:800;letter-spacing:1.6px;color:var(--blue)}
+.dtitle{font-size:19px;font-weight:700}
+.dmeta{margin-left:auto;color:var(--dim);font-size:12.5px}
+.dbody{padding:16px 18px}
+.vo{background:#0e1013;border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin:10px 0}
+.vo p{margin:7px 0;font-size:14.5px}
+.who{display:inline-block;min-width:64px;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.8px}
+.w-haru{color:#e8a1b0}.w-nev{color:var(--blue)}.w-card{color:var(--amber)}.w-sfx{color:#7d8894}
+.beat{margin:12px 0 4px;font-size:11px;letter-spacing:1.4px;color:var(--dim);text-transform:uppercase}
+.shots{font-size:13px;color:#c6cad0}
+.shots li{margin:5px 0}
+.q{border-left:3px solid var(--green);padding:6px 0 6px 13px;margin:10px 0;font-size:15px}
+ul{margin:6px 0 0;padding-left:20px}li{margin:5px 0}
+.grid7{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin:8px 0}
+.g{background:#101216;border:1px solid var(--line);border-radius:8px;padding:9px 8px;font-size:11px;text-align:center}
+.g b{display:block;font-size:12px;margin-bottom:3px}
+.g span{color:var(--dim)}
+.roadmap td:first-child{white-space:nowrap;font-weight:700}
+.note{color:var(--dim);font-size:13px}
+code{background:#0a0b0d;border:1px solid var(--line);border-radius:4px;padding:1px 6px;font-family:var(--mono);font-size:12.5px}
+.big{font-size:16.5px}
+
+details.gen{background:#0e1013;border:1px solid #24272d;border-radius:8px;margin:12px 0 0;padding:0}
+details.gen summary{cursor:pointer;padding:10px 14px;font-size:12px;letter-spacing:1.2px;color:#5b9dd9;font-weight:700}
+details.gen div{padding:4px 14px 12px}
+.gp{border-left:3px solid #2f3540;margin:10px 0;padding:6px 0 6px 12px}
+.gp b{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:#e0a341;display:block;margin-bottom:3px}
+.gp p{margin:0;font-size:12.8px;color:#c2c7cd;line-height:1.5}
+.gp .cr{color:#4bb87a;font-family:ui-monospace,Menlo,monospace;font-size:11px}
+</style></head><body><div class="wrap"><p style="color:#9aa0a8;font-size:13px"><a href="PROPOSAL-MONTH.html" style="color:#5b9dd9">← back to the 4-week master plan</a></p>
+
+<div class="card hero">
+<div class="mono" style="color:var(--dim);letter-spacing:2px">TALYX ORIGINALS · AI SHORT DRAMA · PROPOSAL</div>
+<h1>MIDNIGHT LOT <span style="color:var(--dim);font-weight:400">· 午夜车场</span></h1>
+<p class="sub big"><i>"Every recond car had a first life. At midnight, they tell it."</i></p><div style="margin:0 0 14px"><img src="https://d8j0ntlcm91z4.cloudfront.net/user_3AmHAoGOCTD0Ph5D4HI7jSA04wi/hf_20260824_072729_ca6e0bc5-516c-4150-a32d-d46aa38cea81.png" alt="keyframe" style="width:100%;max-width:320px;border-radius:10px;border:1px solid #2b2f36;display:block"><div style="font-size:11.5px;color:#9aa0a8;margin-top:6px">REFERENCE KEYFRAME (AI, generated for this pitch — becomes the production style ref) · series poster frame — Nev meets Haru</div></div>
+<p class="sub">A 7-episode, one-week vertical drama, fully AI-generated. The lot is ours. The cars are our
+stock. The hero of every episode is a car we can actually sell.</p>
+<dl class="kv" style="margin-top:14px">
+<dt>Format</dt><dd>7 daily episodes · 55–75s each · vertical 9:16 · 720p (cost strategy)</dd>
+<dt>Cast</dt><dd><b>NEV</b> (our existing AI persona, identity refs locked) + <b>HARU</b>, a 2018 Toyota
+Harrier fresh off the ship — voiced, never lip-synced (the car "speaks" through light pulses in the DRLs)</dd>
+<dt>Why a Harrier</dt><dd>THE iconic recond model in Malaysia — instantly recognisable to our exact buyer</dd>
+<dt>Proven model</dt><dd>Serialized like Douyin's 《末法道士》 AI franchise (S3, contest flagship) ·
+emotional engine of the viral "if your 10-year car could speak" W212 film — the two references analysed for this pitch</dd>
+<dt>Compliance</dt><dd>AI-generated label on every episode (platform-mandatory, already our policy)</dd>
+</dl>
+</div>
+
+<h2>Why 1 week = 1 topic (the boss logic)</h2>
+<div class="card">
+<p style="margin:0 0 10px">We have four series concepts. Instead of betting a quarter on one, we run a
+<b>4-week pilot month — one concept per week, seven episodes each.</b> Same persona, same lot, same
+posting slots. At the end of the month the retention numbers pick the series; we double down on the
+winner and keep the runners-up as recurring segments.</p>
+<div class="grid7" style="grid-template-columns:repeat(4,1fr)">
+<div class="g"><b>WEEK 1 · MIDNIGHT LOT</b><span>this proposal — full detail below</span></div>
+</div><div style="margin:0 0 14px"><img src="https://d8j0ntlcm91z4.cloudfront.net/user_3AmHAoGOCTD0Ph5D4HI7jSA04wi/hf_20260824_072729_75eaf926-8fd7-4bda-97a5-5cf6fa7cb09e.png" alt="keyframe" style="width:100%;max-width:320px;border-radius:10px;border:1px solid #2b2f36;display:block"><div style="font-size:11.5px;color:#9aa0a8;margin-top:6px">REFERENCE KEYFRAME (AI, generated for this pitch — becomes the production style ref) · the last shot of E7 — the next car wakes: Week 2 begins</div></div><div class="grid7" style="grid-template-columns:repeat(4,1fr)"><div class="g"><b>WEEK 2 · THE CAR WHISPERER</b><span>faults & scams as "demons" Nev exorcises</span></div>
+<div class="g"><b>WEEK 3 · REKOND</b><span>lot-family business drama, auction wars</span></div>
+<div class="g"><b>WEEK 4 · SECOND LIFE GARAGE</b><span>transformation drama — before/after with a soul</span></div>
+</div>
+<p class="note" style="margin:8px 0 0"><b>One rule:</b> cliffhangers chain only INSIDE a week. Every Sunday
+resolves. Each week judges itself cleanly, and a viewer who arrives on any Monday starts fresh.</p>
+</div>
+
+<h2>The week at a glance</h2>
+<div class="card">
+<div class="grid7">
+<div class="g"><b>MON</b><span>The Lot Wakes</span></div>
+<div class="g"><b>TUE</b><span>Haru Remembers</span></div>
+<div class="g"><b>WED</b><span>The Auction</span></div>
+<div class="g"><b>THU</b><span>The Crossing</span></div>
+<div class="g"><b>FRI</b><span>The Scratch</span></div>
+<div class="g"><b>SAT</b><span>The Family</span></div>
+<div class="g"><b>SUN</b><span>Second Life</span></div>
+</div>
+<p class="note" style="margin:8px 0 0">Post 8:30pm MYT daily (post-dinner scroll peak). Mon sets the world,
+Tue–Sat escalate, Sun pays everything off and carries the sales CTA + Week 2 teaser.</p>
+</div>
+
+<h2>Week arc — hook, twist, CTA of the WHOLE week</h2>
+<div class="card">
+<dl class="kv">
+<dt><span class="pill p-hook">WEEK HOOK</span></dt>
+<dd>A dealer locks up his lot at midnight — and one of the cars says his name. (Ep 1 cold open, no context, 2s.)</dd>
+<dt><span class="pill p-turn">WEEK TWIST</span></dt>
+<dd>Ep 5: the "flaw" Nev finds on Haru is the proof of her best day, not her worst — the moment the
+audience's fear of recond cars ("what is it hiding?") is inverted into the reason to trust one that's
+honestly documented.</dd>
+<dt><span class="pill p-cta">WEEK CTA</span></dt>
+<dd>Ep 7, spoken by Nev over a real handover: <i>"Every car on this lot has a story like hers.
+Come meet them — or PM us, and we'll introduce you."</i></dd>
+<dt>Meaning</dt>
+<dd>A recond car is not a second-hand object; it's a first life looking for a second one. The series
+converts the market's biggest fear (unknown history) into its warmest promise (documented history).</dd>
+</dl>
+</div>
+
+
+<h2>The house prompt blocks (appended to EVERY video prompt below)</h2>
+<div class="card"><div class="gp"><b>+ STYLE</b><p>Vertical 9:16. REAL PHOTOGRAPHY, NOT A RENDER: true skin and paint texture, natural handheld micro-shake, shallow depth of field, practical light only. Continuous action first frame to last, no internal cuts. generate_audio: true (diegetic sound only — no music, no voice; VO is added in the mix).</p></div>
+<div class="gp"><b>+ NEGATIVE</b><p>CGI, videogame look, plastic or waxy surfaces, stock-photo gloss, extra fingers, warped hands, floating objects, NO BRAND MARKS beyond the car itself, no legible number plates, no legible text on signs or screens, no crowds.</p></div>
+<div class="gp"><b>+ IDENTITY REFS</b><p>Every shot of HARU carries <span class="cr">HARU_PLATE</span> as start_image / image_reference. Every shot of NEV carries the locked persona refs (facecheck on every seam). Memory-timeline shots carry <span class="cr">JP_HOUSE / BOY / FATHER</span> plates. One character-set per shot — never two new identities in one generation.</p></div></div>
+<!-- ============================ EPISODES ============================ -->
+<h2>The seven episodes — full scripts</h2>
+
+<div class="day"><div class="dhead"><span class="dnum">DAY 1 · MON</span><span class="dtitle">E1 — The Lot Wakes</span>
+<span class="dmeta">60s · BGM: cold nights (110 BPM, ducked) · 6 gen clips + 2 stills</span></div><div class="dbody"><div style="margin:0 0 14px"><img src="https://d8j0ntlcm91z4.cloudfront.net/user_3AmHAoGOCTD0Ph5D4HI7jSA04wi/hf_20260824_072729_b93cb6b8-bb61-4caf-85dc-7fa40accfa4e.png" alt="keyframe" style="width:100%;max-width:320px;border-radius:10px;border:1px solid #2b2f36;display:block"><div style="font-size:11.5px;color:#9aa0a8;margin-top:6px">REFERENCE KEYFRAME (AI, generated for this pitch — becomes the production style ref) · E1 hero frame<details class="gen"><summary>AI GENERATION PROMPTS — E1 · 6 clips · 135.0 cr</summary><div><div class="gp"><b>E1-A (probe) · 5s · <span class="cr">22.5 cr</span></b><p>Macro at night: a heavy brass padlock clicks shut on a wire gate of a Malaysian covered car lot, a hand withdraws, beyond the wire rows of dark cars fall out of focus. The lock settles, swings once. AUDIO: the click, night insects, one distant highway pass. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: HARU_PLATE, LOT_NIGHT</i></p></div><div class="gp"><b>E1-B · 5s · <span class="cr">22.5 cr</span></b><p>The man from the reference images walks slowly between two rows of sleeping cars at night, torch beam sweeping across dark windscreens, his back three-quarter to camera, unhurried closing-time routine. AUDIO: soft footsteps on concrete, keys jingling once. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: NEV refs, LOT_NIGHT</i></p></div><div class="gp"><b>E1-C · 5s · <span class="cr">22.5 cr</span></b><p>Front of the pearl-white Toyota Harrier from the reference image in a dark lot: its slim LED daytime running lights fade up from dark and PULSE gently twice, like breathing, faint light pooling on the asphalt under the bumper. Nothing else moves. AUDIO: a very soft electrical hum rising with each pulse. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: HARU_PLATE</i></p></div><div class="gp"><b>E1-D · 5s · <span class="cr">22.5 cr</span></b><p>Wide: the man stands facing the white Harrier, torch lowered to his side, its DRLs glowing softly and lighting the lower half of his body. He does not move; a long beat of two figures regarding each other. AUDIO: night room tone, one small shoe scuff. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: NEV refs, HARU_PLATE</i></p></div><div class="gp"><b>E1-E · 5s · <span class="cr">22.5 cr</span></b><p>Slow lateral track down a row of parked cars at night: one by one, each car's daytime running lights fade up faintly as the camera passes - a wave of soft waking light travelling along the row into darkness. AUDIO: layered soft electrical hums, staggered. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: LOT_NIGHT</i></p></div><div class="gp"><b>E1-F · 5s · <span class="cr">22.5 cr</span></b><p>Extreme close on the white Harrier's right headlight at night: within the glass, faint colored reflections drift like distant neon signs of a Japanese city street, ghostly, as the DRL holds a low glow. AUDIO: hum, and very faint, muffled city ambience as if remembered. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: HARU_PLATE</i></p></div></div></details></div></div>
+<span class="pill p-hook">HOOK 0–2s</span><span class="pill p-turn">TURN 32s</span><span class="pill p-cliff">CLIFFHANGER</span>
+<div class="beat">Scene flow</div>
+<ul class="shots">
+<li><b>S1 (0–4s)</b> Macro: a padlock clicks shut on the lot gate, dusk. SFX: the click, alone, no music yet.</li>
+<li><b>S2 (4–12s)</b> Nev walks the dark rows, torchlight over sleeping cars — Harrier, Alphard, GT-R silhouettes.</li>
+<li><b>S3 (12–20s)</b> He stops. A pearl-white Harrier's DRLs pulse softly — once, twice — with the voice.</li>
+<li><b>S4 (20–32s)</b> Nev, three-quarter to lens, torch lowered — he answers. Wide: man and car facing each other.</li>
+<li><b>S5 (32–48s)</b> TURN: slow track down the whole row — every car's lights breathe faintly, one by one.</li>
+<li><b>S6 (48–60s)</b> Close on Haru's headlight, a reflection of Tokyo neon ghosting across it. Cut to black on the last word.</li></ul>
+<div class="beat">Script (VO + dialogue)</div>
+<div class="vo">
+<p><span class="who w-sfx">SFX</span>padlock click · night insects · one distant highway swoosh</p>
+<p><span class="who w-haru">HARU (soft, female, slight JP accent)</span>"Boss… kau dengar tak?" <i>(Boss… can you hear me?)</i></p>
+<p><span class="who w-nev">NEV (quiet)</span>"…Since the day you arrived. I hear all of you."</p>
+<p><span class="who w-haru">HARU</span>"Then can I tell you something? Before someone buys me… I want ONE person to know who I was."</p>
+<p><span class="who w-nev">NEV (V.O., over S5)</span>"People think a recond lot is full of second-hand cars. It's not. It's full of first lives — paused."</p>
+<p><span class="who w-haru">HARU (whisper, over S6)</span>"I was born in Aichi. And for six years… I had a family."</p>
+<p><span class="who w-card">CARD (0–3s)</span>MIDNIGHT LOT · EP 1</p>
+<p><span class="who w-card">CARD (56–60s)</span>EP 2 TOMORROW, 8:30PM — "HER FAMILY"</p></div>
+<div class="beat">Per-episode hook / turn / CTA</div>
+<p class="note">Hook = a car speaks Malay to its dealer. Turn = it's not one car — it's ALL of them.
+CTA = structural cliffhanger (who was her family?). AI label top-left throughout.</p></div></div>
+
+<div class="day"><div class="dhead"><span class="dnum">DAY 2 · TUE</span><span class="dtitle">E2 — Haru Remembers</span>
+<span class="dmeta">65s · BGM: Neon Fire chill (98 BPM) · 6 gen clips + 3 stills</span></div><div class="dbody"><div style="margin:0 0 14px"><img src="https://d8j0ntlcm91z4.cloudfront.net/user_3AmHAoGOCTD0Ph5D4HI7jSA04wi/hf_20260824_072729_831b3827-35e7-467c-8a88-2d063a8d55db.png" alt="keyframe" style="width:100%;max-width:320px;border-radius:10px;border:1px solid #2b2f36;display:block"><div style="font-size:11.5px;color:#9aa0a8;margin-top:6px">REFERENCE KEYFRAME (AI, generated for this pitch — becomes the production style ref) · E2 hero frame<details class="gen"><summary>AI GENERATION PROMPTS — E2 · 6 clips · 135.0 cr</summary><div><div class="gp"><b>E2-A (probe) · 5s · <span class="cr">22.5 cr</span></b><p>Warm morning memory grade: a quiet Japanese suburban driveway; a small boy in a yellow school cap runs to the white Harrier and slaps its rear door twice with his palm, laughing, satchel bouncing. AUDIO: the two palm slaps ringing on metal, birdsong, his laugh. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: JP_HOUSE, HARU_PLATE, BOY_CHILD</i></p></div><div class="gp"><b>E2-B · 5s · <span class="cr">22.5 cr</span></b><p>Interior memory: rain streaming down the windscreen from the back-seat POV, wipers keeping steady time, the boy in a child seat drawing a smiley in window fog with one finger. AUDIO: rain drum, wiper rhythm, small humming child. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: HARU_PLATE (interior), BOY_CHILD</i></p></div><div class="gp"><b>E2-C · 5s · <span class="cr">22.5 cr</span></b><p>Memory: the Harrier parked in the home carport at dusk; through the kitchen window behind, a mother's silhouette moves; laundry sways above the car. The car sits in warm household light. AUDIO: muffled clatter of dinner, faint off-key singing. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: JP_HOUSE, HARU_PLATE</i></p></div><div class="gp"><b>E2-D · 5s · <span class="cr">22.5 cr</span></b><p>Present, night lot: the man leans back against the Harrier's front fender, arms crossed loosely, head tilted, LISTENING, torch off, moonlight only. Her DRLs pulse softly with the rhythm of speech. AUDIO: night tone, the soft hum pulsing. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: NEV refs, HARU_PLATE</i></p></div><div class="gp"><b>E2-E · 5s · <span class="cr">22.5 cr</span></b><p>Memory triptych in one continuous slow push past the Harrier's flank: reflected in her glossy door, a child becomes a schoolboy becomes a tall teenager walking away with earphones - three reflections crossing as the camera drifts. AUDIO: playground sounds thinning into silence. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: BOY_CHILD, BOY_TEEN, HARU_PLATE</i></p></div><div class="gp"><b>E2-F · 5s · <span class="cr">22.5 cr</span></b><p>Memory: the carport in flat grey light; dust visibly filmed on the Harrier's bonnet and windscreen; a folded car cover half-draped over the rear. Beyond, the house windows glow with life that no longer comes outside. AUDIO: near-silence, one clock-like drip. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: JP_HOUSE, HARU_PLATE</i></p></div></div></details></div></div>
+<span class="pill p-hook">HOOK 0–2s</span><span class="pill p-turn">TURN 40s</span><span class="pill p-cliff">CLIFFHANGER</span>
+<div class="beat">Scene flow</div>
+<ul class="shots">
+<li><b>S1 (0–5s)</b> COLD OPEN in memory: a Japanese driveway, morning, a child's small hand slaps the Harrier's door — "Haru! Hayaku!" (flashbacks in warmer grade, 4:3-feel vignette to separate timelines).</li>
+<li><b>S2 (5–18s)</b> Montage of the first life: school run in rain, wipers metronome; mother singing off-key; dog nose-printing the rear glass.</li>
+<li><b>S3 (18–30s)</b> Night lot, present: Nev leans on the fender listening, torch off — moonlight only.</li>
+<li><b>S4 (30–40s)</b> Memory: the boy grows across three shots — child seat → school uniform → tall teenager who stops needing the school run.</li>
+<li><b>S5 (40–55s)</b> TURN: the garage door closes on her with the family INSIDE the house. Days tick by in light changes; dust settles on the bonnet.</li>
+<li><b>S6 (55–65s)</b> Present: "The day they came for me… I thought we were going to the beach." Nev closes his eyes. Black.</li></ul>
+<div class="beat">Script</div>
+<div class="vo">
+<p><span class="who w-sfx">SFX</span>child's hand-slap on metal · rain + wipers · muffled house laughter through garage wall</p>
+<p><span class="who w-haru">HARU</span>"Six years, boss. Two hundred school runs a year. I counted."</p>
+<p><span class="who w-haru">HARU</span>"The boy called me Ha-chan. His mother sang — badly — every Friday."</p>
+<p><span class="who w-nev">NEV</span>"What happened?"</p>
+<p><span class="who w-haru">HARU</span>"Nothing happened. That's the thing. He grew up. The train was faster. I just… became furniture."</p>
+<p><span class="who w-haru">HARU (turn line)</span>"Rust doesn't come from driving, boss. It comes from waiting."</p>
+<p><span class="who w-haru">HARU (cliff)</span>"Then one morning, a man in gloves photographed every panel of me… and I understood."</p>
+<p><span class="who w-card">CARD (40s)</span>RUST COMES FROM WAITING</p>
+<p><span class="who w-card">CARD (end)</span>EP 3 — "THE AUCTION"</p></div>
+<p class="note">The turn line IS our market's truth (cars that sit, break — the r8ride thesis, now as drama).
+Authority smuggled inside emotion.</p></div></div>
+
+<div class="day"><div class="dhead"><span class="dnum">DAY 3 · WED</span><span class="dtitle">E3 — The Auction</span>
+<span class="dmeta">70s · BGM: cold nights, sparse piano intro section · 7 gen clips + 2 stills</span></div><div class="dbody"><div style="margin:0 0 14px"><img src="https://d8j0ntlcm91z4.cloudfront.net/user_3AmHAoGOCTD0Ph5D4HI7jSA04wi/hf_20260824_072729_920bc0e5-1902-4a98-bcd3-ab2a106eb8a2.png" alt="keyframe" style="width:100%;max-width:320px;border-radius:10px;border:1px solid #2b2f36;display:block"><div style="font-size:11.5px;color:#9aa0a8;margin-top:6px">REFERENCE KEYFRAME (AI, generated for this pitch — becomes the production style ref) · E3 hero frame<details class="gen"><summary>AI GENERATION PROMPTS — E3 · 7 clips · 157.5 cr</summary><div><div class="gp"><b>E3-A (probe) · 5s · <span class="cr">22.5 cr</span></b><p>High slow aerial over a vast Japanese auction yard: thousands of cars in perfect grid to the horizon under overcast light; the camera drifts; one pearl-white SUV catches a break of sun mid-frame. AUDIO: wind, distant tannoy echo in Japanese, unintelligible. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: AUCTION_YARD</i></p></div><div class="gp"><b>E3-B · 5s · <span class="cr">22.5 cr</span></b><p>An inspector in gloves circles the white Harrier with a clipboard, crouches at the left rear door, writes; a chalk mark appears on the glass; he photographs the odometer through the window. AUDIO: chalk squeak, camera shutter, clipboard pen. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: HARU_PLATE, AUCTION_YARD</i></p></div><div class="gp"><b>E3-C · 5s · <span class="cr">22.5 cr</span></b><p>The auction lane: cars idle forward one at a time under sodium light toward a lit auctioneer booth; number boards flicker; staff wave batons. Shot from low between the moving cars. AUDIO: idling engines layered, rapid Japanese auction chant, electronic beeps. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: AUCTION_LANE</i></p></div><div class="gp"><b>E3-D · 5s · <span class="cr">22.5 cr</span></b><p>Windshield POV from inside the Harrier rolling slowly into the auction lane: the auctioneer booth glows ahead, red digits climbing on the board, then a buzzer - SOLD - and a green lamp. The wiper posts frame the scene like held breath. AUDIO: chant accelerating, the buzzer, then sudden quiet. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: HARU_PLATE (windshield POV)</i></p></div><div class="gp"><b>E3-E · 5s · <span class="cr">22.5 cr</span></b><p>As the Harrier rolls out of the lane, her wing mirror catches a boy in a blue cap standing in the spectator crowd; the mirror image holds while the background streams; the car visibly slows mid-lane. AUDIO: muffled crowd, one clear bicycle bell like a memory, a horn behind her. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: HARU_PLATE, BOY_TEEN</i></p></div><div class="gp"><b>E3-F · 5s · <span class="cr">22.5 cr</span></b><p>Her windshield POV: steel container doors swing shut from both sides, the daylight narrowing to a vertical seam and going out. Blackness, then a single thin line of light through the door gap. AUDIO: enormous steel boom, echo, then sea-deep quiet and a faint far engine. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: HARU_PLATE</i></p></div><div class="gp"><b>E3-G · 5s · <span class="cr">22.5 cr</span></b><p>Present, tight on the man's face in the dark lot, listening, jaw set, the soft pulse of her lights reflected on his cheek. He looks down at an auction sheet in his hand. AUDIO: paper flex, night tone. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: NEV refs</i></p></div></div></details></div></div>
+<span class="pill p-hook">HOOK 0–2s</span><span class="pill p-turn">TURN 45s</span><span class="pill p-cliff">CLIFFHANGER</span>
+<div class="beat">Scene flow</div>
+<ul class="shots">
+<li><b>S1 (0–6s)</b> A USS auction hall, thousands of cars in grid lines, drone-high. One pearl-white dot among thousands. Card: "USS NAGOYA — 40,000 CARS EVERY WEEK".</li>
+<li><b>S2 (6–18s)</b> Inspector circles her with a clipboard; chalk mark on the door; the grade appears: <b>4.5</b>.</li>
+<li><b>S3 (18–32s)</b> The lane: engines idle forward one by one under sodium lights; auction gavel SFX; numbers flicker on the board.</li>
+<li><b>S4 (32–45s)</b> Her turn. Lights. Three seconds of bidding beeps. SOLD. (All from HER POV — windshield view of the auctioneer booth.)</li>
+<li><b>S5 (45–60s)</b> TURN: as she rolls out, in the mirror — a boy in the crowd who looks like HER boy. She hesitates mid-lane. It isn't him.</li>
+<li><b>S6 (60–70s)</b> Container doors close over the windshield POV like eyelids. Darkness. "Boss… have you ever been mailed?"</li></ul>
+<div class="beat">Script</div>
+<div class="vo">
+<p><span class="who w-haru">HARU</span>"Forty thousand of us, every week. Each one was somebody's first day of school. Somebody's hospital run. Somebody's apology after a fight."</p>
+<p><span class="who w-nev">NEV (V.O.)</span>"Grade four-point-five. Do you know how rare that is, for a six-year-old car? That's not a grade. That's a love letter from her first family."</p>
+<p><span class="who w-haru">HARU (turn)</span>"I saw a boy in the crowd. Same blue cap. I stopped. The whole lane honked at me… It wasn't him. Of course it wasn't him."</p>
+<p><span class="who w-haru">HARU (cliff, in the dark)</span>"Twelve days in a steel box, boss. You learn a lot about yourself in the dark."</p>
+<p><span class="who w-card">CARD (12s)</span>GRADE 4.5 — AUCTION SHEET SHOWN ON SCREEN</p>
+<p><span class="who w-card">CARD (end)</span>EP 4 — "THE CROSSING"</p></div>
+<p class="note">This is the education episode wearing a drama costume: auction grades, USS sheets — the exact
+literacy our buyers lack, delivered as her biography. Nev's "love letter" line converts jargon into emotion.</p></div></div>
+
+<div class="day"><div class="dhead"><span class="dnum">DAY 4 · THU</span><span class="dtitle">E4 — The Crossing</span>
+<span class="dmeta">60s · BGM: Neon Ice Show chill (98 BPM) · 6 gen clips + 2 stills</span></div><div class="dbody"><div style="margin:0 0 14px"><img src="https://d8j0ntlcm91z4.cloudfront.net/user_3AmHAoGOCTD0Ph5D4HI7jSA04wi/hf_20260824_072729_cd4a7a13-5fa6-4a52-95be-ed703d377145.png" alt="keyframe" style="width:100%;max-width:320px;border-radius:10px;border:1px solid #2b2f36;display:block"><div style="font-size:11.5px;color:#9aa0a8;margin-top:6px">REFERENCE KEYFRAME (AI, generated for this pitch — becomes the production style ref) · E4 hero frame<details class="gen"><summary>AI GENERATION PROMPTS — E4 · 6 clips · 135.0 cr</summary><div><div class="gp"><b>E4-A (probe) · 5s · <span class="cr">22.5 cr</span></b><p>POV from inside a dark container: the doors crack open and a blinding vertical seam of tropical light splits the frame, silhouettes of gantry cranes and a worker outside, dust motes flooding the light shaft across the bonnet edge. AUDIO: seagulls, container yard clangs, a Malay voice calling numbers. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: PORT_KLANG, HARU_PLATE</i></p></div><div class="gp"><b>E4-B · 5s · <span class="cr">22.5 cr</span></b><p>Ro-ro ship car deck at sea, rows of lashed cars gently riding the swell, low ceiling of steel and pipes, one work light swinging slightly. The white Harrier mid-row, straps taut. AUDIO: deep hull throb, strap creak, the sea outside. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: SHIP_DECK</i></p></div><div class="gp"><b>E4-C · 5s · <span class="cr">22.5 cr</span></b><p>Windshield POV in an inspection bay: two gloved inspectors lean into view, one reads the chassis stamp with a torch, the other holds a mileage scanner to the glass; harsh strip light overhead. AUDIO: scanner beep, Malay-English shop talk, torch tap on glass. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: HARU_PLATE (windshield POV), PORT_KLANG</i></p></div><div class="gp"><b>E4-D · 5s · <span class="cr">22.5 cr</span></b><p>The Harrier rides a flatbed truck at dawn on a Malaysian highway, palm oil estates flowing past behind her, first orange light travelling across the pearl paint and catching the mirrors. AUDIO: highway wind, flatbed diesel, morning radio ghosting from the cab. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: HARU_PLATE</i></p></div><div class="gp"><b>E4-E · 5s · <span class="cr">22.5 cr</span></b><p>The lot gate from Episode 1 swings open at night; the flatbed's headlights wash the rows; as the Harrier is winched down, the parked cars' DRLs fade up one by one in greeting down the line. AUDIO: winch whine, tyres touching ground, the layered soft hums rising. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: LOT_NIGHT, HARU_PLATE</i></p></div><div class="gp"><b>E4-F · 5s · <span class="cr">22.5 cr</span></b><p>The man walks up to the newly arrived Harrier with her auction sheet, reads it by torchlight, then looks up at her; his thumb stops on the left rear door; he crouches, torch close to the panel. AUDIO: paper, footsteps, then silence as the torch steadies. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: NEV refs, HARU_PLATE</i></p></div></div></details></div></div>
+<span class="pill p-hook">HOOK 0–2s</span><span class="pill p-turn">TURN 38s</span><span class="pill p-cliff">CLIFFHANGER</span>
+<div class="beat">Scene flow</div>
+<ul class="shots">
+<li><b>S1 (0–6s)</b> Open on total darkness — then a seam of light: container doors crack open to blinding tropical sun. Port Klang gantries overhead.</li>
+<li><b>S2 (6–16s)</b> Ro-ro deck timelapse-feel: ocean, stars through the deck vents, engine room hum below.</li>
+<li><b>S3 (16–28s)</b> Inspection bay: gloved hands, mileage check, chassis stamp under harsh light — from her POV, faces peering through the windshield.</li>
+<li><b>S4 (28–38s)</b> Flatbed at dawn on the NKVE, palm estates flowing past her mirrors — first Malaysian sunrise on the paint.</li>
+<li><b>S5 (38–52s)</b> TURN: she arrives at OUR lot; the gate from Ep 1. Other cars' lights pulse a greeting. "They said… welcome home?"</li>
+<li><b>S6 (52–60s)</b> Nev walks up with the auction sheet, reads it, looks at her. "Aichi, huh? Long way." Cliff: his thumb finds a repair mark the sheet declared…</li></ul>
+<div class="beat">Script</div>
+<div class="vo">
+<p><span class="who w-haru">HARU</span>"Twelve days of engine-room heartbeat under me. I dreamt in diesel."</p>
+<p><span class="who w-haru">HARU</span>"At the port, men read me like a passport. Chassis. Mileage. Stamp. I was so scared of becoming just… a number."</p>
+<p><span class="who w-haru">HARU (turn)</span>"Then the gate opened, and a hundred headlights blinked at me in the dark. Not numbers. Names. Everyone here has a name."</p>
+<p><span class="who w-nev">NEV</span>"Aichi girl. Grade four-point-five." (beat) "…So what's this mark on your left door, that your sheet already confessed?"</p>
+<p><span class="who w-card">CARD (20s)</span>EVERY IMPORT IS VERIFIED — CHASSIS · METER · SHEET</p>
+<p><span class="who w-card">CARD (end)</span>EP 5 — "THE SCRATCH"</p></div>
+<p class="note">Quietest episode by design (the breath before the twist) — doctrine's "quiet before the turn".
+Import-process literacy = trust-building for the brand.</p></div></div>
+
+<div class="day"><div class="dhead"><span class="dnum">DAY 5 · FRI</span><span class="dtitle">E5 — The Scratch <span style="color:var(--amber)">★ THE WEEK'S TWIST</span></span>
+<span class="dmeta">70s · BGM: none until 40s, then Neon Fire chill swells · 7 gen clips</span></div><div class="dbody"><div style="margin:0 0 14px"><img src="https://d8j0ntlcm91z4.cloudfront.net/user_3AmHAoGOCTD0Ph5D4HI7jSA04wi/hf_20260824_072729_613e73c3-e55a-487a-b1f8-053f4e60f5a2.png" alt="keyframe" style="width:100%;max-width:320px;border-radius:10px;border:1px solid #2b2f36;display:block"><div style="font-size:11.5px;color:#9aa0a8;margin-top:6px">REFERENCE KEYFRAME (AI, generated for this pitch — becomes the production style ref) · E5 hero frame<details class="gen"><summary>AI GENERATION PROMPTS — E5 · 7 clips · 157.5 cr</summary><div><div class="gp"><b>E5-A (probe) · 5s · <span class="cr">22.5 cr</span></b><p>Macro under harsh worklight: a man's thumb traces a barely visible repaired dent line on the white door panel; a paint-depth gauge is pressed to it, digits settle on the small screen. AUDIO: the gauge's soft beep, workshop silence, no music. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: HARU_PLATE</i></p></div><div class="gp"><b>E5-B · 5s · <span class="cr">22.5 cr</span></b><p>Memory, night rain: the white Harrier takes a wet corner too fast, headlights smearing on the road; the rear steps out and the left rear door kisses a guardrail in a slow, sickening scrape; she straightens and stops on the shoulder, hazards on. AUDIO: rain, the scrape rendered LOUD and physical, then hazard clicks. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: JP_RAIN_ROAD, HARU_PLATE</i></p></div><div class="gp"><b>E5-C · 5s · <span class="cr">22.5 cr</span></b><p>Memory: the teenage boy sits in the driver's seat in the rain, engine off, forehead resting on the wheel, shoulders shaking once; the cabin light warm around him; rain crawling the glass. AUDIO: rain on the roof, one ragged breath, the seatbelt chime dying. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: BOY_TEEN, HARU_PLATE (interior)</i></p></div><div class="gp"><b>E5-D · 5s · <span class="cr">22.5 cr</span></b><p>Memory: the father appears in the carport doorway backlit; he does not shout; he takes the boy's hands and turns them over, checking them; then pulls him into one brief hold. AUDIO: rain softening, no words needed, one low 'yokatta'. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: JP_FATHER, BOY_TEEN</i></p></div><div class="gp"><b>E5-E · 5s · <span class="cr">22.5 cr</span></b><p>Memory, midnight carport: father and son mask the Harrier's door with newspaper and tape under a work lamp, sand, then spray in slow passes, both grinning, coffee cans on the floor. The reference image mood exactly. AUDIO: tape rip, sanding rhythm, spray hiss, quiet laughter. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: JP_FATHER, BOY_TEEN, HARU_PLATE</i></p></div><div class="gp"><b>E5-F · 5s · <span class="cr">22.5 cr</span></b><p>Present: the man lays his palm flat on the repaired panel and holds it there, then speaks straight into the lens for the first time in the series, workshop light half on his face. AUDIO: his line delivered clean (VO recorded separately, lips minimal). <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: NEV refs, HARU_PLATE</i></p></div><div class="gp"><b>E5-G · 5s · <span class="cr">22.5 cr</span></b><p>Dawn breaking over the lot; the Harrier's panel in growing light, the repair invisible at arm's length; across her bonnet falls the long shadow of an approaching family. AUDIO: morning birds, three sets of footsteps arriving. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: HARU_PLATE</i></p></div></div></details></div></div>
+<span class="pill p-hook">HOOK 0–2s</span><span class="pill p-turn">TURN 40s</span><span class="pill p-cliff">CLIFFHANGER</span>
+<div class="beat">Scene flow</div>
+<ul class="shots">
+<li><b>S1 (0–5s)</b> Macro, harsh worklight: Nev's thumb over a faint repaired dent on the left rear door. Silence. No music.</li>
+<li><b>S2 (5–15s)</b> Nev with a paint-depth gauge; the number on the gauge; his eyebrow. "Talk to me, Haru."</li>
+<li><b>S3 (15–40s)</b> MEMORY: rain, night, the boy — older now, borrowed her without asking. A too-fast corner, a guardrail kiss. His terrified face in her mirror. He sits in the driver's seat in the rain, forehead on the wheel.</li>
+<li><b>S4 (40–55s)</b> TURN: the father's silhouette in the doorway. Not shouting — checking the boy's hands. Then, both of them, at midnight, taping newspaper over her door to repaint it TOGETHER.</li>
+<li><b>S5 (55–65s)</b> Present: Nev's hand flat on the repaired panel. "Best repair I've ever seen documented." </li>
+<li><b>S6 (65–70s)</b> Wide: dawn breaking over the lot. Cliff: a family's shadow falls across her bonnet — viewing hours.</li></ul>
+<div class="beat">Script</div>
+<div class="vo">
+<p><span class="who w-nev">NEV</span>"Every buyer asks me the same thing: 'What is it hiding?' — Okay. Let's ask her."</p>
+<p><span class="who w-haru">HARU (small)</span>"…It was raining. He'd just gotten his licence. He took the corner like the games taught him."</p>
+<p><span class="who w-haru">HARU</span>"I held the rail off the door as long as I could. He cried in my seat for twenty minutes. I couldn't even put a hand on his shoulder. I'm a car, boss. All I could do was keep the cabin warm."</p>
+<p><span class="who w-haru">HARU (turn)</span>"His father didn't shout. He checked the boy's hands… and then they fixed me together. Sanded. Painted. Laughing by 2 a.m. — It's not a scar. It's the best night we ever had."</p>
+<p><span class="who w-nev">NEV (to camera, the thesis)</span>"THIS is what an honest sheet looks like. The damage declared, the repair documented. A recond car isn't hiding its past — it's the only car that brings its diary."</p>
+<p><span class="who w-card">CARD (42s)</span>DECLARED · DOCUMENTED · REPAIRED</p>
+<p><span class="who w-card">CARD (end)</span>EP 6 — "THE FAMILY"</p></div>
+<p class="note">The inversion the whole week exists for: the market's deepest fear (hidden damage) becomes
+the proof of love AND the proof of paperwork. Emotion and sales argument land as one line.</p></div></div>
+
+<div class="day"><div class="dhead"><span class="dnum">DAY 6 · SAT</span><span class="dtitle">E6 — The Family</span>
+<span class="dmeta">65s · BGM: cold nights · 6 gen clips + 2 stills</span></div><div class="dbody"><div style="margin:0 0 14px"><img src="https://d8j0ntlcm91z4.cloudfront.net/user_3AmHAoGOCTD0Ph5D4HI7jSA04wi/hf_20260824_072729_626fcf30-6494-4a02-9f2f-ef255107c414.png" alt="keyframe" style="width:100%;max-width:320px;border-radius:10px;border:1px solid #2b2f36;display:block"><div style="font-size:11.5px;color:#9aa0a8;margin-top:6px">REFERENCE KEYFRAME (AI, generated for this pitch — becomes the production style ref) · E6 hero frame<details class="gen"><summary>AI GENERATION PROMPTS — E6 · 6 clips · 135.0 cr</summary><div><div class="gp"><b>E6-A (probe) · 5s · <span class="cr">22.5 cr</span></b><p>Golden hour at the lot: a small girl runs ahead of her parents down the row and slaps the white Harrier's rear door twice with her palm - the same double slap - then looks up at it. AUDIO: the two slaps ringing exactly like Episode 2, her giggle. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: MY_GIRL, HARU_PLATE, LOT_DAY</i></p></div><div class="gp"><b>E6-B · 5s · <span class="cr">22.5 cr</span></b><p>Test-drive interior: the girl in the back seat, nose to the window, palms on the glass, watching shophouses pass; framed identically to the Japanese boy's rain shot but in sunlight. AUDIO: cabin hush, indicator click, her small narration to herself. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: MY_GIRL, HARU_PLATE (interior)</i></p></div><div class="gp"><b>E6-C · 5s · <span class="cr">22.5 cr</span></b><p>At the open bonnet, the father and the man go over the auction sheet together; the mother tests the aircond vent with her palm; unhurried, real. AUDIO: paper, aircond whoosh, polite Malay-English mix, no clear words. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: MY_FAMILY, NEV refs, HARU_PLATE</i></p></div><div class="gp"><b>E6-D · 5s · <span class="cr">22.5 cr</span></b><p>Close on the Harrier's front: her DRLs pulse in a quick hopeful double-beat as the family stands before her, their reflections in her paint leaning together. AUDIO: the hum bright, almost eager. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: HARU_PLATE</i></p></div><div class="gp"><b>E6-E · 5s · <span class="cr">22.5 cr</span></b><p>At the sales desk in the background, the father shakes his head gently at a paper; the family walks toward the gate; the girl turns and waves bye-bye at the car; the DRLs dim slowly to nothing. AUDIO: retreating footsteps, one small 'bye-bye', the hum sinking. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: MY_FAMILY, LOT_DAY</i></p></div><div class="gp"><b>E6-F · 5s · <span class="cr">22.5 cr</span></b><p>Night. Rain begins. The man stands under the awning looking at the rain falling on the dark, unlit Harrier; he doesn't go to her; the shot just holds. AUDIO: rain building on metal roofs. NOTHING else - no music, no voice. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: NEV refs, HARU_PLATE, LOT_NIGHT</i></p></div></div></details></div></div>
+<span class="pill p-hook">HOOK 0–2s</span><span class="pill p-turn">TURN 42s</span><span class="pill p-cliff">CLIFFHANGER (hard)</span>
+<div class="beat">Scene flow</div>
+<ul class="shots">
+<li><b>S1 (0–6s)</b> Daylight for the first time in the series. A Malaysian family — mother, father, a girl (~6) — walks the row. The girl's small hand trails along the cars… and stops on Haru's door. Echo of E2-S1.</li>
+<li><b>S2 (6–18s)</b> Test drive: the girl in the back seat, nose to the window — framed EXACTLY like the Japanese boy in E2. The two shots intercut once.</li>
+<li><b>S3 (18–30s)</b> Haru's interior POV: the mother checks the aircond, the father checks the sheet with Nev at the bonnet.</li>
+<li><b>S4 (30–42s)</b> The girl asks her father something; he laughs, looks back at the car; Haru's DRLs pulse — hopeful.</li>
+<li><b>S5 (42–58s)</b> TURN: at the desk, the father shakes his head at the number. They walk away. The girl waves bye-bye at the headlights. Haru's lights fade out slowly, like held breath released.</li>
+<li><b>S6 (58–65s)</b> Night. Rain starts. Nev under the awning, watching her get rained on. Nobody speaks. Black.</li></ul>
+<div class="beat">Script</div>
+<div class="vo">
+<p><span class="who w-haru">HARU (whisper)</span>"Boss. Boss! A small hand. Same slap on my door. SAME SLAP."</p>
+<p><span class="who w-haru">HARU</span>"She smells like strawberry shampoo and my whole first life at once."</p>
+<p><span class="who w-nev">NEV (V.O.)</span>"You never tell a customer which car wants them. It's not professional." (beat) "Her DRLs were pulsing the whole test drive."</p>
+<p><span class="who w-haru">HARU (turn, flat)</span>"…They left. It's fine. People need to think. It's fine, boss. Boss — it's fine."</p>
+<p><span class="who w-sfx">SFX</span>rain beginning on metal roofs — the only sound for the last 7 seconds. NO music, NO voice.</p>
+<p><span class="who w-card">CARD (end)</span>FINALE TOMORROW — "SECOND LIFE"</p></div>
+<p class="note">The hard cliff. Saturday night post = maximum overnight comment agitation ("BELI LAH BANG!!")
+— the audience begs a fictional family to buy a REAL car that is genuinely listed. That's the mechanic.</p></div></div>
+
+<div class="day" style="border-left-color:var(--green)"><div class="dhead"><span class="dnum">DAY 7 · SUN</span><span class="dtitle">E7 — Second Life (Finale)</span>
+<span class="dmeta">75s · BGM: Neon Fire chill, full build to the end · 7 gen clips + 2 stills</span></div><div class="dbody"><div style="margin:0 0 14px"><img src="https://d8j0ntlcm91z4.cloudfront.net/user_3AmHAoGOCTD0Ph5D4HI7jSA04wi/hf_20260824_072729_11a5d98c-58ee-4d8f-95a8-73fd588d6377.png" alt="keyframe" style="width:100%;max-width:320px;border-radius:10px;border:1px solid #2b2f36;display:block"><div style="font-size:11.5px;color:#9aa0a8;margin-top:6px">REFERENCE KEYFRAME (AI, generated for this pitch — becomes the production style ref) · E7 hero frame<details class="gen"><summary>AI GENERATION PROMPTS — E7 · 7 clips · 157.5 cr</summary><div><div class="gp"><b>E7-A (probe) · 5s · <span class="cr">22.5 cr</span></b><p>Morning after rain: water beads standing on the white bonnet catch the sun; beyond, blurred, a car pulls in fast and a small door flings open. AUDIO: tyres on wet gravel, a child's running steps splashing. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: HARU_PLATE, LOT_DAY</i></p></div><div class="gp"><b>E7-B · 5s · <span class="cr">22.5 cr</span></b><p>The girl arrives at the Harrier first and presses both palms and her cheek flat against the door; her parents catch up behind, the father raising a hand to the salesman in apology-greeting. AUDIO: her breathless little laugh, the father's 'sorry ah, she insisted'. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: MY_GIRL, HARU_PLATE</i></p></div><div class="gp"><b>E7-C · 5s · <span class="cr">22.5 cr</span></b><p>Over the outdoor desk: the key fob passes from the man's hand into the father's; the mother's hand briefly squeezes the father's arm; sunlit, simple, done. AUDIO: keys settling into a palm, one pen scratch, morning birds. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: MY_FAMILY, NEV refs</i></p></div><div class="gp"><b>E7-D · 5s · <span class="cr">22.5 cr</span></b><p>The girl 'helps' by wiping the last raindrops off the fender with her sleeve, very serious about it; the DRLs pulse once, softly, like a heartbeat settling. AUDIO: fabric on paint, her hum, the soft electrical pulse. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: MY_GIRL, HARU_PLATE</i></p></div><div class="gp"><b>E7-E · 5s · <span class="cr">22.5 cr</span></b><p>Tight two-shot: the man leans to the wing mirror as if adjusting it and speaks quietly; the DRL glow reflects in his eyes; he taps the mirror twice - a goodbye. AUDIO: his murmur under the scene, two soft taps. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: NEV refs, HARU_PLATE</i></p></div><div class="gp"><b>E7-F · 5s · <span class="cr">22.5 cr</span></b><p>The Harrier reverses out with the family aboard, pauses at the gate, and gives one long headlight pulse back toward the lot before joining traffic and becoming ordinary cars among cars. AUDIO: engine settling, one warm horn-less pulse of light (rendered as rising hum), traffic swallowing her. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: HARU_PLATE, MY_FAMILY</i></p></div><div class="gp"><b>E7-G · 5s · <span class="cr">22.5 cr</span></b><p>Night again: the man stands by the empty parking space, fresh tyre marks leading out; behind him down the row, another car's headlights fade up, waking; he turns toward it with a tired half-smile and delivers the CTA to camera. AUDIO: his CTA line clean and complete, then the new hum rising under the card. <i style="color:#6f7680">+ STYLE + NEGATIVE + refs: NEV refs, LOT_NIGHT</i></p></div></div></details></div></div>
+<span class="pill p-hook">HOOK 0–2s</span><span class="pill p-turn">TURN 30s</span><span class="pill p-cta">SPOKEN CTA</span>
+<div class="beat">Scene flow</div>
+<ul class="shots">
+<li><b>S1 (0–8s)</b> Morning after rain. Beads of water on her bonnet. A car pulls in fast — THE family's car. The girl is out before it stops.</li>
+<li><b>S2 (8–20s)</b> The father, sheepish, to Nev: paperwork montage — the sheet signed, keys on the table, the interlocking-hands shot of a handover.</li>
+<li><b>S3 (20–30s)</b> The girl "helps" wipe the last raindrops with her sleeve. Haru's DRLs pulse like a heartbeat.</li>
+<li><b>S4 (30–48s)</b> TURN: as the family loads in, Haru speaks to Nev one last time — and asks him NOT to tell her story to the new family. "Let them think they're my first. Every child deserves to be somebody's first."</li>
+<li><b>S5 (48–62s)</b> She reverses out. At the gate, one long headlight pulse back at Nev — then she's traffic, then she's gone.</li>
+<li><b>S6 (62–75s)</b> Nev alone in the emptied space on the lot, at night again. Behind him, ANOTHER car's lights pulse awake. He smiles. CTA over this.</li></ul>
+<div class="beat">Script</div>
+<div class="vo">
+<p><span class="who w-haru">HARU</span>"Boss — the slap! The door slap! THEY CAME BACK—"</p>
+<p><span class="who w-nev">NEV (dry)</span>"Act professional. Both of us."</p>
+<p><span class="who w-haru">HARU (turn — her last request)</span>"One thing. Don't tell them about Aichi. About the boy. Let her think she's my first. …Every child deserves to be somebody's first."</p>
+<p><span class="who w-nev">NEV (quiet)</span>"Your secret's in the file, Haru. Safe with me."</p>
+<p><span class="who w-nev">NEV (to camera — THE CTA, whole and unhurried)</span>"Every car on this lot has a story like hers. First lives, paused — waiting for a second one. Come walk the rows. Or PM us… and I'll introduce you personally."</p>
+<p><span class="who w-sfx">SFX</span>behind his last word: a NEW car's soft light-pulse hum → season 2 hook</p>
+<p><span class="who w-card">CARD (66–75s)</span>MIDNIGHT LOT · EVERY CAR HAS A STORY · <b>PM US</b></p>
+<p><span class="who w-card">CARD (73–75s)</span>NEXT WEEK: THE CAR WHISPERER</p></div>
+<p class="note">CTA is spoken COMPLETE with silence after (our L180 rule — the ask is never trimmed).
+The finale converts a week of feeling into a showroom visit; the last shot seeds Week 2.</p></div></div>
+
+<!-- ============================ PRODUCTION ============================ -->
+<h2>Voice & sound design</h2>
+<div class="card"><table>
+<tr><th>Element</th><th>Spec</th></tr>
+<tr><td><b>HARU (VO)</b></td><td class="note">AI voice: warm female, light Japanese accent on Malay/English mix,
+slightly filtered + subtle cabin reverb so she sounds like she's INSIDE the car. Never lip-sync — her
+"speech" is DRL light pulses (cheap, reliable, ownable visual signature).</td></tr>
+<tr><td><b>NEV (VO + on-cam)</b></td><td class="note">Existing persona voice. On camera max 2 shots per episode
+(identity refs locked, facecheck on every seam — our standing pipeline).</td></tr>
+<tr><td><b>BGM</b></td><td class="note">From our measured library: <code>cold nights</code> (110 BPM) for night/emotional,
+<code>Neon Fire chill</code> (98 BPM) for warmth/finale. Bed ducks −8dB under every voice line (measured standard).</td></tr>
+<tr><td><b>Hero SFX</b></td><td class="note">The door-slap (E2→E6→E7 callback), rain on metal (E6), the padlock (E1),
+container doors (E3/E4). One hero sound per episode, never a whoosh layer.</td></tr>
+</table></div>
+
+<h2>Full credit budget — measured model, not a guess</h2>
+<div class="card"><table>
+<tr><th>Item</th><th>Detail</th><th>Credits</th></tr>
+<tr><td>Identity & location plates (one-time)</td><td class="note">HARU night/day/interior · JP house · boy child/teen · father · MY family & girl · auction yard/lane · ship deck · Port Klang · lot day — 13 × nano_banana 4k @4cr</td><td>52</td></tr>
+<tr><td>Episode clips — E1</td><td class="note">6 clips × 22.5 (probe first, judged, then batch)</td><td>135.0</td></tr>
+<tr><td>E2</td><td class="note">6 clips</td><td>135.0</td></tr>
+<tr><td>E3</td><td class="note">7 clips</td><td>157.5</td></tr>
+<tr><td>E4</td><td class="note">6 clips</td><td>135.0</td></tr>
+<tr><td>E5 (the twist)</td><td class="note">7 clips</td><td>157.5</td></tr>
+<tr><td>E6</td><td class="note">6 clips</td><td>135.0</td></tr>
+<tr><td>E7 (finale)</td><td class="note">7 clips</td><td>157.5</td></tr>
+<tr><td>Retake contingency</td><td class="note">10% of clip budget (measured: ~1 in 10 generations needs a re-roll)</td><td>~101</td></tr>
+<tr><td>VO (Haru + Nev), BGM, cards, mix</td><td class="note">external TTS + our owned music library + pipeline — no generation credits</td><td>0</td></tr>
+<tr><td><b>WEEK 1 TOTAL</b></td><td class="note"><b>45 planned clips · ~7.5 min of drama · 7 posts</b></td><td><b>≈ 1,165 cr</b></td></tr>
+<tr><td>Already invested</td><td class="note">9 pitch keyframes on this page (they become the production style refs)</td><td>36 ✓ spent</td></tr>
+</table>
+<p class="note" style="margin:10px 0 0"><b>⚠ BUDGET FLAG (measured 2026-08-24): balance is 726.01 cr.</b>
+Week 1 as designed needs ≈1,165 cr — a top-up of ≈500 cr is required before Ep 1 generation, or the week
+slims to 5 episodes (≈810 cr) by merging E2+E3 and E6+E7. Decision belongs to the boss; the pipeline blocks
+generation if the preflight exceeds balance.</p>
+<p class="note" style="margin:8px 0 0">Every episode passes the full gate chain before posting: planqc (49 checks)
+→ storyboard + board QC → per-clip judgement → build → verify (22 checks) → predeliver (3 tiers). Every clip
+prompt above ships with its negative control; identity is enforced by plates + facecheck on every seam.</p></div>
+<h2>What we measure (so the month picks the winner)</h2>
+<div class="card"><table>
+<tr><th>Metric</th><th>Why it decides</th></tr>
+<tr><td>3-second retention per episode</td><td>the hook, objectively</td></tr>
+<tr><td>Completion rate + Ep1→Ep7 follower delta</td><td>does serialization actually bind?</td></tr>
+<tr><td>Comment sentiment on E6 ("buy her!" energy)</td><td>emotional engagement = the format's engine</td></tr>
+<tr><td>PMs mentioning the series / Haru's real listing clicks</td><td>drama → showroom conversion, the only number the boss truly needs</td></tr>
+</table>
+<p class="note" style="margin:10px 0 0">Same 4 metrics for Weeks 2–4. Best week becomes the flagship series;
+the others become monthly segments.</p></div>
+
+<div class="card" style="border-color:rgba(75,184,122,.4)">
+<p class="big" style="margin:0"><b>The one-line pitch:</b> Douyin's biggest AI drama proved one person + AI can
+run a franchise. The viral W212 film proved a car's memory makes people cry. MIDNIGHT LOT does both —
+<i>with our own inventory as the cast.</i> The hero of every episode is a car we can actually sell,
+and the finale's CTA is a real handover. Drama that liquidates stock.</p></div>
+
+</div></body></html>
